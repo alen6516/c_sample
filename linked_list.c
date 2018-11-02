@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 struct node {
     int data;
@@ -18,8 +19,9 @@ typedef struct node Node;
 
 Node *createNode(int);
 void show(Node *);
-void showReverse(Node *);
+void reverseShow(Node *);
 int len(Node *);
+int pop(Node *);
 
 /* add node */
 Node* addHead(Node *, int);
@@ -32,6 +34,7 @@ void delNext(Node *);
 void delTail(Node *);
 
 void reverse(Node **, Node *, Node *);
+Node* reverse2(Node *);
 
 int main() {
     Node *head = createNode(1);
@@ -39,7 +42,7 @@ int main() {
     head->next->next = createNode(3);
     show(head);
     printf("len is %d\n", len(head));
-    showReverse(head);
+    reverseShow(head);
 
     head = addHead(head, 4);
     show(head);
@@ -65,7 +68,11 @@ int main() {
     show(head);
     printf("\n");
     
-    reverse(&head, head, head->next);
+    head = reverse2(head);
+    show(head);
+    printf("\n");
+    
+    printf("pop out %d\n", pop(head));
     show(head);
     printf("\n");
 }
@@ -87,12 +94,12 @@ void show(Node *head) {
     }
 }
 
-void showReverse(Node *tmp) {
-    if(tmp->next) {
-        showReverse(tmp->next);
-        printf("%d\n", tmp->data);
+void reverseShow(Node *node) {
+    if(node->next) {
+        reverseShow(node->next);
+        printf("%d\n", node->data);
     } else {
-        printf("%d\n", tmp->data);
+        printf("%d\n", node->data);
     }
 }
 
@@ -100,6 +107,27 @@ int len(Node *node) {
     int i = 0;
     for(; node; i++, node=node->next);
     return i;
+}
+
+int pop(Node *curr) {
+    assert(curr);
+
+    int rt = 0;
+    if(!curr->next) {
+        rt = curr->data;
+        free(curr);
+        return rt;
+    }
+
+    Node *currNext = curr->next;
+    while(currNext->next) {
+        curr = currNext;
+        currNext = curr->next;
+    }
+    rt = currNext->data;
+    free(currNext);
+    curr->next = NULL;
+    return rt;
 }
 
 int indexOf(Node *node, int val) {
@@ -127,7 +155,6 @@ void addTail(Node *node, int val) {
     }
     Node *newNode = createNode(val);
     node->next = newNode;
-
 }
 
 Node* delHead(Node *head) {
@@ -153,15 +180,26 @@ void delTail(Node *node) {
     free(tmp);
 }
 
-void reverse(Node **head, Node *curr, Node *next_) {
-    if(!next_) {
+void reverse(Node **head, Node *curr, Node *currNext) {
+    if(!currNext) {
         return;
     }
-    if(next_->next) {
-        reverse(head, next_, next_->next);
+    if(currNext->next) {
+        reverse(head, currNext, currNext->next);
     } else {
-        *head = next_;
+        *head = currNext;
     }
-    next_->next = curr;
+    currNext->next = curr;
     curr->next = NULL;
+}
+
+Node* reverse2(Node *node) {
+    if(node->next) {
+        Node* newHead = reverse2(node->next);
+        node->next->next = node;
+        node->next = NULL;
+        return newHead;
+    } else {
+        return node;
+    }
 }
