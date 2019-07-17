@@ -8,25 +8,32 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 //gcc 5.4.0
 
 #define LEN 5
 
+typedef struct node {
+    int val;
+} n_t;
+
+
 typedef struct queue {
-    int queue[LEN];
+    void* queue[LEN];
     bool full;
     
     // boundary of the ring queue
-    int *a;
-    int *z;
+    void **a;
+    void **z;
 
     // current index position
-    int *head, *tail;
+    void **head, **tail;
 } q_t;
 
 
 q_t* init() {
     q_t *q = (q_t *)malloc(sizeof(q_t));
+    bzero(q->queue, sizeof(int*)*LEN);
     q->full = 0;
     q->a = &(q->queue[0]);
     q->z = &(q->queue[LEN-1]);
@@ -37,14 +44,14 @@ q_t* init() {
     return q;
 }
 
-void* push (q_t *q, int val) {
+void* push (q_t *q, void *val) {
 
     // if queue is full
     if (q->full) {
         printf("full\n");
         return NULL;
     }
-    
+   
     *(q->tail) = val;
 
 
@@ -57,19 +64,18 @@ void* push (q_t *q, int val) {
     if (q->tail == q->head)
         q->full = true;
 
-    return (void*)q->tail;
+    return q->tail;
 }
 
 
-int pop (q_t *q) {
+void* pop (q_t *q) {
 
     if (q->head == q->tail && !q->full ) {
         printf("empty\n");
-        return -1;
+        return NULL;
     }
     
-    int ret = *(q->head);
-
+    void* ret = *(q->head);
 
     // move index before check if over bound
     if ((q->head)+1 > (q->z) )
@@ -86,8 +92,22 @@ int pop (q_t *q) {
 void show(q_t *q) {
 
     printf("------------\n");
+    
+    n_t *tmp;
+    
     for (int i=0; i<LEN; i++) {
-        printf("q %d is %d at %p  ", i, *((q->a)+i), (q->a)+i);
+        tmp = (n_t*)*((q->a)+i);
+
+        if (tmp) {
+
+            // if there is n_t at this position, print its value
+            printf("q %d is %d at %p  ", i, ((n_t*)*((q->a)+i))->val, (q->a)+i);
+        
+        } else {
+            
+            // if no object at this position, simply print NUL 
+            printf("q %d is NULL at %p  ", i, (q->a)+i);
+        }
 
         if ((q->a)+i == q->head) {
             printf("h");
@@ -115,7 +135,9 @@ int main () {
         if (op == 1) {
             printf("give val: ");
             scanf("%d", &input);
-            push(q, input);
+            n_t *n = (n_t*) malloc(sizeof(n_t));
+            n->val = input;
+            push(q, (void *) n);
         } else {
             pop(q);
         }
@@ -124,6 +146,4 @@ int main () {
         show(q);
         
     }
-
-
 }
