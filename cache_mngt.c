@@ -40,7 +40,7 @@ void* umalloc();
 void ufree(void*);
 void* send_pkt(int);
 
-void DEBUG(const char* func_name, const char *msg) {
+void debug_(const char* func_name, const char *msg) {
     #ifdef DEBUG
         printf("In %10s, msg: %s\n", func_name, msg);
     #else
@@ -110,7 +110,10 @@ void* work_fun_time(void* id_) {
 
 
     int *id = (int*) id_;
-    printf("thread id %d start\n", *id);
+
+    char s[20];
+    sprintf(s, "thread id %d start\n", *id);
+    debug_(__func__, s);
 
     struct timeval time_start;
     struct timeval time_end;
@@ -146,7 +149,9 @@ void* work_fun_clock(void* id_) {
 
 
     int *id = (int*) id_;
-    printf("thread id %d start\n", *id);
+    char s[20];
+    sprintf(s, "thread id %d start\n", *id);
+    debug_(__func__, s);
 
 
     clock_t clock_start;
@@ -223,7 +228,11 @@ void tstp_handler() {
     clock_interval = thread_num * CLOCKS_PER_SEC/pps;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    if (argc > 1) {
+        pps = atoi(argv[1]);
+    }
 
     signal(SIGINT, int_handler);
     signal(SIGTSTP, tstp_handler);
@@ -245,7 +254,7 @@ int main() {
         id[i] = i;
 
         //printf("in main id = %d\n", id[i]);
-        pthread_create(&work_thread[i], NULL, work_fun_time, (void*) &id[i]);
+        pthread_create(&work_thread[i], NULL, work_fun_clock, (void*) &id[i]);
         
     }
 
