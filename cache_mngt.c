@@ -14,17 +14,21 @@
 #include <sys/time.h>
 
 #define chunk_size 2*1024
-#define thread_num 1 
+#define thread_num 2 
 #define chunk_num 5
 
 #define MAX_pps 100000
 
 // if chunk is occupied, change to true
 bool ocupy[chunk_num] = { false };
+
+// how many chunks have been occupied
 int ocupy_num = 0;
+
+// pool
 int pool[chunk_num * chunk_size];
 
-
+// counter for pkt per thread
 unsigned long pkt_count[thread_num] = {0};
 unsigned long pps = 100;
 bool run = true;
@@ -102,26 +106,30 @@ void ufree(void *chunk_addr) {
 }
 
 
-void* work_fun(int id) {
+void* work_fun(void* id_) {
+
+    int *id = (int*) id_;
 
     struct timeval time_start;
     struct timeval time_end;
 
 
-    time_start = gettimeofday();
-
     unsigned long tmp_interval;
 
+
+    gettimeofday(&time_start, NULL);
+
     while (run) {
-        time_end = gettimeofday();
+        gettimeofday(&time_end, NULL);
     
         tmp_interval = 1000000*(time_start.tv_sec - time_end.tv_sec) + time_start.tv_usec - time_end.tv_usec;    
 
         if (tmp_interval < time_interval) {
+            usleep(100);
             continue;
         } else {
-            send_pkt(id);
-            time_start = gettimeofday();
+            send_pkt(*id);
+            gettimeofday(&time_start, NULL);
         }
     
     }
@@ -177,8 +185,11 @@ int main() {
     signal(SIGINT, int_handler);
     signal(SIGTSTP, tstp_handler);
 
-    pthread_t word_thread[thread_num];
 
+    time_interval = thread_num * 1000000/pps;
+
+
+    pthread_t work_thread[thread_num];
     pthread_t report_thread;
 
 
@@ -187,7 +198,7 @@ int main() {
 
     for (int id = 0; id < thread_num; id++) {
         
-        pthread_create(&word_thread[id], NULL, work_fun, id);
+        pthread_create(&work_thread[id], NULL, work_fun, (void*) &id);
         
     }
 
