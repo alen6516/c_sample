@@ -29,7 +29,7 @@ int ocupy_num = 0;
 char pool[chunk_num * chunk_size];
 
 // counter for pkt per thread
-unsigned long pkt_count[thread_num] = {0};
+//unsigned long pkt_count[thread_num] = {0};
 unsigned long pps = 1000;
 bool run = true;
 unsigned long time_interval = 0;
@@ -48,6 +48,16 @@ void debug_(const char* func_name, const char *msg) {
     #endif
 }
 
+
+typedef struct {
+    unsigned long count;
+    char padding[56];
+} count_t;
+
+
+count_t pkt_count[thread_num];
+
+
 void* send_pkt(int id) {
     
     char *my_chunk = (char*)umalloc();
@@ -55,7 +65,8 @@ void* send_pkt(int id) {
     //int index = (my_chunk-pool)/chunk_size;
 
     //printf("thread id %d get index %d chunk\n", id, index);
-    pkt_count[id]++;
+    //pkt_count[id]++;
+    pkt_count[id].count++;
 
     ufree((void*) my_chunk);
     //printf("thread id %d return index %d\n", id, index);
@@ -115,6 +126,11 @@ void* work_fun_time(void* id_) {
     sprintf(s, "thread id %d start\n", *id);
     debug_(__func__, s);
 
+
+    //init pkt_count
+    pkt_count[*id].count = 0;
+
+
     struct timeval time_start;
     struct timeval time_end;
     unsigned long tmp_time_interval;
@@ -152,6 +168,10 @@ void* work_fun_clock(void* id_) {
     char s[20];
     sprintf(s, "thread id %d start\n", *id);
     debug_(__func__, s);
+
+
+    //init pkt_count
+    pkt_count[*id].count = 0;
 
 
     clock_t clock_start;
