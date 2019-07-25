@@ -14,7 +14,7 @@
 
 /* function gloabl */
 #define chunk_size (2*1024)
-#define chunk_num 5
+#define chunk_num 10
 bool ocupy[chunk_num] = { false };  // if chunk is occupied, change to true
 int ocupy_num = 0;                  // how many chunks have been occupied
 char pool[chunk_num * chunk_size];  // pool
