@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct {
+    int member;
+} item;
+
 int main() {
 
     char s[10];
@@ -16,6 +20,9 @@ int main() {
 
     printf("%s\n", s);
 
+
+    item *t;
+    t->member;
 }
 
 
