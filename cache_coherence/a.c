@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include "rdtsc.h"
 
-#define COUNT 1000000
+#define COUNT 1000000000
 
 
 typedef struct {
