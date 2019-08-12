@@ -2,9 +2,7 @@
 #define VECTOR_H
 
 
-#define VECTOR_INIT CAPACITY 4
-
-
+#define VECTOR_INIT_CAPACITY 4
 
 
 typedef struct vector {

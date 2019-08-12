@@ -4,18 +4,19 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-CC	Makefile	/^CC=gcc$/;"	m
-CFLAGS	Makefile	/^CFLAGS=$/;"	m
-OUT	Makefile	/^OUT=vector$/;"	m
-RM	Makefile	/^RM=\/bin\/rm -rf$/;"	m
 VECTOR_H	vector.h	2;"	d
-VECTOR_INIT	vector.h	5;"	d
+VECTOR_INIT_CAPACITY	vector.h	5;"	d
 capacity	vector.h	/^    int capacity;$/;"	m	struct:vector
 items	vector.h	/^    void **items;$/;"	m	struct:vector
+main	test.c	/^int main () {$/;"	f
 total	vector.h	/^    int total;$/;"	m	struct:vector
 vector	vector.h	/^typedef struct vector {$/;"	s
 vector	vector.h	/^} vector;$/;"	t	typeref:struct:vector
 vector_add	vector.c	/^void vector_add(vector *v, void *item) {$/;"	f
+vector_delete	vector.c	/^void vector_delete(vector *v, int index) {$/;"	f
+vector_free	vector.c	/^void vector_free(vector *v) {$/;"	f
+vector_get	vector.c	/^void *vector_get(vector *v, int index) {$/;"	f
 vector_init	vector.c	/^void vector_init(vector *v) {$/;"	f
 vector_resize	vector.c	/^static void vector_resize(vector *v, int capacity) {$/;"	f	file:
+vector_set	vector.c	/^void vector_set(vector *v, int index, void *item) {$/;"	f
 vector_total	vector.c	/^int vector_total(vector *v) {$/;"	f
