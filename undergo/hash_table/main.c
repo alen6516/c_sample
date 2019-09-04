@@ -3,8 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define SIZE 20
-
+#define SIZE 31
 
 struct node_t {
     int key;
@@ -20,30 +19,36 @@ struct node_t* node;
 
 int get_key();
 void insert();
-struct node_t* search();
-void delete();
+//struct node_t* search();
+//void delete();
 
 
 int _get_key(char *s) {
     int ret = 0;
-    for (int i=0; i<strlen(s); i++) {
-        (*(s+i))
+    int len = strlen(s);
+    for (int i=0; i<len; i++) {
+        //ret += ( (*(s+i))<<(len-1-i) );
+        ret += ( *(s+i) << i );
     }
+    printf("code = %d\n", ret);
+    return ret;
 }
 
 int get_key(char *s) {
     
-    
-
-
-    return key % SIZE;
+    int key = _get_key(s);
+    return key;
 }
 
 
 struct note_t* search(int key) {
+    return NULL;
+}
 
-    int hashIndex = get_key(key);
 
-
+int main () {
+    
+    char s[] = "abc";
+    get_key(s);
 
 }
