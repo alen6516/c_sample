@@ -20,7 +20,6 @@ char * convert(char * s, int numRows) {
         step1 = (numRows - lay - 1) * 2;
         step2 = lay*2;
 
-
         
         ret[i++] = *(s+start_off);
         tmp_offset += start_off;
@@ -45,13 +44,8 @@ char * convert(char * s, int numRows) {
 
                 ret[i++] = *(s+tmp_offset);
             }
-            
-        
         }
-
-        
     }
-
 }
 
 
