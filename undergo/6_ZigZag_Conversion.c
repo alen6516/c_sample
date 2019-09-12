@@ -1,18 +1,29 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 #include <string.h>
+
+
+/*
+ * Runtime: 0 ms, faster than 100.00% of C online submissions for ZigZag Conversion.
+ * Memory Usage: 7.7 MB, less than 100.00% of C online submissions for ZigZag Conversion.
+ */
 
 
 char * convert(char * s, int numRows) {
 
-    int len = strlen(s);
-    char ret[len];
-    
-    int start_off;
-    int step1;
-    int step2;
+    if (numRows == 1 || strlen(s) == 1 || strlen(s) == 2 || strlen(s) <= numRows)
+        return s;
 
-    int tmp_offset;
+
+    int len = strlen(s);
+
+    char* ret = (char*) malloc(sizeof(char)*len+1);
+
+    
+    int start_off;          // offset of the first alphabat of this layer
+    int step1, step2;       // 2 kinds of offset
+
+    int tmp_offset;         // count total offset of the following alphabat
     int i=0;
     for (int lay=0; lay < numRows; lay++) {
         
@@ -43,21 +54,19 @@ char * convert(char * s, int numRows) {
             }
         }
     }
-    printf("before: %s\nafter : %s\n", s, ret);
-    return NULL;
+    ret[i] = '\0';
+    return ret;
 }
 
 
 
 int main() {
 
-    char s[] = "PAYPALISHIRING";
-    convert(s, 3);
-    printf("expect: %s\n", "PAHNAPLSIIGYIR");
 
 
-    char s1[] = "PAYPALISHIRING";
-    convert(s1, 4);
-    printf("expect: %s\n", "PINALSIGYAHRPI");
+    char s1[] = "ABC";
+    printf("before: %s\n", s1);
+    printf("after : %s\n", convert(s1, 4));
+    printf("expect: %s\n\n", "PINALSIGYAHRPI");
 
 }
