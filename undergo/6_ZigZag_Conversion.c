@@ -14,7 +14,7 @@ char * convert(char * s, int numRows) {
 
     int tmp_offset=0;
     int i=0;
-    for (int lay=0, lay < numRows; lay++) {
+    for (int lay=0; lay < numRows; lay++) {
         
         start_off = lay;
         step1 = (numRows - lay - 1) * 2;
@@ -25,9 +25,8 @@ char * convert(char * s, int numRows) {
         tmp_offset += start_off;
 
         while (1) {
-            if (step1 == 0)
-            {;}
-            else {
+
+            if (step1) {
                 tmp_offset += step1;
                 if (tmp_offset >= len)
                     break;
@@ -35,9 +34,7 @@ char * convert(char * s, int numRows) {
                 ret[i++] = *(s+tmp_offset);
             }
 
-            if (step2 == 0)
-            {;}
-            else {
+            if (step2) {
                 tmp_offset += step2;
                 if (tmp_offset >= len)
                     break;
@@ -46,6 +43,8 @@ char * convert(char * s, int numRows) {
             }
         }
     }
+    printf("before: %s\nafter : %s\n", s, ret);
+    return NULL;
 }
 
 
