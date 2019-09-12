@@ -12,7 +12,7 @@ char * convert(char * s, int numRows) {
     int step1;
     int step2;
 
-    int tmp_offset=0;
+    int tmp_offset;
     int i=0;
     for (int lay=0; lay < numRows; lay++) {
         
@@ -22,7 +22,7 @@ char * convert(char * s, int numRows) {
 
         
         ret[i++] = *(s+start_off);
-        tmp_offset += start_off;
+        tmp_offset = start_off;
 
         while (1) {
 
@@ -52,7 +52,12 @@ char * convert(char * s, int numRows) {
 int main() {
 
     char s[] = "PAYPALISHIRING";
+    convert(s, 3);
+    printf("expect: %s\n", "PAHNAPLSIIGYIR");
 
-    convert(s, 4);
+
+    char s1[] = "PAYPALISHIRING";
+    convert(s1, 4);
+    printf("expect: %s\n", "PINALSIGYAHRPI");
 
 }
