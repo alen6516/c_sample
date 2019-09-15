@@ -36,10 +36,13 @@ int myAtoi(char * s) {
         ret = ret * 10 + (s[i] - '0');
         
     }
-    return ret;
+    return (sign == 0) ? 0-ret : ret;
 }
 
 int main () {
 
-
+    char s[] = "  5487aabb";
+    printf("input : %s\n", s);
+    printf("result: %d\n", myAtoi(s));
+    printf("expect: %d\n", 5487);
 }
