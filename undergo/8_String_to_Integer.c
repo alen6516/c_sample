@@ -1,3 +1,8 @@
+/*
+ * Runtime: 4 ms, faster than 65.31% of C online submissions for String to Integer (atoi).
+ * Memory Usage: 7 MB, less than 42.86% of C online submissions for String to Integer (atoi).
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
