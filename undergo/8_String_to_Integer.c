@@ -9,6 +9,9 @@ int myAtoi(char * s) {
     char is_positive = -1;      // -1 for uninit, 0 for -, 1 for +
     int tmp_ret, ret = 0;
 
+
+    int gain = 0;
+
     for (int i=0; i<len; i++) {
 
         if (is_positive == -1) {
@@ -30,31 +33,35 @@ int myAtoi(char * s) {
             } else {
                 return 0;
             }
+
         } 
         if ( !(s[i] >= '0' && s[i] <= '9') )
             break;
 
 
-        tmp_ret = ret;
-        ret *= 10;
-        ret += (is_positive) ? (s[i] - '0'): 0-(s[i]-'0');
+        if (is_positive) {
+
+            if ( (INT_MAX/10 >= ret) && 
+                 (INT_MAX - (s[i]-'0') >= ret*10 ) ) {
+                ret = ret*10 + (s[i]-'0');
+            } else return 0;
 
 
-        // check if overflow
-        if (  (is_positive && ret < tmp_ret)  ||  
-              (!is_positive && ret > tmp_ret)) {
-            
-            return 0;
+        } else {
+
+            if ( (INT_MIN/10 <= ret) && 
+                 (INT_MIN + (s[i]-'0') <= ret*10 ) ) {
+                ret = ret*10 - (s[i]-'0');
+            } else return 0;
         }
-        
     }
     return ret;
 }
 
 int main () {
 
-    char s[] = " -5487aabb";
+    char s[] = "42";
     printf("input : %s\n", s);
     printf("result: %d\n", myAtoi(s));
-    printf("expect: %d\n", 5487);
+    printf("expect: %d\n", 42);
 }
