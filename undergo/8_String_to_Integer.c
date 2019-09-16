@@ -7,10 +7,7 @@ int myAtoi(char * s) {
 
     int len = strlen(s);
     char is_positive = -1;      // -1 for uninit, 0 for -, 1 for +
-    int tmp_ret, ret = 0;
-
-
-    int gain = 0;
+    int ret = 0;
 
     for (int i=0; i<len; i++) {
 
@@ -44,7 +41,7 @@ int myAtoi(char * s) {
             if ( (INT_MAX/10 >= ret) && 
                  (INT_MAX - (s[i]-'0') >= ret*10 ) ) {
                 ret = ret*10 + (s[i]-'0');
-            } else return 0;
+            } else return INT_MAX;
 
 
         } else {
@@ -52,7 +49,7 @@ int myAtoi(char * s) {
             if ( (INT_MIN/10 <= ret) && 
                  (INT_MIN + (s[i]-'0') <= ret*10 ) ) {
                 ret = ret*10 - (s[i]-'0');
-            } else return 0;
+            } else return INT_MIN;
         }
     }
     return ret;
@@ -60,8 +57,11 @@ int myAtoi(char * s) {
 
 int main () {
 
-    char s[] = "42";
+    char s[] = "2147483648";
     printf("input : %s\n", s);
     printf("result: %d\n", myAtoi(s));
-    printf("expect: %d\n", 42);
+
+    char s1[] = "-2147483649";
+    printf("input : %s\n", s1);
+    printf("result: %d\n", myAtoi(s1));
 }
