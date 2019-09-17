@@ -5,7 +5,7 @@
 
 #include "util.h"
 
-#define DEBUG 1
+char DEBUG = 1;
 char debug_buff[50];
 
 #define SIZE 31
@@ -19,16 +19,17 @@ struct node_t {
 
 
 struct node_t* hashArray[SIZE] = { NULL };
-struct node_t* dummyNode;
-struct node_t* node;
+//struct node_t* dummyNode;
+//struct node_t* node;
 
 
 int get_key();
 void insert();
-//struct node_t* search();
+struct node_t* search();
 //void delete();
 
 
+// get hash code
 int get_code(char *s) {
     int ret = 0;
     int len = strlen(s);
@@ -37,17 +38,16 @@ int get_code(char *s) {
         ret += ( *(s+i) << i );
     }
 
-    
     sprintf(debug_buff, "code = %d\n", ret);
     /**_debug(__func__, debug_buff);*/
-    printf("%s: %s", __func__, debug_buff);
+    /**printf("%s: %s", __func__, debug_buff);*/
     return ret;
 }
 
-int get_key(int code) {
-    
-    return code % SIZE;
 
+// get table key
+int get_key(int code) {
+    return code % SIZE;
 }
 
 
@@ -61,7 +61,7 @@ void insert(char *val) {
 
 
     int this_key = get_key(node->code);
-    node_t* this_node = hashArray[this_key];
+    struct node_t* this_node = hashArray[this_key];
 
     if (this_node) {
         
@@ -70,7 +70,6 @@ void insert(char *val) {
         hashArray[this_key] = node;
     
     } else {
-    
         hashArray[this_key] = node;
     }
 
@@ -82,7 +81,7 @@ struct node_t* search(char* val) {
     int this_code = get_code(val);
     int this_key = get_key(this_code);
 
-    node_t* this_node = hashArray[this_key];
+    struct node_t* this_node = hashArray[this_key];
 
     while (this_node->search_next) {
 
@@ -99,10 +98,32 @@ struct node_t* search(char* val) {
     return NULL;
 }
 
+void dump() {
+    for (int i=0; i<SIZE; i++) {
+    
+        printf("idx = %3d\t", i);
+
+        struct node_t *curr = hashArray[i];
+        while (curr) {
+            printf("%s", curr->val);
+            curr = curr->search_next;
+            if (curr)
+                printf(" ==> ");
+        }
+        printf("\n");
+    }
+}
+
 
 int main () {
     
-    char s[] = "abc";
-    insert(s);
+    /**char s[] = "abc";*/
+    /**insert(s);*/
+    /**dump();*/
+    
+    char *s1[] = {"abc", "3123", "eswfe", "dewd2", "dew", "12", "a", "i have an apple", "I have an apple"};
+    for (int i=0; i<9; i++)
+        insert(s1[i]);
+    dump();
 
 }
