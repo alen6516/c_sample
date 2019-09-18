@@ -5,7 +5,10 @@
 
 #include "util.h"
 
-char DEBUG = 1;
+/**char DEBUG = 1;*/
+
+#define DEBUG 1
+
 char debug_buff[50];
 
 #define SIZE 31
@@ -39,7 +42,7 @@ int get_code(char *s) {
     }
 
     sprintf(debug_buff, "code = %d\n", ret);
-    /**_debug(__func__, debug_buff);*/
+    _debug(__func__, debug_buff);
     /**printf("%s: %s", __func__, debug_buff);*/
     return ret;
 }
@@ -121,8 +124,8 @@ int main () {
     /**insert(s);*/
     /**dump();*/
     
-    char *s1[] = {"abc", "3123", "eswfe", "dewd2", "dew", "12", "a", "i have an apple", "I have an apple"};
-    for (int i=0; i<9; i++)
+    char *s1[] = {"12dw", "ew ew", "abc", "3123", "eswfe", "dewd2", "dew", "12", "a", "i have an apple", "I have an apple"};
+    for (int i=0; i<sizeof(s1)/sizeof(char*); i++)
         insert(s1[i]);
     dump();
 
