@@ -9,34 +9,31 @@ int maxArea(int* height, int heightSize){
 
     int left_side = 0;
     int right_side = heightSize-1;
-    int curr_max_area = (heightSize-1) * MIN(height[left_side], height[right_side]);
+    int ret = (heightSize-1) * MIN(height[left_side], height[right_side]);
 
 
-    int curr_area;
     for (int i=2; i<heightSize; i++) {
         
         if (height[left_side] > height[right_side]) {
             right_side --;
-            printf("now right_side is %d\n", height[right_side]);
+            //printf("now right_side is %d\n", height[right_side]);
 
         } else {
             left_side ++;
-            printf("now left_side is %d\n", height[left_side]);
+            //printf("now left_side is %d\n", height[left_side]);
 
         }
 
         if (right_side == left_side)
             break;
 
-        curr_area = (heightSize-i) * MIN(height[left_side], height[right_side]);
-        printf("this area is %d * %d = %d\n", heightSize-i, MIN(height[left_side], height[right_side]), curr_area);
+        //curr_area = (heightSize-i) * MIN(height[left_side], height[right_side]);
+        //printf("this area is %d * %d = %d\n", heightSize-i, MIN(height[left_side], height[right_side]), curr_area);
 
-        if (curr_area > curr_max_area) {
-            curr_max_area = curr_area;
-        }
+        ret = ( (heightSize-i) * MIN(height[left_side], height[right_side]) > ret ) ? (heightSize-i) * MIN(height[left_side], height[right_side]) : ret;
     }
 
-    return curr_max_area;
+    return ret;
 }
 
 int main () {
