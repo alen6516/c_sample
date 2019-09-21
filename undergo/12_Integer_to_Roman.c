@@ -1,111 +1,108 @@
+/*
+ * Runtime: 4 ms, faster than 85.96% of C online submissions for Integer to Roman.
+ * Memory Usage: 7 MB, less than 80.00% of C online submissions for Integer to Roman.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-
-
 char * intToRoman(int num) {
 
-
     char ret[50];
-    int curr_pos = 0;
-
-    int remain = num;
+    int curr_len = 0;
     int curr = 0;
 
-
-
     // 1000
-    if ( (curr = remain / 1000) ) {
+    if ( (curr = num / 1000) ) {
     
         for (int i=0; i<curr; i++) {
-            ret[curr_pos++] = 'M';
+            ret[curr_len++] = 'M';
         }
-        remain %= 1000;
+        num %= 1000;
     }
     
 
     // 100
-    if ( (curr = remain / 100) ) {
+    if ( (curr = num / 100) ) {
     
         if (curr < 4) {
             for (int i=0; i<curr; i++) {
-                ret[curr_pos++] = 'C';
+                ret[curr_len++] = 'C';
             }
 
         } else if (curr == 4) {
-            ret[curr_pos++] = 'C';
-            ret[curr_pos++] = 'D';
+            ret[curr_len++] = 'C';
+            ret[curr_len++] = 'D';
 
         } else if (curr < 9) {
-            ret[curr_pos++] = 'D';
+            ret[curr_len++] = 'D';
             for (int i=5; i<curr; i++) {
-                ret[curr_pos++] = 'C';
+                ret[curr_len++] = 'C';
             }
         } else if (curr == 9) {
-            ret[curr_pos++] = 'C';
-            ret[curr_pos++] = 'M';
+            ret[curr_len++] = 'C';
+            ret[curr_len++] = 'M';
         }
-        remain %= 100;
+        num %= 100;
     }
 
     // 10
-    if ( (curr = remain / 10) ) {
+    if ( (curr = num / 10) ) {
     
         if (curr < 4) {
             for (int i=0; i<curr; i++) {
-                ret[curr_pos++] = 'X';
+                ret[curr_len++] = 'X';
             }
 
         } else if (curr == 4) {
-            ret[curr_pos++] = 'X';
-            ret[curr_pos++] = 'L';
+            ret[curr_len++] = 'X';
+            ret[curr_len++] = 'L';
 
         } else if (curr < 9) {
-            ret[curr_pos++] = 'L';
+            ret[curr_len++] = 'L';
             for (int i=5; i<curr; i++) {
-                ret[curr_pos++] = 'X';
+                ret[curr_len++] = 'X';
             }
         } else if (curr == 9) {
-            ret[curr_pos++] = 'X';
-            ret[curr_pos++] = 'C';
+            ret[curr_len++] = 'X';
+            ret[curr_len++] = 'C';
         }
-        remain %= 10;
+        num %= 10;
     }
 
 
     // 1
-    if ( (curr = remain) ) {
+    if ( (curr = num) ) {
     
         if (curr < 4) {
             for (int i=0; i<curr; i++) {
-                ret[curr_pos++] = 'I';
+                ret[curr_len++] = 'I';
             }
 
         } else if (curr == 4) {
-            ret[curr_pos++] = 'I';
-            ret[curr_pos++] = 'V';
+            ret[curr_len++] = 'I';
+            ret[curr_len++] = 'V';
 
         } else if (curr < 9) {
-            ret[curr_pos++] = 'V';
+            ret[curr_len++] = 'V';
             for (int i=5; i<curr; i++) {
-                ret[curr_pos++] = 'I';
+                ret[curr_len++] = 'I';
             }
         } else if (curr == 9) {
-            ret[curr_pos++] = 'I';
-            ret[curr_pos++] = 'X';
+            ret[curr_len++] = 'I';
+            ret[curr_len++] = 'X';
         }
     }
 
 
-    ret[curr_pos] = '\0';
-    char *q = (char*) malloc(sizeof(char)*strlen(ret)+1);
+    ret[curr_len] = '\0';
+    char *q = (char*) malloc(sizeof(char)*(curr_len+1));
     strcpy(q, ret);
-    q[curr_pos] = '\0';
     return q;
 }
 
 int main () {
-
+   printf("%s\n", intToRoman(1994) );
 
 }
