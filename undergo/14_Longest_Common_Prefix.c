@@ -1,48 +1,48 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 char * longestCommonPrefix(char ** strs, int strsSize) {
 
-    char ret[50];
-    int sum = 0;
-    int pos = 0;
-
-    for (; strs[0][pos] != '\0'; pos++) {
+    if (strsSize == 0 || strlen(strs[0]) == 0) {      
+        return "";
+    } else if (strsSize == 1) {
+        return strs[0];
+    }
     
-        for (int i=0; i<strsSize; i++) {
-        
-            sum += strs[i][pos];
-            
+    char ret[50];
+    int pos = 0;
+    int i;
+    int flag = 1;
+
+    while (flag) {
+        i = 0;
+        while (i < strsSize-1) {
+            if (strs[i][pos] != '\0' && strs[i+1][pos] != '\0' && strs[i][pos] == strs[i+1][pos]) {
+                continue;
+            } else {
+                flag = 0;
+                break;
+            }
         }
-        if ( (sum / strsSize) == strs[0][pos]) {
+        if (flag) {
             ret[pos] = strs[0][pos];
-        } else {
-            break;
+            pos++;
         }
     }
-    ret[pos] = '\0';
-    
-    size_t len = strlen(ret);
-    printf("len = %d\n", (int)len);
+
+    if (pos == 0)
+        return "";
+    else
+        ret[pos] = '\0';
 
     char *q;
-    if (len == 0) {
-        q = (char*) malloc(0);
-        return q;
-    } else {
-    
-        q = (char*) malloc (len+1);
-        strncpy(q, ret, len);
-        q[len] = '\0';
-        return q;
-    }
-
-
+    q = (char*) malloc (pos+1);
+    strcpy(q, ret);
+    return q;
 
 }
 
 int main () {
-    char *s[] = {"123", "12", "1234"};
-    printf("%s\n", longestCommonPrefix(s, 3));
 }
