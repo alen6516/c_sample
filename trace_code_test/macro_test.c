@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "enum_test.c"
+#include "enum_test.h"
 
 
 #define MACRO(input)    __function(input)
