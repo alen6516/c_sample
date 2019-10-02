@@ -10,25 +10,61 @@
 #include <unistd.h>         /* read(), write(), close() */
 
 
+#define DEBUG_MODE 1
+#include "util.h"
+#include "func.h"
+
+
 #define PORT 8787
-#define BUF_SIZE 1024
+#define BUF_SIZE 1024*2
 #define BACKLOG 10          // backlog argument for listen()
 
 
-void *handle_socket(void *_fd) {
-
+void *rece_http(void *_fd) {
 
     int fd = *(int*)_fd;
-    printf("receive a client, fd = %d\n", fd);
+    DEBUG("receive a client, fd = %d\n", fd);
     char buf[BUF_SIZE];
     bzero(buf, BUF_SIZE);
+    
+    read(fd, buf, BUF_SIZE);
+    DEBUG("%s", buf);
 
+    if (0 != parse_http(buf)) {
+        DEBUG("fail in parse http\n");
+    }
 
-    strncpy(buf, "hello clien\n", BUF_SIZE);
-    write(fd, buf, BUF_SIZE);
     close(fd);
     pthread_exit(NULL);
 }
+
+
+int parse_http(char* data) {
+    #define CRLF "\r\n"
+    
+    //struct http_hdr_t* http_hdr;
+    
+
+    // debug
+    
+    if (data[0] == '\r')
+        printf("gg\n");
+    else
+        printf("123");
+    
+    for (int i=0; data[i] != '\0'; i++) {
+        if (data[i] == '\r')
+            printf("CR");
+        else if (data[i] == '\n')
+            printf("LF");
+        else
+            printf("%c", data[i]);
+    }
+
+
+    return 0;
+}
+
 
 int main (int argc, char *argv[]) {
 
@@ -65,6 +101,7 @@ int main (int argc, char *argv[]) {
         exit(1);
     }
 
+    DEBUG("start listen\n");
 
     while (1) {
         addr_len = sizeof(cli_addr);
@@ -76,6 +113,6 @@ int main (int argc, char *argv[]) {
        
 
         pthread_t work_thr;
-        pthread_create(&work_thr, NULL, handle_socket, (void*) &socketfd);
+        pthread_create(&work_thr, NULL, rece_http, (void*) &socketfd);
     }
 }
