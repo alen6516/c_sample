@@ -27,6 +27,7 @@
 #define BACKLOG 10          // backlog argument for listen()
 #define ROOT_DIR "./www"
 #define INDEX_PAGE "index.html"
+#define NOT_FOUND_PAGE "404_not_found.html"
 
 
 #include "util.h"
@@ -97,7 +98,7 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
                 if (start_idx == 0) {
                     // parse http method
 
-                    if_fail = parse_http_method(rece_buf, i-start_idx, parse_buf);
+                    if_fail = parse_http_method(rece_buf, i, parse_buf);
 
                     if (if_fail) {
                         return FAIL;
@@ -149,16 +150,22 @@ int _parse_http (char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
     bool if_fail = SUCC;
 
     // parse HOST, user-agent, accept, ...
-    if (0 == strncmp(rece_buf, "Host:", 5)) {
+    if (0 == strncmp(rece_buf, HOST_STR, strlen(HOST_STR))) {
         DEBUG("HOST get\n");
         parse_buf->parse_bit_map |= B_HOST;
 
-        if_fail = parse_host(rece_buf, data_len, parse_buf);
+        /*
+        rece_buf += (strlen(HOST_STR)+1);
+        if_fail = parse_host(rece_buf, data_len-strlen(HOST_STR)-1, parse_buf);
+        */
 
-
-    } else if (0 == strncmp(rece_buf, "User-Agent:", 11)) {
+    } else if (0 == strncmp(rece_buf, USER_AGENT_STR, strlen(USER_AGENT_STR))) {
         DEBUG("User-Agent get\n");
         parse_buf->parse_bit_map |= B_USER_AGENT;
+
+        /*
+        rece_buf += (strlen(USER_AGENT_STR)+1);
+        */
 
     } else if (0 == strncmp(rece_buf, "Accept:", 7)) {
         DEBUG("Accept get\n");
@@ -198,13 +205,13 @@ int parse_http_method(char *rece_buf, int data_len, struct parse_buf_t* parse_bu
     bool if_fail = SUCC;
 
     // parse method
-    if (0 == strncmp(rece_buf, GET_PRE_STR, GET_PRE_LEN)) {
+    if (0 == strncmp(rece_buf, GET_STR, strlen(GET_STR))) {
 
         DEBUG("method GET\n");
 
         // paesr file name
-        rece_buf += GET_PRE_LEN;
-        if_fail = parse_file_name(rece_buf, data_len, parse_buf);
+        rece_buf += (strlen(GET_STR)+1);
+        if_fail = parse_file_name(rece_buf, data_len-strlen(GET_STR)-1, parse_buf);
         if (if_fail) {
             return FAIL;
         }
@@ -212,29 +219,29 @@ int parse_http_method(char *rece_buf, int data_len, struct parse_buf_t* parse_bu
 
         // parse version
         rece_buf += (strlen(parse_buf->file_name)+1);
-        if_fail = parse_http_version(rece_buf, data_len, parse_buf)
+        if_fail = parse_http_version(rece_buf, data_len-strlen(parse_buf->file_name)-1, parse_buf);
         if (if_fail) {
             return FAIL;
         }
 
         parse_buf->method_bit_map |= B_GET;
         
-    } else if (0 == strncmp(rece_buf, HEAD_PRE_STR, HEAD_PRE_LEN)) {
+    } else if (0 == strncmp(rece_buf, HEAD_STR, strlen(HEAD_STR))) {
 
         DEBUG("method HEAD\n");
         parse_buf->method_bit_map |= B_HEAD;
         
-    } else if (0 == strncmp(rece_buf, POST_PRE_STR, POST_PRE_LEN)) {
+    } else if (0 == strncmp(rece_buf, POST_STR, strlen(POST_STR))) {
 
         DEBUG("method POST\n");
         parse_buf->method_bit_map |= B_POST;
     
-    } else if (0 == strncmp(rece_buf, PUT_PRE_STR, PUT_PRE_LEN)) {
+    } else if (0 == strncmp(rece_buf, PUT_STR, strlen(PUT_STR))) {
 
         DEBUG("method PUT\n");
         parse_buf->method_bit_map |= B_PUT;
     
-    } else if (0 == strncmp(rece_buf, DELETE_PRE_STR, DELETE_PRE_LEN)) {
+    } else if (0 == strncmp(rece_buf, DELETE_STR, strlen(DELETE_STR))) {
 
         DEBUG("method DELETE\n");
         parse_buf->method_bit_map |= B_DELETE;
@@ -287,32 +294,7 @@ int parse_file_name(char *rece_buf, int data_len, struct parse_buf_t* parse_buf)
     strncpy(file_name, rece_buf, file_len);
     DEBUG("file name = %s\n", file_name);
 
-
-    // handle filename = /    
-    if (0 == strcmp(file_name, "/")) {
-        
-        file_name = (char*) realloc(file_name, strlen(INDEX_PAGE)+1);
-        if (NULL == file_name) {
-            ERROR("Can't realloc for file name\n");
-            return FAIL;
-        }
-        strcpy(file_name, INDEX_PAGE);
-        DEBUG("after realloc, file name = %s\n", file_name);
-    } 
-
-    
-    if ( -1 != access(file_name, F_OK) ) {
-        // can not find file
-        ERROR("Access file fail\n");
-        parse_buf->reply_status = CODE_404;
-        
-    } else {
-        // find the file
-        DEBUG("find file %s\n", file_name);
-        parse_buf->file_name = file_name;
-        parse_buf->reply_status = CODE_200;
-    }
-
+    parse_buf->file_name = file_name;
 
     //free(file_name);
     return SUCC;
@@ -323,12 +305,12 @@ int parse_file_name(char *rece_buf, int data_len, struct parse_buf_t* parse_buf)
 int parse_http_version(char* rece_buf, int data_len, struct parse_buf_t* parse_buf) {
 
 
-    if (0 == strncmp(rece_buf, "HTTP/1.0", VERSION_10_len)) {
+    if (0 == strncmp(rece_buf, VERSION_10_STR, strlen(VERSION_10_STR))) {
 
         DEBUG("http version 1.0\n");
         parse_buf->version = e_http_10;
 
-    } else if (0 == strncmp(rece_buf, "HTTP/1.0", VERSION_11_len)) {
+    } else if (0 == strncmp(rece_buf, VERSION_11_STR, strlen(VERSION_11_STR))) {
 
         DEBUG("http version 1.1\n");
         parse_buf->version = e_http_11;
@@ -340,12 +322,14 @@ int parse_http_version(char* rece_buf, int data_len, struct parse_buf_t* parse_b
 
 int parse_host(char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
 
-
+    // debug
     DEBUG("\t");
     for (int i=0; i<data_len; i++) {
         DEBUG("%c", rece_buf[i]);
     }
     DEBUG("\n");
+    // end of debug
+
     return SUCC;
 
 }
@@ -355,20 +339,19 @@ int reply_http(char* reply_buf, struct parse_buf_t* parse_buf) {
     
     DEBUG("in reply_http\n");
 
-    return SUCC;
 
     // paste http version
-    switch (parse_buf->http_version) {
+    switch (parse_buf->version) {
         case e_http_10:
-            strncat(reply_buf, VERSION_10_STR, VERSION_10_len);
+            strncat(reply_buf, VERSION_10_STR, strlen(VERSION_10_STR));
             break;
 
         case e_http_11:
-            strncat(reply_buf, VERSION_11_STR, VERSION_11_len);
+            strncat(reply_buf, VERSION_11_STR, strlen(VERSION_11_STR));
             break;
 
         case e_http_12:
-            strncat(reply_buf, VERSION_12_STR, VERSION_12_len);
+            strncat(reply_buf, VERSION_12_STR, strlen(VERSION_12_STR));
             break;
     
     }
@@ -376,13 +359,92 @@ int reply_http(char* reply_buf, struct parse_buf_t* parse_buf) {
     
     
     // paste status code
-    switch (parse_buf->reply_status) {
-        case CODE_200:
-            strncpy(reply_buf, CODE_200_STR, CODE_200_len);
-            reply_buf += CODE_200_len;
-            break;
+    if ( parse_buf->method_bit_map & B_GET ) {
+       
+        if ( if_file_exist(parse_buf->file_name) ) {
+            parse_buf->reply_status = CODE_200;
+
+            // paste status code
+            strncat(reply_buf, CODE_200_STR, strlen(CODE_200_STR));
+            strncat(reply_buf, "\r\n", 2);
+
+
+
+        } else {
+
+            parse_buf->reply_status = CODE_404;
+            strncat(reply_buf, CODE_404_STR, strlen(CODE_404_STR));
+            strncat(reply_buf, "\r\n", 2);
+        }
+
+        
+
+
+        // paste content-type
+        strncat(reply_buf, CONTENT_TYPE_STR, strlen(CONTENT_TYPE_STR));
+        strncat(reply_buf, " ", 1);
+        strncat(reply_buf, TEXT_HTML, strlen(TEXT_HTML));
+        strncat(reply_buf, "\r\n", 2);
+
     }
 
+    /*
+    switch (parse_buf->reply_status) {
+        case CODE_200:
+            strncat(reply_buf, CODE_200_STR, CODE_200_len);
+            break;
+    }
+    strncat(reply_buf, "\r\n", 2);
+
+    */
+
+    DEBUG("reply_buf = \n%s\n", reply_buf);
+
+    return SUCC;
+}
+
+
+bool if_file_exist(char *file_name) {
+
+    
+
+
+    // handle file name = /
+    if (0 == strcmp(file_name, "/")) {
+        
+        file_name = (char*) realloc(file_name, strlen(INDEX_PAGE)+1);
+        if (NULL == file_name) {
+            ERROR("Can't realloc for file name\n");
+            return FAIL;
+        }
+        strcpy(file_name, INDEX_PAGE);
+        DEBUG("after realloc, file name = %s\n", file_name);
+    } 
+
+   
+    // add a dot before /file_name
+    if (0 == strncmp(file_name, "/", 1)) {
+        file_name = (char*) realloc(file_name, strlen(file_name)+1);
+        if (NULL == file_name) {
+            ERROR("Can't realloc for file name\n");
+            return FAIL;
+        }
+        memmove(file_name+1, file_name, strlen(file_name));
+        file_name[0] = '.';
+    }
+
+
+    // check if file accessable
+    if ( -1 != access(file_name, F_OK) ) {
+        // find file
+        DEBUG("find file %s\n", file_name);
+        return true;
+        
+    } else {
+        // Can't find the file
+        ERROR("Access file fail\n");
+        return false;
+    }
 }
 
 

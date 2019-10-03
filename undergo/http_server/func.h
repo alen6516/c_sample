@@ -2,39 +2,44 @@
 #define FUNC_H
 
 #include <stdint.h>
-
-#define GET_PRE_STR     "GET "
-#define HEAD_PRE_STR    "HEAD "
-#define POST_PRE_STR    "POST "
-#define PUT_PRE_STR     "PUT "
-#define DELETE_PRE_STR  "DELETE "
-
-#define GET_PRE_LEN     4
-#define POST_PRE_LEN    5
-#define HEAD_PRE_LEN    5
-#define PUT_PRE_LEN     4
-#define DELETE_PRE_LEN  7
-#define TRACE_PRE_LEN   6
-#define CONNECT_PRE_LEN 8
-#define OPTIONS_PRE_LEN 8
+#include <stdbool.h>
 
 
+/* both request and rely */
 #define VERSION_10_STR "HTTP/1.0"
 #define VERSION_11_STR "HTTP/1.1"
 #define VERSION_12_STR "HTTP/1.2"
-
-#define VERSION_10_len 8
-#define VERSION_11_len 8
-#define VERSION_12_len 8
+/* end of both */
 
 
+/* request */
+#define GET_STR     "GET"
+#define HEAD_STR    "HEAD"
+#define POST_STR    "POST"
+#define PUT_STR     "PUT"
+#define DELETE_STR  "DELETE"
+
+#define HOST_STR        "Host:"
+#define USER_AGENT_STR  "User-Agent:"
+#define ACCEPT_STR      "Accept:"
+/* end of request */
+
+
+/* reply */
 #define CODE_200 200    // 200 ok
 #define CODE_400 400    // 400 bad request
+#define CODE_403 403    // 403 forbidden
 #define CODE_404 404    // 404 not found
 
 #define CODE_200_STR    "200 OK"
-#define CODE_200_len    6
+//#define CODE_403_STR    ""
+#define CODE_404_STR    "404 Not Found"
 
+#define CONTENT_TYPE_STR    "Content-Type:"
+    #define TEXT_HTML       "text/html"
+
+#define CONTENT_LENGTH_STR  "Content-Length:"
+/* end of reply */
 
 
 struct parse_buf_t {
@@ -110,5 +115,7 @@ int parse_http_version(char *, int, struct parse_buf_t*);
 int parse_host(char*, int, struct parse_buf_t*);
 
 int reply_http(char*, struct parse_buf_t*);
+
+bool if_file_exist(char*);
 
 #endif
