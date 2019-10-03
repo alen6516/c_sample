@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-
 #define DEBUG ( (DEBUG_MODE==1) ? printf: do_nothing )
+#define INFO  ( (INFO_MODE==1) ? printf: do_nothing )
+#define ERROR ( (ERROR_MODE==1) ? printf: do_nothing )
 
 int do_nothing(const char *msg,...) {
     //printf("in test\n");
@@ -22,6 +23,7 @@ void _debug(const char* func, const char* msg) {
     #endif
 }
 */
+
 
 
 
