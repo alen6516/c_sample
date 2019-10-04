@@ -25,6 +25,13 @@ void _debug(const char* func, const char* msg) {
 */
 
 
+#define SIZE_OF_ARR(arr) ((int)(sizeof(arr)/sizeof(arr[0])))
+
+
+char const *weekday[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+
+
+char const *month[] = { NULL, "Jan", "Feb", "Mar", "Apr", "May", "Jun" };
 
 
 

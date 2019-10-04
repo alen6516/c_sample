@@ -31,13 +31,14 @@
 #define CODE_403 403    // 403 forbidden
 #define CODE_404 404    // 404 not found
 
+
 #define CODE_200_STR    "200 OK"
 //#define CODE_403_STR    ""
 #define CODE_404_STR    "404 Not Found"
 
+
 #define CONTENT_TYPE_STR    "Content-Type:"
     #define TEXT_HTML       "text/html"
-
 #define CONTENT_LENGTH_STR  "Content-Length:"
 /* end of reply */
 
@@ -51,7 +52,6 @@ struct parse_buf_t {
     char *host;
     char *user_agent;
     char *accept;
-
 
     unsigned short reply_status;
     char *file_name;
@@ -104,18 +104,17 @@ enum http_version {
 
 
 void *rece_http(void*);
-
 int parse_http(char*, char*, struct parse_buf_t*);
-int _parse_http(char*, int, struct parse_buf_t*);
-int parse_http_method(char*, int, struct parse_buf_t*);
+    int parse_http_startline(char*, int, struct parse_buf_t*);
+        int parse_file_name(char *, int, struct parse_buf_t*);
+        int parse_http_version(char *, int, struct parse_buf_t*);
 
-int parse_file_name(char *, int, struct parse_buf_t*);
-int parse_http_version(char *, int, struct parse_buf_t*);
-
-int parse_host(char*, int, struct parse_buf_t*);
+    int parse_http_header(char*, int, struct parse_buf_t*);
+        int parse_host(char*, int, struct parse_buf_t*);
 
 int reply_http(char*, struct parse_buf_t*);
+    bool if_file_exist(char*);
 
-bool if_file_exist(char*);
+    int add_content_length(char*, char*);
 
 #endif

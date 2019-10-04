@@ -55,7 +55,7 @@ void *rece_http (void *_fd) {
     
 
     if (SUCC != parse_http(rece_buf, reply_buf, &parse_buf)) {
-        return NULL;
+        // 
     }
     DEBUG("\n");
   
@@ -67,7 +67,7 @@ void *rece_http (void *_fd) {
     setsockopt(fd, SOL_SOCKET, SO_LINGER, &s1, sizeof(s1));
 
     close(fd);
-    pthread_exit(SUCC);
+    pthread_exit(SUCC);   // no need unlesss want to pass retval
 }
 
 
@@ -98,7 +98,7 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
                 if (start_idx == 0) {
                     // parse http method
 
-                    if_fail = parse_http_method(rece_buf, i, parse_buf);
+                    if_fail = parse_http_startline(rece_buf, i, parse_buf);
 
                     if (if_fail) {
                         return FAIL;
@@ -107,7 +107,7 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
                 } else {
                     // parse Host, User-Agent, ...
                     
-                    if_fail = _parse_http(rece_buf + start_idx, i-start_idx, parse_buf);
+                    if_fail = parse_http_header(rece_buf + start_idx, i-start_idx, parse_buf);
                     
                     if (if_fail) {
                         return FAIL;
@@ -128,9 +128,9 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
 }
 
 
-int _parse_http (char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
+int parse_http_header (char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
     
-    //DEBUG("in _parse_http\n");
+    //DEBUG("in parse_http_header\n");
 
 
     /*
@@ -185,7 +185,7 @@ int _parse_http (char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
 }
 
 
-int parse_http_method(char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
+int parse_http_startline(char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
 
 
 
@@ -337,7 +337,7 @@ int parse_host(char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
 
 int reply_http(char* reply_buf, struct parse_buf_t* parse_buf) {
     
-    DEBUG("in reply_http\n");
+    INFO("in reply_http\n");
 
 
     // paste http version
@@ -358,13 +358,12 @@ int reply_http(char* reply_buf, struct parse_buf_t* parse_buf) {
     strncat(reply_buf, " ", 1);     // need a space
     
     
-    // paste status code
     if ( parse_buf->method_bit_map & B_GET ) {
        
         if ( if_file_exist(parse_buf->file_name) ) {
-            parse_buf->reply_status = CODE_200;
 
             // paste status code
+            parse_buf->reply_status = CODE_200;
             strncat(reply_buf, CODE_200_STR, strlen(CODE_200_STR));
             strncat(reply_buf, "\r\n", 2);
 
@@ -372,14 +371,20 @@ int reply_http(char* reply_buf, struct parse_buf_t* parse_buf) {
 
         } else {
 
+            // paste status code
             parse_buf->reply_status = CODE_404;
             strncat(reply_buf, CODE_404_STR, strlen(CODE_404_STR));
             strncat(reply_buf, "\r\n", 2);
         }
 
+        // paste content-length
+        add_content_length(reply_buf, parse_buf->file_name);
+        /*
+        strncat(reply_buf, CONTENT_LENGTH_STR, strlen(CONTENT_LENGTH_STR));
+        strncat(reply_buf, " ", 1);
+        content_length_idx = strlen(reply_buf);
+        */
         
-
-
         // paste content-type
         strncat(reply_buf, CONTENT_TYPE_STR, strlen(CONTENT_TYPE_STR));
         strncat(reply_buf, " ", 1);
@@ -388,26 +393,14 @@ int reply_http(char* reply_buf, struct parse_buf_t* parse_buf) {
 
     }
 
-    /*
-    switch (parse_buf->reply_status) {
-        case CODE_200:
-            strncat(reply_buf, CODE_200_STR, CODE_200_len);
-            break;
-    }
-    strncat(reply_buf, "\r\n", 2);
 
-    */
-
-    DEBUG("reply_buf = \n%s\n", reply_buf);
+    DEBUG("reply_buf =====\n%s\n", reply_buf);
 
     return SUCC;
 }
 
 
 bool if_file_exist(char *file_name) {
-
-    
-
 
     // handle file name = /
     if (0 == strcmp(file_name, "/")) {
@@ -445,6 +438,13 @@ bool if_file_exist(char *file_name) {
         ERROR("Access file fail\n");
         return false;
     }
+}
+
+
+int add_content_length(char *reply_buf, char *file_name) {
+
+    return 87;    
+    
 }
 
 
