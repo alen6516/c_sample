@@ -60,46 +60,46 @@ struct parse_buf_t {
 
 
 enum parse_bit_enum {
-    e_method = 0,
-    e_host,
-    e_user_agent,
-    e_accept
+    E_METHOD = 0,
+    E_HOST,
+    E_USER_AGENT,
+    E_ACCEPT
     /* if more then 8 bits, modify struct parse_buf->parse_bit_map */
 };
 
-#define B_METHOD        (0x1 << e_method)
-#define B_HOST          (0x1 << e_host)
-#define B_USER_AGENT    (0x1 << e_user_agent)
-#define B_ACCEPT        (0x1 << e_accept)
+#define B_METHOD        (0x1 << E_METHOD)
+#define B_HOST          (0x1 << E_HOST)
+#define B_USER_AGENT    (0x1 << E_USER_AGENT)
+#define B_ACCEPT        (0x1 << E_ACCEPT)
 
 
 
 enum method_bit_enum {
-    e_get = 0,
-    e_post,
-    e_head,
-    e_put,
-    e_delete,
-    e_trace,
-    e_connect,
-    e_options
+    E_GET = 0,
+    E_POST,
+    E_HEAD,
+    E_PUT,
+    E_DELETE,
+    E_TRACE,
+    E_CONNECT,
+    E_OPTIONS
     /* if more then 8 bits, modify struct parse_buf->method_bit_map */
 };
 
-#define B_GET       (0x1 << e_get)
-#define B_POST      (0x1 << e_post)
-#define B_HEAD      (0x1 << e_head)
-#define B_PUT       (0x1 << e_put)
-#define B_DELETE    (0x1 << e_delete)
-#define B_TRACE     (0x1 << e_trace)
-#define B_CONNECT   (0x1 << e_connect)
-#define B_OPTIONS   (0x1 << e_options)
+#define B_GET       (0x1 << E_GET)
+#define B_POST      (0x1 << E_POST)
+#define B_HEAD      (0x1 << E_HEAD)
+#define B_PUT       (0x1 << E_PUT)
+#define B_DELETE    (0x1 << E_DELETE)
+#define B_TRACE     (0x1 << E_TRACE)
+#define B_CONNECT   (0x1 << E_CONNECT)
+#define B_OPTIONS   (0x1 << E_OPTIONS)
 
 
 enum http_version {
-   e_http_10 = 0,
-   e_http_11,
-   e_http_12
+   E_HTTP_10 = 0,
+   E_HTTP_11,
+   E_HTTP_12
 };
 
 
@@ -113,8 +113,13 @@ int parse_http(char*, char*, struct parse_buf_t*);
         int parse_host(char*, int, struct parse_buf_t*);
 
 int reply_http(char*, struct parse_buf_t*);
-    bool if_file_exist(char*);
+    int add_http_startline(char*, struct parse_buf_t*);
+    int add_http_content_length(char*, struct parse_buf_t*);
+    int add_http_content_type(char*, struct parse_buf_t*);
+    int add_http_file_data(char*, struct parse_buf_t*);
 
-    int add_content_length(char*, char*);
+int clear_buf(struct parse_buf_t*);
 
+
+bool if_file_exist(char*);
 #endif

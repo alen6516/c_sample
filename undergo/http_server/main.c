@@ -40,18 +40,20 @@ void *rece_http (void *_fd) {
     int fd = *(int*)_fd;
     DEBUG("receive a client, fd = %d\n", fd);
 
-
+    // init rece_buf
     static char rece_buf[RECE_BUF_SIZE];
     bzero(rece_buf, RECE_BUF_SIZE);
 
+    // init parse_buf
     struct parse_buf_t parse_buf;
     bzero((void*) &parse_buf, sizeof(parse_buf));
 
+    // init reply_buf
     static char reply_buf[REPLY_BUF_SIZE];
     bzero(reply_buf, REPLY_BUF_SIZE);
     
     read(fd, rece_buf, RECE_BUF_SIZE);
-    //DEBUG("%s", buf);
+    DEBUG("rece_buf ===== \n%s=====\n", rece_buf);
     
 
     if (SUCC != parse_http(rece_buf, reply_buf, &parse_buf)) {
@@ -75,7 +77,7 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
     #define CRLF "\r\n"
     
     
-    //DEBUG("in parse_http\n");
+    INFO("in parse_http\n");
 
 
     int start_idx = 0;
@@ -87,7 +89,6 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
 
     // split http
     for (int i=0; i<data_len; i++) {
-    
         if (i+1 <= data_len && rece_buf[i] == '\r' && rece_buf[i+1] == '\n') {
             if (i == data_len -2 && i == start_idx) {
                 // end of http
@@ -96,20 +97,16 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
             } else {
 
                 if (start_idx == 0) {
-                    // parse http method
+                    // http startline
 
-                    if_fail = parse_http_startline(rece_buf, i, parse_buf);
-
-                    if (if_fail) {
+                    if ( (if_fail = parse_http_startline(rece_buf, i, parse_buf)) ) {
                         return FAIL;
                     }
 
                 } else {
-                    // parse Host, User-Agent, ...
+                    // http header ( Host, User-Agent, ...)
                     
-                    if_fail = parse_http_header(rece_buf + start_idx, i-start_idx, parse_buf);
-                    
-                    if (if_fail) {
+                    if ( (if_fail = parse_http_header(rece_buf + start_idx, i-start_idx, parse_buf)) ) {
                         return FAIL;
                     }
                 }
@@ -119,8 +116,7 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
         }
     }
 
-    if_fail = reply_http(reply_buf, parse_buf);
-    if (if_fail) {
+    if ( (if_fail = reply_http(reply_buf, parse_buf)) ) {
         return FAIL;
     }
 
@@ -128,9 +124,82 @@ int parse_http (char* rece_buf, char* reply_buf, struct parse_buf_t* parse_buf) 
 }
 
 
+int parse_http_startline(char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
+
+
+
+    /*  parse_buf->method_bit_map:
+     *
+     *  0: GET
+     *  1: POST
+     *  2: HEAD
+     *  3: PUT
+     *  4: DELETE
+     *  5: TRACE
+     *  6: CONNECT
+     *  7: OPTIONS
+     */
+
+
+    bool if_fail = SUCC;
+
+    // "GET / HTTP/1.1\r\n"
+    if (0 == strncmp(rece_buf, GET_STR, strlen(GET_STR))) {
+        INFO("method GET\n");
+        parse_buf->method_bit_map |= B_GET;
+
+        // parse file name
+        rece_buf += (strlen(GET_STR)+1);
+        if ( (if_fail = parse_file_name(rece_buf, data_len-strlen(GET_STR)-1, parse_buf)) ) {
+            return FAIL;
+        }
+
+
+        // parse version
+        rece_buf += (strlen(parse_buf->file_name)+1);
+        if ( (if_fail = parse_http_version(rece_buf, data_len-strlen(parse_buf->file_name)-1, parse_buf)) ) {
+            return FAIL;
+        }
+
+        
+    } else if (0 == strncmp(rece_buf, HEAD_STR, strlen(HEAD_STR))) {
+
+        DEBUG("method HEAD\n");
+        parse_buf->method_bit_map |= B_HEAD;
+        
+    } else if (0 == strncmp(rece_buf, POST_STR, strlen(POST_STR))) {
+
+        DEBUG("method POST\n");
+        parse_buf->method_bit_map |= B_POST;
+    
+    } else if (0 == strncmp(rece_buf, PUT_STR, strlen(PUT_STR))) {
+
+        DEBUG("method PUT\n");
+        parse_buf->method_bit_map |= B_PUT;
+    
+    } else if (0 == strncmp(rece_buf, DELETE_STR, strlen(DELETE_STR))) {
+
+        DEBUG("method DELETE\n");
+        parse_buf->method_bit_map |= B_DELETE;
+    
+    } else {
+
+        DEBUG("parse method fail, unknown method\n");
+        return FAIL;
+    }
+
+
+    // after parsing, bit should be turned on
+    assert( (parse_buf->parse_bit_map & B_METHOD) == 0);
+    parse_buf->parse_bit_map |= B_METHOD;
+    assert(parse_buf->method_bit_map != 0);
+    return SUCC;
+}
+
+
 int parse_http_header (char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
     
-    //DEBUG("in parse_http_header\n");
+    INFO("in parse_http_header\n");
 
 
     /*
@@ -185,81 +254,6 @@ int parse_http_header (char *rece_buf, int data_len, struct parse_buf_t* parse_b
 }
 
 
-int parse_http_startline(char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
-
-
-
-    /*  parse_buf->method_bit_map:
-     *
-     *  0: GET
-     *  1: POST
-     *  2: HEAD
-     *  3: PUT
-     *  4: DELETE
-     *  5: TRACE
-     *  6: CONNECT
-     *  7: OPTIONS
-     */
-
-
-    bool if_fail = SUCC;
-
-    // parse method
-    if (0 == strncmp(rece_buf, GET_STR, strlen(GET_STR))) {
-
-        DEBUG("method GET\n");
-
-        // paesr file name
-        rece_buf += (strlen(GET_STR)+1);
-        if_fail = parse_file_name(rece_buf, data_len-strlen(GET_STR)-1, parse_buf);
-        if (if_fail) {
-            return FAIL;
-        }
-
-
-        // parse version
-        rece_buf += (strlen(parse_buf->file_name)+1);
-        if_fail = parse_http_version(rece_buf, data_len-strlen(parse_buf->file_name)-1, parse_buf);
-        if (if_fail) {
-            return FAIL;
-        }
-
-        parse_buf->method_bit_map |= B_GET;
-        
-    } else if (0 == strncmp(rece_buf, HEAD_STR, strlen(HEAD_STR))) {
-
-        DEBUG("method HEAD\n");
-        parse_buf->method_bit_map |= B_HEAD;
-        
-    } else if (0 == strncmp(rece_buf, POST_STR, strlen(POST_STR))) {
-
-        DEBUG("method POST\n");
-        parse_buf->method_bit_map |= B_POST;
-    
-    } else if (0 == strncmp(rece_buf, PUT_STR, strlen(PUT_STR))) {
-
-        DEBUG("method PUT\n");
-        parse_buf->method_bit_map |= B_PUT;
-    
-    } else if (0 == strncmp(rece_buf, DELETE_STR, strlen(DELETE_STR))) {
-
-        DEBUG("method DELETE\n");
-        parse_buf->method_bit_map |= B_DELETE;
-    
-    } else {
-
-        DEBUG("parse method fail, unknown method\n");
-        return FAIL;
-    }
-
-
-    // after parsing, bit should be turned on
-    assert( (parse_buf->parse_bit_map & B_METHOD) == 0);
-    parse_buf->parse_bit_map |= B_METHOD;
-
-    assert(parse_buf->method_bit_map != 0);
-    return SUCC;
-}
 
 
 int parse_file_name(char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
@@ -308,12 +302,12 @@ int parse_http_version(char* rece_buf, int data_len, struct parse_buf_t* parse_b
     if (0 == strncmp(rece_buf, VERSION_10_STR, strlen(VERSION_10_STR))) {
 
         DEBUG("http version 1.0\n");
-        parse_buf->version = e_http_10;
+        parse_buf->version = E_HTTP_10;
 
     } else if (0 == strncmp(rece_buf, VERSION_11_STR, strlen(VERSION_11_STR))) {
 
         DEBUG("http version 1.1\n");
-        parse_buf->version = e_http_11;
+        parse_buf->version = E_HTTP_11;
 
     }
 
@@ -339,25 +333,66 @@ int reply_http(char* reply_buf, struct parse_buf_t* parse_buf) {
     
     INFO("in reply_http\n");
 
+    
 
-    // paste http version
+    
+    add_http_startline(reply_buf, parse_buf);
+
+
+    //add_http_date();
+    //add_http_server();
+    //add_http_last_modified();
+    //add_http_etag();
+    //add_http_accept_ranges();
+    add_http_content_length(reply_buf, parse_buf);
+    //add_http_vary();
+    add_http_content_type(reply_buf, parse_buf);
+    
+
+
+    // add http last crlf
+    strncat(reply_buf, "\r\n", 4);
+
+    //add_http_file_data(reply_buf, parse_buf);
+    
+
+    
+    // add file data
+    //FILE *fp;
+    //fp = fopen(parse_buf->file_name, "r");
+
+
+
+    DEBUG("reply_buf =====\n%s\n", reply_buf);
+    DEBUG("len = %d\n", strlen(reply_buf));
+
+    return SUCC;
+}
+
+
+int add_http_startline(char *reply_buf, struct parse_buf_t* parse_buf) {
+
+    // "HTTP/1.1 200 OK\r\n"
+
+
+    // add http version
     switch (parse_buf->version) {
-        case e_http_10:
+        case E_HTTP_10:
             strncat(reply_buf, VERSION_10_STR, strlen(VERSION_10_STR));
             break;
 
-        case e_http_11:
+        case E_HTTP_11:
             strncat(reply_buf, VERSION_11_STR, strlen(VERSION_11_STR));
             break;
 
-        case e_http_12:
+        case E_HTTP_12:
             strncat(reply_buf, VERSION_12_STR, strlen(VERSION_12_STR));
             break;
     
     }
     strncat(reply_buf, " ", 1);     // need a space
-    
-    
+
+
     if ( parse_buf->method_bit_map & B_GET ) {
        
         if ( if_file_exist(parse_buf->file_name) ) {
@@ -366,37 +401,75 @@ int reply_http(char* reply_buf, struct parse_buf_t* parse_buf) {
             parse_buf->reply_status = CODE_200;
             strncat(reply_buf, CODE_200_STR, strlen(CODE_200_STR));
             strncat(reply_buf, "\r\n", 2);
-
-
-
-        } else {
-
-            // paste status code
-            parse_buf->reply_status = CODE_404;
-            strncat(reply_buf, CODE_404_STR, strlen(CODE_404_STR));
-            strncat(reply_buf, "\r\n", 2);
         }
+    }
+    
 
-        // paste content-length
-        add_content_length(reply_buf, parse_buf->file_name);
-        /*
-        strncat(reply_buf, CONTENT_LENGTH_STR, strlen(CONTENT_LENGTH_STR));
-        strncat(reply_buf, " ", 1);
-        content_length_idx = strlen(reply_buf);
-        */
-        
-        // paste content-type
-        strncat(reply_buf, CONTENT_TYPE_STR, strlen(CONTENT_TYPE_STR));
-        strncat(reply_buf, " ", 1);
-        strncat(reply_buf, TEXT_HTML, strlen(TEXT_HTML));
-        strncat(reply_buf, "\r\n", 2);
+    return SUCC;
+}
 
+
+int add_http_content_length(char* reply_buf, struct parse_buf_t* parse_buf) {
+
+
+    assert(NULL != parse_buf->file_name);
+
+
+    FILE *fp;
+    unsigned long counter = 0;
+
+    fp = fopen(parse_buf->file_name, "r");
+    if ( NULL == fp ) {
+        ERROR("Can not open file\n");
+        return FAIL;
     }
 
 
-    DEBUG("reply_buf =====\n%s\n", reply_buf);
+    while (EOF != (fgetc(fp)) ) {
+        counter ++;
+    }
+
+    if ( ! feof(fp) ) {
+        // get EOF but not reach end of file
+        ERROR("Read file encounter error\n");
+        return FAIL;
+    }
+    
+
+    // convert long to string
+    const int _len1 = snprintf(NULL, 0, "%lu", counter);
+    assert(_len1 > 0);
+    char counter_str[_len1+1];
+    int _len2 = snprintf(counter_str, _len1+1, "%lu", counter);
+    assert(counter_str[_len1] == '\0');
+    assert(_len1 == _len2);
+
+
+    // paste content length
+    strncat(reply_buf, CONTENT_LENGTH_STR, strlen(CONTENT_LENGTH_STR));
+    strncat(reply_buf, " ", 1);
+    strncat(reply_buf, counter_str, _len1);
+    strncat(reply_buf, "\r\n", 4);
+    
+
+    fclose(fp);
+    return SUCC;
+}
+
+
+int add_http_content_type(char* reply_buf, struct parse_buf_t* parse_buf) {
+
+    strncat(reply_buf, CONTENT_TYPE_STR, strlen(CONTENT_TYPE_STR));
+    strncat(reply_buf, " ", 1);
+    strncat(reply_buf, TEXT_HTML, strlen(TEXT_HTML));
+    strncat(reply_buf, "\r\n", 4);
 
     return SUCC;
+}
+
+
+int add_http_file_data(char* reply_buf, struct parse_buf_t* parse_buf) {
+    return SUCC;    
 }
 
 
@@ -441,10 +514,14 @@ bool if_file_exist(char *file_name) {
 }
 
 
-int add_content_length(char *reply_buf, char *file_name) {
 
-    return 87;    
+int clea_buf(struct parse_buf_t* parse_buf) {
     
+    if (parse_buf->file_name) {
+        free(parse_buf->file_name);
+    }
+
+    return SUCC;
 }
 
 
