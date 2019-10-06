@@ -6,18 +6,67 @@
 
 
 /* both request and rely */
+#define HTTP_VERSION_LEN 8
+
 #define VERSION_10_STR "HTTP/1.0"
+#define IF_MATCH_HTTP_10(s, len)   \
+    (len >= HTTP_VERSION_LEN    && \
+     s[0]=='H'                  && \
+     s[1]=='T'                  && \
+     s[2]=='T'                  && \
+     s[3]=='P'                  && \
+     s[4]=='/'                  && \
+     s[5]=='1'                  && \
+     s[6]=='.'                  && \
+     s[7]=='0')
+
+
 #define VERSION_11_STR "HTTP/1.1"
+#define IF_MATCH_HTTP_11(s, len)   \
+    (len >= HTTP_VERSION_LEN    && \
+     s[0]=='H'                  && \
+     s[1]=='T'                  && \
+     s[2]=='T'                  && \
+     s[3]=='P'                  && \
+     s[4]=='/'                  && \
+     s[5]=='1'                  && \
+     s[6]=='.'                  && \
+     s[7]=='1')
+
+
 #define VERSION_12_STR "HTTP/1.2"
+#define IF_MATCH_HTTP_12(s, len)   \
+    (len >= HTTP_VERSION_LEN    && \
+     s[0]=='H'                  && \
+     s[1]=='T'                  && \
+     s[2]=='T'                  && \
+     s[3]=='P'                  && \
+     s[4]=='/'                  && \
+     s[5]=='1'                  && \
+     s[6]=='.'                  && \
+     s[7]=='2')
 /* end of both */
 
 
 /* request */
-#define GET_STR     "GET"
-#define HEAD_STR    "HEAD"
-#define POST_STR    "POST"
-#define PUT_STR     "PUT"
-#define DELETE_STR  "DELETE"
+#define GET_STR_LEN 3
+#define IF_MATCH_GET(s, len)   \
+    (len >= GET_STR_LEN     && \
+     s[0]=='G'              && \
+     s[1]=='E'              && \
+     s[2]=='T')
+
+#define HEAD_STR_LEN 4
+#define IF_MATCH_HEAD(s, len)  \
+    (len >= HEAD_STR_LEN    && \
+     s[0]=='H'              && \
+     s[1]=='E'              && \
+     s[2]=='A'              && \
+     s[3]=='D')
+
+
+
+
 
 #define HOST_STR        "Host:"
 #define USER_AGENT_STR  "User-Agent:"
@@ -33,17 +82,23 @@
 
 
 #define CODE_200_STR    "200 OK"
+#define CODE_200_LEN    6
 //#define CODE_403_STR    ""
 #define CODE_404_STR    "404 Not Found"
+#define CODE_404_LEN    13
 
 
-#define CONTENT_TYPE_STR    "Content-Type:"
+#define CONTENT_TYPE_STR    "Content-Type: "
+#define CONTENT_TYPE_LEN    14
     #define TEXT_HTML       "text/html"
-#define CONTENT_LENGTH_STR  "Content-Length:"
+    #define TEXT_HTML_LEN   9
+#define CONTENT_LENGTH_STR  "Content-Length: "
+#define CONTENT_LENGTH_LEN  16
 /* end of reply */
 
 
 struct parse_buf_t {
+    int fd;
     uint8_t parse_bit_map;
     uint8_t method_bit_map;
 
@@ -55,6 +110,7 @@ struct parse_buf_t {
 
     unsigned short reply_status;
     char *file_name;
+    unsigned long content_len;
     unsigned char version;
 };
 
