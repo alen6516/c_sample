@@ -1,11 +1,14 @@
-#ifndef LIST_H
-#define LIST_H
+#ifndef WORK_LIST_H
+#define WORK_LIST_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 /*
+ * producer just append task to the tail of the list,
+ * once comsumer work, he will take tasks from head until all tasks are taken.
+ *
  * 1. no length limit, need to count to know the len
  * 2. 1 reader 1 writer can be no contention
  * 3. no pop api, the reader need to iterate by itself

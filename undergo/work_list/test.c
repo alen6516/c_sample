@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "list.h"
+#include "work_list.h"
 
 int getRandNum() {
     FILE *fp;
@@ -48,8 +48,6 @@ void* write_work(void* arg) {
     int arr[] =  {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
     int len = 20;
 
-    list = (struct list_t*) list_init();
-    
 
     struct node_t* node;
     for (int i=0; i<len; i++) {
@@ -66,8 +64,11 @@ void* write_work(void* arg) {
 int main () {
 
     pthread_t rt, wt;
+    list = (struct list_t*) list_init();
     pthread_create(&wt, NULL, write_work, NULL);
+    printf("writer created\n");
     pthread_create(&rt, NULL, read_work, NULL);
+    printf("reader created\n");
     pthread_join(rt, NULL);
 
 }
