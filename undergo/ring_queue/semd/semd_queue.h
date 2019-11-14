@@ -21,19 +21,18 @@ struct queue_t {
     int en_head;
 };
 
-struct queue_t* queue;
 
-int init_queue() {
-    queue = (struct queue_t*) malloc(sizeof(struct queue_t));
-    if (queue == NULL) {
-        return 1;
+struct queue_t* init_queue() {
+    struct queue_t* ret;
+    ret = (struct queue_t*) malloc(sizeof(struct queue_t));
+    if (ret != NULL) {
+        bzero(ret, sizeof(struct queue_t));
     }
-    bzero(queue, sizeof(struct queue_t));
-    return 0;
+    return ret;
 }
 
 // single enqueue
-int en_queue(void* node) {
+int en_queue(void* node, struct queue_t* queue) {
     int tmp = (queue->en_head+1) % SIZE;
     if (tmp == queue->de_head) {
         // full (actually left 1 space empty)
@@ -49,7 +48,7 @@ int en_queue(void* node) {
 
 
 // multiple dequeue
-void* de_queue() {
+void* de_queue(struct queue_t* queue) {
     // contest, take and move de_head
     int curr_de_head;
     int next_de_head;
