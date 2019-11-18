@@ -5,6 +5,11 @@
 
 #define MAX_THREAD_NUM 10
 
+
+/*
+ * intent to implement a lockless list
+ */
+
 struct thr_node_t {
     // use array to store
     pthread_t thr;

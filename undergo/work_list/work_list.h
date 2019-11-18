@@ -35,7 +35,7 @@ int list_push(void* node, void** next, struct list_t* list) {
 
     if (list->head == NULL) {
         // list is empty
-        printf("header is NULL, push node\n");
+        //printf("header is NULL, push node\n");
         list->head = node;
         list->curr_next = next;
 

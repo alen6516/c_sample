@@ -56,7 +56,7 @@ void* write_work(void* arg) {
         node->a = arr[i];
         printf("push %d\n", node->a);
         list_push((void*)node,(void**) &(node->next), list);
-        sleep(getRandNum()%5);
+        sleep(getRandNum()%3);
     }
     return NULL;
 }
