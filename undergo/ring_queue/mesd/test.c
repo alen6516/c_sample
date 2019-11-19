@@ -21,16 +21,20 @@ void* en_work(void *arg) {
     id = _id++;
     struct node_t* node;
 
-    static int val=0;
+    static int val = 0;
     while (1) {
-        sleep(getRandNum() % 4);
         node = (struct node_t*) malloc(sizeof(struct node_t));
-        node->val = val;
-        if ( en_queue((void*)node, queue) ) {
-            printf("\ten_queue fail, thr %d\n", id);
-        } else {
-            printf("en_queue val %d, thr %d\n", node->val, id);
-            __sync_fetch_and_add( &val, 1);
+        while (1) {
+            sleep(getRandNum() % 4);
+            if ( en_queue((void*)node, queue) ) {
+                printf("\ten_queue fail, thr %d\n", id);
+                continue;
+            } else {
+                __sync_fetch_and_add( &val, 1);
+                node->val = val;
+                printf("en_queue val %d, thr %d\n", node->val, id);
+                break;
+            }
         }
     }
     return NULL;
