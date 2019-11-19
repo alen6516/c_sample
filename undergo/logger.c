@@ -4,6 +4,7 @@
 #include <string.h>
 
 
+#define PRE_SIZE 8
 #define LOG_SIZE 100
 
 
@@ -19,10 +20,7 @@ enum mode_e {
 /* now mode is */
 unsigned char g_mode = check_mode;
 
-char g_log_buf[LOG_SIZE];
-
 FILE* g_log_file = NULL;
-
 
 int init_logger(char *log_file) {
     g_log_file = fopen(log_file, "ab");
@@ -30,12 +28,36 @@ int init_logger(char *log_file) {
 }
 
 
-void logger(const char *msg) {
-    if (NULL == g_log_file) {
-        return;
+static inline void logger(int mode, const char *format, va_list arg) {
+    char buf[PRE_SIZE+LOG_SIZE];
+
+    switch (mode) {
+        case info_mode:
+            snprintf(buf, PRE_SIZE+LOG_SIZE, "[%5s] %s", "INFO", format);
+            break;
+        case debug_mode:
+            snprintf(buf, PRE_SIZE+LOG_SIZE, "[%5s] %s", "DEBUG", format);
+            break;
+        case check_mode:
+            snprintf(buf, PRE_SIZE+LOG_SIZE, "[%5s] %s", "CHECK", format);
+            break;
+        case warn_mode:
+            snprintf(buf, PRE_SIZE+LOG_SIZE, "[%5s] %s", "DEBUG", format);
+            break;
+        case error_mode:
+            snprintf(buf, PRE_SIZE+LOG_SIZE, "[%5s] %s", "DEBUG", format);
+            break;
     }
 
-    fwrite(msg, LOG_SIZE, 1, g_log_file);
+    vsnprintf(buf + PRE_SIZE, LOG_SIZE, format, arg);
+
+    if (NULL != g_log_file) {
+        fwrite(buf, PRE_SIZE+LOG_SIZE, 1, g_log_file);
+    }
+
+    if (mode >= g_mode) {
+        printf("%s", buf);
+    }
 }
 
 
@@ -44,17 +66,41 @@ void INFO(const char *format, ...) {
     va_list arg;
     va_start(arg, format);
     va_end(arg);
-    vsnprintf(g_log_buf, LOG_SIZE, format, arg);
-    logger(g_log_buf);
+    logger(info_mode, format, arg);
+}
 
-    if (info_mode < g_mode) {
-        return;
-    }
+void DEBUG(const char *format, ...) {
 
-    printf("%s", g_log_buf);
+    va_list arg;
+    va_start(arg, format);
+    va_end(arg);
+    logger(debug_mode, format, arg);
+}
+
+void CHECK(const char *format, ...) {
+
+    va_list arg;
+    va_start(arg, format);
+    va_end(arg);
+    logger(check_mode, format, arg);
 }
 
 
+void WARN(const char *format, ...) {
+
+    va_list arg;
+    va_start(arg, format);
+    va_end(arg);
+    logger(warn_mode, format, arg);
+}
+
+void ERROR(const char *format, ...) {
+
+    va_list arg;
+    va_start(arg, format);
+    va_end(arg);
+    logger(error_mode, format, arg);
+}
 
 int main () {
     g_mode = info_mode;
