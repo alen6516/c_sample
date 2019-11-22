@@ -22,10 +22,13 @@
 
 
 int parse_header (char *rece_buf, int data_len) {
-
+    /*
     if (MATCH_HOST(rece_buf, data_len)) {
         // parse_host()
     }
+    */
+    printf("%s\n", rece_buf);
+
     return 0;
 }
 
@@ -70,11 +73,12 @@ int parse (char *rece_buf, int data_len) {
             /* check if msg end */
             if (*(curr+2) == CR && *(curr+3) == LF) {
                 is_msg_end = true; 
+                curr += 2;
             }
+        } else {
+            curr ++;
         }
     }
-
-
 
     return 0;
 }
@@ -82,7 +86,7 @@ int parse (char *rece_buf, int data_len) {
 
 int main () {
     
-    char buf[] = "Host: this is  Host\r\n";
+    char buf[] = "Host: this is  Host\r\nServer: my_server\r\n\r\n";
     int len = strlen(buf);
     parse(buf, len);
 
