@@ -20,6 +20,18 @@
      buf[5] == ' ')
     
 
+struct parse_buf_t {
+    unsigned char   is_header_end: 1,
+                    is_msg_end :1;
+
+
+    unsigned char   method_get: 1,
+                    method_post: 1,
+                    method_delete: 1;
+    int content_len;
+    int handled_len;
+};
+
 
 int parse_header (char *rece_buf, int data_len) {
     /*
@@ -33,55 +45,94 @@ int parse_header (char *rece_buf, int data_len) {
 }
 
 
+int parse_content (char *rece_buf, int data_len) {
+    printf("%s\n", rece_buf);
+    return 0;
+}
+
 
 int parse (char *rece_buf, int data_len) {
 
-    static char *start;
-    start = rece_buf;
-    static char *curr;
-    curr = rece_buf;
+    static char *start;     /* start of a header */
+    static char *curr;      /* moving pointer */
 
-    static bool is_header_end = false;
-    static bool is_msg_end = false;
-    static bool is_res = false;
+    static struct parse_buf_t parse_buf = {0};
 
+    static char pres_buf[100];
+    static int pres_len = 0;
+    static int this_len;
+   
 
-    static char res_buf[100];
-    static int res_len;
+    for (start=rece_buf, curr=rece_buf, this_len = 1;
+         this_len < data_len && !parse_buf.is_msg_end;
+         curr ++) {
 
+        if (*curr == LF && *(curr-1) == CR) {
+            // detect a header or msg ends
 
-    while (curr-rece_buf <= data_len) {
-
-        /* check if header end */
-        if (*curr == CR && *(curr+1) == LF) {
-            is_header_end = true;
-           
-            if (!is_res) {
-                parse_header(rece_buf, curr-start);
+            if (parse_buf.is_header_end) {
+                // end of msg
+                parse_buf.is_msg_end = true;
+                if (parse_buf.content_len) {
+                    curr ++;
+                    break;
+                }
 
             } else {
-                /* if data reserved in res_buf */
-                if (res_len + (curr-start) >= 100) {
-                    // header is too long
+                // end of header
+                
+                this_len = curr-start-1;
+
+                parse_buf.is_header_end = true;
+                if (pres_len) {
+                    // if have preserve msg
+
+                    if (this_len > 100-pres_len-1) {
+                        // this header is too long
+                    } else {
+                        strncat(pres_buf, start, this_len);
+                    }
+                    parse_header(pres_buf, pres_len+this_len);
+                    bzero(pres_buf, 100);
+                    pres_len = 0;
+
+                } else {
+                    parse_header(start, this_len);
                 }
-                strncat(res_buf, start, curr-start);
-                parse_header(res_buf, res_len+(curr-start));
-            }
-            curr += 2;
-
-
-            /* check if msg end */
-            if (*(curr+2) == CR && *(curr+3) == LF) {
-                is_msg_end = true; 
-                curr += 2;
             }
         } else {
-            curr ++;
+            if (parse_buf.is_header_end) {
+                // detect a new header starts
+                parse_buf.is_header_end = false;
+                start = curr;
+            }
+
+            if (curr-rece_buf == data_len-1) {
+                // detect this rece_buf is over
+                this_len = curr-start+1;
+
+                pres_len += this_len;
+                strncpy(pres_buf, start, this_len);
+                return 0;
+            }
+        }
+    }   /* end of for loop */
+
+
+    // after the end of msg
+    if (parse_buf.is_msg_end && parse_buf.content_len) {
+        // pass content to parse_content
+        
+        parse_content(curr, data_len-(curr-start));
+        parse_buf.handled_len += data_len-(curr-start);
+        if (parse_buf.content_len == parse_buf.handled_len) {
+            bzero((void*)&parse_buf, sizeof(struct parse_buf_t));
         }
     }
 
     return 0;
-}
+}        
+    
 
 
 int main () {
