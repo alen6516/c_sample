@@ -45,12 +45,18 @@ int parse_header (char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
 }
 
 
-int parse_body (char *rece_buf, int data_len) {
+int parse_body (char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
     static char buf[100];
     strncpy(buf, rece_buf, data_len);
     buf[data_len] = 0;
-    printf("%s\n", rece_buf);
+    printf("body: %s\n", buf);
 
+    return 0;
+}
+
+
+int reply_http (struct parse_buf_t* parse_buf) {
+    printf("in reply http\n");
     return 0;
 }
 
@@ -67,19 +73,19 @@ int parse (char *rece_buf, int data_len) {
     static int pres_len = 0;
    
     for (start=rece_buf, curr=rece_buf;
-         curr-rece_buf < data_len && !parse_buf.is_msg_end;
+         curr-rece_buf < data_len;
          curr ++) {
 
-        if (*curr == LF && *(curr-1) == CR) {
+        if (*curr == LF && (curr-rece_buf) > 0 && *(curr-1) == CR) {
             // detect a header or msg ends
 
             if (parse_buf.is_header_end) {
                 // end of msg
                 parse_buf.is_msg_end = true;
-                if (parse_buf.content_len) {
-                    curr ++;
+                if (parse_buf.content_len == 0) {
+                    reply_http(&parse_buf);
+                    bzero((void*)&parse_buf, sizeof(struct parse_buf_t));
                 }
-                break;
 
             } else {
                 // end of header
@@ -104,8 +110,22 @@ int parse (char *rece_buf, int data_len) {
                 }
             }
         } else {
-            if (parse_buf.is_header_end) {
-                // detect a new header starts
+            if (parse_buf.is_msg_end && parse_buf.content_len) {
+                // it is body
+                
+                this_len = (parse_buf.content_len-parse_buf.handled_len) > data_len-(curr-start) \
+                            ? data_len-(curr-start): (parse_buf.content_len-parse_buf.handled_len);
+                
+                
+                parse_body(curr, this_len, &parse_buf);
+                parse_buf.handled_len += this_len;
+                if (parse_buf.content_len == parse_buf.handled_len) {
+                    bzero((void*)&parse_buf, sizeof(struct parse_buf_t));
+                }
+                
+            } else if (!parse_buf.is_msg_end && parse_buf.is_header_end) {
+                // it is next header
+                
                 parse_buf.is_header_end = false;
                 start = curr;
             }
@@ -121,17 +141,6 @@ int parse (char *rece_buf, int data_len) {
         }
     }   /* end of for loop */
 
-
-    // after the end of msg
-    if (parse_buf.is_msg_end && parse_buf.content_len) {
-        // pass content to parse_body
-        
-        parse_body(curr, data_len-(curr-start));
-        parse_buf.handled_len += data_len-(curr-start);
-        if (parse_buf.content_len == parse_buf.handled_len) {
-            bzero((void*)&parse_buf, sizeof(struct parse_buf_t));
-        }
-    }
 
     return 0;
 }        
