@@ -3,27 +3,14 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define NOT !
+#include "define_http.h"
 
 #define CR '\r'
 #define LF '\n'
 
-
-// Host: www.msn.com
-#define MATCH_HOST(buf, len)        \
-    (len >= 6       &&              \
-     buf[0] == 'H'  &&              \
-     buf[1] == 'o'  &&              \
-     buf[2] == 's'  &&              \
-     buf[3] == 't'  &&              \
-     buf[4] == ':'  &&              \
-     buf[5] == ' ')
-    
-
 struct parse_buf_t {
     unsigned char   is_header_end: 1,
                     is_msg_end :1;
-
 
     unsigned char   method_get: 1,
                     method_post: 1,
@@ -33,20 +20,37 @@ struct parse_buf_t {
 };
 
 
-int parse_header (char *rece_buf, int data_len) {
+int parse_header (char *rece_buf, int data_len, struct parse_buf_t* parse_buf) {
     /*
     if (MATCH_HOST(rece_buf, data_len)) {
         // parse_host()
     }
     */
-    printf("%s\n", rece_buf);
+
+    static char buf[100];
+    strncpy(buf, rece_buf, data_len);
+    buf[data_len] = 0;
+    printf("%s\n", buf);
+
+
+    if (0 == strncmp(CONTENT_LENGTH_STR, rece_buf, CONTENT_LENGTH_LEN)) {
+        for (int i=CONTENT_LENGTH_LEN; i<data_len; i++) {
+            parse_buf->content_len *= 10;
+            parse_buf->content_len += (rece_buf[i]-'0');
+        }
+        printf("len = %d\n", parse_buf->content_len);
+    }
 
     return 0;
 }
 
 
-int parse_content (char *rece_buf, int data_len) {
+int parse_body (char *rece_buf, int data_len) {
+    static char buf[100];
+    strncpy(buf, rece_buf, data_len);
+    buf[data_len] = 0;
     printf("%s\n", rece_buf);
+
     return 0;
 }
 
@@ -55,16 +59,15 @@ int parse (char *rece_buf, int data_len) {
 
     static char *start;     /* start of a header */
     static char *curr;      /* moving pointer */
+    static int this_len;
 
     static struct parse_buf_t parse_buf = {0};
 
     static char pres_buf[100];
     static int pres_len = 0;
-    static int this_len;
    
-
-    for (start=rece_buf, curr=rece_buf, this_len = 1;
-         this_len < data_len && !parse_buf.is_msg_end;
+    for (start=rece_buf, curr=rece_buf;
+         curr-rece_buf < data_len && !parse_buf.is_msg_end;
          curr ++) {
 
         if (*curr == LF && *(curr-1) == CR) {
@@ -75,13 +78,13 @@ int parse (char *rece_buf, int data_len) {
                 parse_buf.is_msg_end = true;
                 if (parse_buf.content_len) {
                     curr ++;
-                    break;
                 }
+                break;
 
             } else {
                 // end of header
                 
-                this_len = curr-start-1;
+                this_len = curr-start+1-2;
 
                 parse_buf.is_header_end = true;
                 if (pres_len) {
@@ -92,12 +95,12 @@ int parse (char *rece_buf, int data_len) {
                     } else {
                         strncat(pres_buf, start, this_len);
                     }
-                    parse_header(pres_buf, pres_len+this_len);
+                    parse_header(pres_buf, pres_len+this_len, &parse_buf);
                     bzero(pres_buf, 100);
                     pres_len = 0;
 
                 } else {
-                    parse_header(start, this_len);
+                    parse_header(start, this_len, &parse_buf);
                 }
             }
         } else {
@@ -121,9 +124,9 @@ int parse (char *rece_buf, int data_len) {
 
     // after the end of msg
     if (parse_buf.is_msg_end && parse_buf.content_len) {
-        // pass content to parse_content
+        // pass content to parse_body
         
-        parse_content(curr, data_len-(curr-start));
+        parse_body(curr, data_len-(curr-start));
         parse_buf.handled_len += data_len-(curr-start);
         if (parse_buf.content_len == parse_buf.handled_len) {
             bzero((void*)&parse_buf, sizeof(struct parse_buf_t));
@@ -137,8 +140,11 @@ int parse (char *rece_buf, int data_len) {
 
 int main () {
     
-    char buf[] = "Host: this is  Host\r\nServer: my_server\r\n\r\n";
-    int len = strlen(buf);
-    parse(buf, len);
+    char buf1[] = "Host: this is Host\r\nServer: my_server\r\n";
+    int len = strlen(buf1);
+    parse(buf1, len);
+    char buf2[] = "Content-Length: 14\r\n\r\nthis is body.\n";
+    len = strlen(buf2);
+    parse(buf2, len);
 
 }

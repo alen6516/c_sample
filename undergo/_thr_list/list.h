@@ -54,7 +54,6 @@ void* init_thr_list() {
     }
     thr_arr[MAX_THREAD_NUM-1].next_id = -1;
 
-    void* ret;
     ret = malloc(sizeof(struct thr_list_t*));
     if (NULL != ret) {
         bzero(ret, sizeof(struct thr_list_t));
