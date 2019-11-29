@@ -60,8 +60,8 @@ int reply_http (struct parse_buf_t* parse_buf) {
 
 int parse (char *rece_buf, int data_len) {
 
-    static char *start, real_start;     /* start of a header */
-    static char *curr, real_curr;      /* moving pointer */
+    static char *start;     /* start of a header */
+    static char *curr;      /* moving pointer */
     static int this_len;
 
     static struct parse_buf_t parse_buf = {0};
