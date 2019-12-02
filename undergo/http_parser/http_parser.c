@@ -10,6 +10,7 @@
 
 struct parse_buf_t {
     unsigned char is_msg_end :1,
+                  is_header_end : 1,
                   is_prev_cr :1;
 
     unsigned char method;
@@ -66,12 +67,68 @@ int parse (char *rece_buf, int data_len) {
 
     static struct parse_buf_t parse_buf = {0};
 
-    static char pres_buf[100];
-    static int pres_len = 0;
+    static char resrv_buf[100];
+    static int resrv_len = 0;
    
     for (start=rece_buf, curr=rece_buf;
         curr-rece_buf < data_len;
         curr ++) {
+
+        if (! parse_buf.is_msg_end) {
+            
+            if (*curr == LF) {
+                // header
+                this_len = curr-start+1;
+
+                if (resrv_len) {
+                    if (100-resrv_len <= this_len) {
+                        // this header is too long
+                    
+                    } else {
+                        strncpy(resrv_buf+resrv_len, start, this_len);
+                        resrv_len += this_len;
+                        resrv_buf[resrv_len] = 0;
+                        start = resrv_buf;
+                    }
+                }
+
+                if (*start == CR && *(start+1) == LF) {
+                    // detect msg end
+                    parse_buf.is_msg_end = true;
+                    this_len = data_len-(curr-start)-1;
+                    if (parse_buf.remain_content_len && this_len) {
+                        this_len = this_len > parse_buf.remain_content_len ? parse_buf.remain_content_len : this_len;
+                        parse_body(curr+1, this_len, &parse_buf);
+                        parse_buf.remain_content_len -= this_len;
+                        curr += this_len;
+                    }
+                    if (! parse_buf.remain_content_len) {
+                        bzero(&parse_buf, sizeof(struct parse_buf_t));
+                    }
+                } else {
+                    // detect header end
+                    parse_buf.is_header_end = true;
+                    parse_header(start, (resrv_len) ? resrv_len: this_len, &parse_buf);
+                }
+
+                if (resrv_len) {
+                    resrv_len = 0;
+                }
+            }
+        } else {
+            
+        }
+
+
+
+
+
+
+
+
+
+
+
 
         if (*curr == LF) {
             // detect a header or msg ends
