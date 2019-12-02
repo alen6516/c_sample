@@ -102,9 +102,6 @@ int parse (char *rece_buf, int data_len) {
                         parse_buf.remain_content_len -= this_len;
                         curr += this_len;
                     }
-                    if (! parse_buf.remain_content_len) {
-                        bzero(&parse_buf, sizeof(struct parse_buf_t));
-                    }
                 } else {
                     // detect header end
                     parse_buf.is_header_end = true;
@@ -114,102 +111,21 @@ int parse (char *rece_buf, int data_len) {
                 if (resrv_len) {
                     resrv_len = 0;
                 }
+                
             }
         } else {
-            
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-        if (*curr == LF) {
-            // detect a header or msg ends
-            
-            if (pres_len) {
-                if (this_len > 100-pres_len-1) {
-                    // this header is too long
-                } else {
-                    strncat(pres_buf, start, this_len);
+            if (parse_buf.is_msg_end) {
+                if (!parse_buf.remain_content_len) {
+                    bzero(&parse_buf, sizeof(struct parse_buf_t));
                 }
-                
-            }
-            
-            
-
-            if (curr-start == 1) {
-                // end of msg
-                parse_buf.is_msg_end = true;
-                
-                if (parse_buf.remain_content_len == 0) {
-                    reply_http(&parse_buf);
-                    bzero((void*)&parse_buf, sizeof(struct parse_buf_t));
+            } else { 
+                if (parse_buf.is_header_end) {
+                    parse_buf.is_header_end = false;
+                    start = curr;
                 }
-            } else {
-                // end of header
-                
-                this_len = curr-start+1-2;
-
-                if (pres_len) {
-                    // if have preserve msg
-
-                    if (this_len > 100-pres_len-1) {
-                        // this header is too long
-                    } else {
-                        strncat(pres_buf, start, this_len);
-                    }
-                    parse_header(pres_buf, pres_len+this_len, &parse_buf);
-                    bzero(pres_buf, 100);
-                    pres_len = 0;
-
-                } else {
-                    parse_header(start, this_len, &parse_buf);
-                }
-            }
-        } else {
-            if (parse_buf.is_msg_end && parse_buf.remain_content_len != 0) {
-                // it is body
-                
-                this_len = (parse_buf.remain_content_len) > data_len-(curr-start) \
-                            ? data_len-(curr-start): (parse_buf.remain_content_len);
-                
-                
-                parse_body(curr, this_len, &parse_buf);
-                parse_buf.remain_content_len -= this_len;
-                curr += (this_len-1);
-                if (parse_buf.remain_content_len == 0) {
-                    bzero((void*)&parse_buf, sizeof(struct parse_buf_t));
-                }
-                
-            } else {
-                // it is next header
-                start = curr;
-                if (*curr == CR) {
-                    parse_buf.is_prev_cr = true;
-                } else {
-                    parse_buf.is_prev_cr = false;
-                }
-            }
-
-            if (curr-rece_buf == data_len-1 && !parse_buf.is_msg_end) {
-                // detect this rece_buf is over but still headers
-                this_len = curr-start+1;
-
-                strncpy(pres_buf+pres_len, start, this_len);
-                pres_len += this_len;
-                return 0;
             }
         }
-    }   /* end of for loop */
-
-
+    }
     return 0;
 }        
     
