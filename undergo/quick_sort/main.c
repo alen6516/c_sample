@@ -3,7 +3,6 @@
 #include <time.h>
 
 
-
 int arr[] = {3, 4, 1, 5, 3, 2, 9, -1};
 
 void print_arr() {
@@ -13,21 +12,24 @@ void print_arr() {
     printf("\n");
 }
 
-#define SWAP(a, b) {printf("swap %d and %d\n", a, b); a = a^b; b = a^b; a = a^b; print_arr();}
+#define SWAP(a, b)                          \
+    do {                                    \
+        printf("swap %d and %d\n", a, b);   \
+        a = a^b;                            \
+        b = a^b;                            \
+        a = a^b;                            \
+        print_arr();                        \
+    } while (0)
 
 int partition(int[], int, int);
 void quick_sort(int[], int, int);
 
 
 int main () {
-
     
     print_arr();
     quick_sort(arr, 0, sizeof(arr)/sizeof(arr[0])-1);
-
     print_arr();
-
-
 }
 
 int partition (int arr[], int left, int right) {
@@ -69,8 +71,6 @@ int partition (int arr[], int left, int right) {
     } else {
         return right;
     }
-
-
 }
 
 void quick_sort(int arr[], int left, int right) {
@@ -79,8 +79,6 @@ void quick_sort(int arr[], int left, int right) {
 
     printf("left = [%d], right = [%d]\n", left, right);
     q = partition(arr, left, right);
-
-    
     
     if (q != left && q != left+1)
         quick_sort(arr, left, q-1);
