@@ -19,7 +19,7 @@
 
 
 #define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 8787
+#define SERVER_PORT 9000
 #define BACKLOG 128
 
 char server_ip[12];
@@ -36,6 +36,13 @@ int main (int argc, char *argv[]) {
     struct pollfd fd_arr[200];
     int fd_num = 1;
     int curr_fd_num;
+
+    char buff[100];
+    int rece_len;
+
+    int end_server = 0, compress_array = 0;
+    int close_conn;
+
 
     strcpy(server_ip, SERVER_IP);
     server_port = (unsigned char)SERVER_PORT;
@@ -70,7 +77,7 @@ int main (int argc, char *argv[]) {
     bzero(&serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     inet_pton(AF_INET, server_ip, &(serv_addr.sin_addr.s_addr));
-    serv_addr.sin_port = htons(server_port);
+    serv_addr.sin_port = htons(9000);
     rc = bind(listen_fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
     if (rc < 0 ) {
         perror("fail in bind()");
@@ -85,6 +92,8 @@ int main (int argc, char *argv[]) {
         close(listen_fd);
         exit(-1);
     }
+    
+    printf("start listen!\n");
 
     /* init pollfd structure */
     bzero(&fd_arr, sizeof(fd_arr));
@@ -96,7 +105,7 @@ int main (int argc, char *argv[]) {
     /* set timeout */
     timeout = 3*60*1000;
 
-    while (1) {
+    do {
         rc = poll(fd_arr, fd_num, timeout);
         if (rc < 0) {
             perror("fail in poll()");
@@ -116,12 +125,82 @@ int main (int argc, char *argv[]) {
                 continue;
             }
 
+            if (fd_arr[i].revents != POLLIN) {
+                printf("error! revent = %d\n", fd_arr[i].revents);
+                end_server = 1;
+                break;
+            }
 
-        
-        
+            if (fd_arr[i].fd == listen_fd) {
+                printf("listening socket is readable\n");
+
+                new_fd = accept(listen_fd, NULL, NULL);
+                if (new_fd < 0) {
+                    if (errno != EWOULDBLOCK) {
+                        perror("accept() failed");
+                        end_server = 1;
+                        break;
+                    }
+                }
+                printf(" New incoming connection - %d\n", new_fd);
+                fd_arr[fd_num].fd = new_fd;
+                fd_arr[fd_num].events = POLLIN;
+                fd_num ++;
+
+            } else {
+                printf("fd %d is readable\n", fd_arr[i].fd);
+                close_conn = 0;
+                
+                rc = recv(fd_arr[i].fd, buff, sizeof(buff), 0);
+                if (rc < 0) {
+                    if (errno != EWOULDBLOCK) {
+                        close_conn = 1;
+                    }
+                    break;
+                }
+
+                if (rc == 0) {
+                    printf("Connection closed\n");
+                    close_conn = 1;
+                }
+
+                rece_len = rc;
+                printf("%d bytes received\n", rece_len);
+
+                rc = send(fd_arr[i].fd, buff, rece_len, 0);
+                if (rc < 0) {
+                    perror("fail in send()");
+                    close_conn = 1;
+                }
+                
+                if (close_conn) {
+                    close(fd_arr[i].fd);
+                    fd_arr[i].fd = -1;
+                    compress_array = 1;
+                } 
+            } // else
+        } // for iterate all fd
+
+        if (compress_array) {
+            compress_array = 0;
+            for (int i=0; i<fd_num; i++) {
+                if (fd_arr[i].fd == -1) {
+                    for (int j=fd_num-1; j>i; j--) {
+                        fd_num --;
+                        if (fd_arr[j].fd != -1) {
+                            fd_arr[i].fd = fd_arr[j].fd;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
+    } while (end_server == 0);
 
-        
+    for (int i=0; i<fd_num; i++) {
+        if (fd_arr[i].fd == 0) {
+            close(fd_arr[i].fd);
+        }
     }
 }
