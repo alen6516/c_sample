@@ -25,6 +25,20 @@
 char server_ip[12];
 unsigned char server_port;
 int backlog;
+struct pollfd fd_arr[200];
+int fd_num = 1;
+
+void sig_hander(int sig) {
+
+    printf("\n================================\n");
+    printf("fd_num = %d, fd_arr = [ ", fd_num);
+    for (int i=0; i<fd_num; i++) {
+        printf("%d ", fd_arr[i].fd);
+    }
+    printf("]\n");
+    printf("================================\n");
+}
+
 
 int main (int argc, char *argv[]) {
 
@@ -33,8 +47,6 @@ int main (int argc, char *argv[]) {
     int listen_fd = -1, new_fd = -1;
     struct sockaddr_in serv_addr;
     int timeout;
-    struct pollfd fd_arr[200];
-    int fd_num = 1;
     int curr_fd_num;
 
     char buff[100];
@@ -48,6 +60,7 @@ int main (int argc, char *argv[]) {
     server_port = (unsigned char)SERVER_PORT;
     backlog = BACKLOG;
 
+    signal(SIGTSTP, sig_hander);
 
     /* create listen_fd */
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -106,8 +119,15 @@ int main (int argc, char *argv[]) {
     timeout = 3*60*1000;
 
     do {
+        printf("start poll(), fd_num = %d\n", fd_num);
         rc = poll(fd_arr, fd_num, timeout);
-        if (rc < 0) {
+        if (errno == EINTR) {
+            // poll() may be interrupted by signal, if so, just ignore the fail and continue
+            errno = 0;  // need to reset errno, or it will enter a infinite loop
+            continue;
+        }
+
+        if (rc < 0) {      
             perror("fail in poll()");
             break;
 
@@ -119,7 +139,6 @@ int main (int argc, char *argv[]) {
         // if rc > 0
         curr_fd_num = fd_num;
         for (int i=0; i<curr_fd_num; i++) {
-        
         
             if (fd_arr[i].revents == 0) {
                 continue;
@@ -172,20 +191,20 @@ int main (int argc, char *argv[]) {
                     perror("fail in send()");
                     close_conn = 1;
                 }
-                
+
                 if (close_conn) {
                     close(fd_arr[i].fd);
                     fd_arr[i].fd = -1;
                     compress_array = 1;
                 } 
-            } // else
+            }
         } // for iterate all fd
-
         if (compress_array) {
+            printf("in compress\n");
             compress_array = 0;
             for (int i=0; i<fd_num; i++) {
                 if (fd_arr[i].fd == -1) {
-                    for (int j=fd_num-1; j>i; j--) {
+                    for (int j=fd_num-1; j>=i; j--) {
                         fd_num --;
                         if (fd_arr[j].fd != -1) {
                             fd_arr[i].fd = fd_arr[j].fd;
@@ -195,7 +214,6 @@ int main (int argc, char *argv[]) {
                 }
             }
         }
-
     } while (end_server == 0);
 
     for (int i=0; i<fd_num; i++) {
