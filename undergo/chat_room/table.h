@@ -3,6 +3,7 @@
 
 #define TABLE_SIZE 20
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -51,5 +52,20 @@ int table_remove(int idx, table_t* table, void* (iter_func)(void*), void* (match
     return -1;
 }
 
+
+void table_show(table_t* table, void* (iter_func)(void*), int (get_key)(void*)) {
+    printf("------ table ------\n");
+    void* curr;
+    for (int i=0; i<TABLE_SIZE; i++) {
+        printf("[ %d ] ", i);
+        curr = table->arr[i];
+        while (curr) {
+            printf("%d ->", get_key(curr));
+            curr = iter_func(curr);
+        }
+        printf("\n");
+    }
+    printf("-------------------\n");
+}
 
 #endif
