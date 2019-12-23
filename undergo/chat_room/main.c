@@ -23,6 +23,7 @@
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 9000
 #define BACKLOG 128
+#define BUFF_SIZE 100
 
 
 char server_ip[12];
@@ -57,16 +58,16 @@ int main (int argc, char *argv[]) {
 
     int rc;  
     int on = 1;
-    int listen_fd = -1, new_fd = -1;
+    int listen_fd = -1, this_fd = -1;
     struct sockaddr_in serv_addr;
     int timeout;
     int curr_fd_num;
 
-    char buff[100];
+    char buff[BUFF_SIZE];
     int rece_len;
 
     int end_server = 0, compress_array = 0;
-    int close_conn;
+    int close_conn = 0;;
 
 
     strcpy(server_ip, SERVER_IP);
@@ -168,32 +169,49 @@ int main (int argc, char *argv[]) {
             if (fd_arr[i].fd == listen_fd) {
                 printf("listening socket is readable\n");
 
-                new_fd = accept(listen_fd, NULL, NULL);
-                if (new_fd < 0) {
+                this_fd = accept(listen_fd, NULL, NULL);
+                if (this_fd < 0) {
                     if (errno != EWOULDBLOCK) {
                         perror("accept() failed");
                         end_server = 1;
                         break;
                     }
                 }
-                printf(" New incoming connection - %d\n", new_fd);
-                fd_arr[fd_num].fd = new_fd;
+                printf(" New incoming connection - %d\n", this_fd);
+                fd_arr[fd_num].fd = this_fd;
                 fd_arr[fd_num].events = POLLIN;
                 fd_num ++;
 
-                conn = init_conn(new_fd);
+                conn = init_conn(this_fd);
                 if (!conn) {
                     perror("fail in malloc for conn");
                     continue;
                 }
 
-                table_add(conn->fd, table, (void*)conn, (void**)conn->next);
+                table_add(this_fd, table, (void*)conn, (void**)conn->next);
+
+                strncpy(buff, "Entry your name: ", BUFF_SIZE);
+                rc = send(this_fd, buff, BUFF_SIZE, 0);
+                if (rc < 0) {
+                    perror("fail in send()");
+                    close_conn = 1;
+                }
 
             } else {
-                printf("fd %d is readable\n", fd_arr[i].fd);
-                close_conn = 0;
+                this_fd = fd_arr[i].fd;
+                printf("fd %d is readable\n", this_fd);
                 
                 rc = recv(fd_arr[i].fd, buff, sizeof(buff), 0);
+
+                
+                conn = (conn_t*) table_get(this_fd, table, conn_iter, conn_match);
+                if (!conn) {
+                    printf("fail in search table\n");
+                    exit(-1);
+                }
+
+                // TODO: 
+
                 if (rc < 0) {
                     if (errno != EWOULDBLOCK) {
                         close_conn = 1;
@@ -214,19 +232,19 @@ int main (int argc, char *argv[]) {
                     perror("fail in send()");
                     close_conn = 1;
                 }
-
-                if (close_conn) {
-                    close(fd_arr[i].fd);
-                    fd_arr[i].fd = -1;
-                    compress_array = 1;
-
-                    rc = table_remove(fd_arr[i].fd, table, conn_iter, conn_match, conn_link);
-                    if (rc != 0) {
-                        printf("error in table_remove()");
-                        exit(1);
-                    }
-                } 
             }
+            if (close_conn) {
+                close(fd_arr[i].fd);
+                fd_arr[i].fd = -1;
+                compress_array = 1;
+
+                rc = table_remove(fd_arr[i].fd, table, conn_iter, conn_match, conn_link);
+                if (rc != 0) {
+                    printf("error in table_remove()");
+                    exit(1);
+                }
+                close_conn = 0;
+            } 
         } // for iterate all fd
         if (compress_array) {
             printf("in compress\n");

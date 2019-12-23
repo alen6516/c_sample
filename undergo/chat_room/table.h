@@ -54,6 +54,21 @@ int table_remove(int key, table_t* table, void* (iter_func)(void*), int (match_f
 }
 
 
+void* table_get(int key, table_t* table, void* (iter_func)(void*), int (match_func)(void*, int)) {
+    void* ret = NULL;
+    int idx = key % TABLE_SIZE;
+    
+    ret = table->arr[idx];
+    while (ret) {
+        if (match_func(ret, key)) {
+            break;
+        }
+        ret = iter_func(ret);
+    }
+    return ret;
+}
+
+
 void table_show(table_t* table, void* (iter_func)(void*), int (get_key)(void*)) {
     printf("------ table ------\n");
     void* curr;
