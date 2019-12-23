@@ -21,8 +21,8 @@ table_t* init_table() {
     return (table_t*) ret;
 }
 
-int table_add(int idx, table_t* table, void *node, void **next) {
-    idx = idx % TABLE_SIZE;
+int table_add(int (get_key)(void*), table_t* table, void *node, void **next) {
+    int idx = get_key(node) % TABLE_SIZE;
     if (table->arr[idx]) {
         *next = table->arr[idx];
     }
@@ -30,18 +30,19 @@ int table_add(int idx, table_t* table, void *node, void **next) {
     return 0;
 }
 
-int table_remove(int idx, table_t* table, void* (iter_func)(void*), void* (match_func)(void*, int), int (link_func)(void*, void*)) {
+int table_remove(int key, table_t* table, int (get_key)(void*), void* (iter_func)(void*), int (match_func)(void*, int), int (link_func)(void*, void*)) {
+
     void* prev = NULL;
-    void* curr = table->arr[idx % TABLE_SIZE];
+    void* curr = table->arr[key % TABLE_SIZE];
     void* next;
 
     while (curr) {
-        if (match_func(curr, idx)) {
+        if (match_func(curr, key)) {
             next = iter_func(curr);
             if (prev) {
                 link_func(prev, next);
             } else {
-                table->arr[idx % TABLE_SIZE] = next;
+                table->arr[key % TABLE_SIZE] = next;
             }
             return 0;
         } else {
@@ -57,7 +58,7 @@ void table_show(table_t* table, void* (iter_func)(void*), int (get_key)(void*)) 
     printf("------ table ------\n");
     void* curr;
     for (int i=0; i<TABLE_SIZE; i++) {
-        printf("[ %d ] ", i);
+        printf("[ %2d ] ", i);
         curr = table->arr[i];
         while (curr) {
             printf("%d ->", get_key(curr));
