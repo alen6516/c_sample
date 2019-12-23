@@ -17,6 +17,8 @@
 #include <sys/fcntl.h>              /* fcntl() */
 #include <sys/poll.h>               /* struct pollfd */
 
+#include "table.h"
+#include "conn.h"
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 9000
@@ -24,10 +26,14 @@
 
 
 char server_ip[12];
-unsigned char server_port;
+unsigned short server_port;
 int backlog;
 struct pollfd fd_arr[200];
 int fd_num = 1;
+
+
+table_t *table;
+
 
 void sig_hander(int sig) {
 
@@ -42,6 +48,12 @@ void sig_hander(int sig) {
 
 
 int main (int argc, char *argv[]) {
+
+    table = init_table();
+    if (!table) {
+        printf("fail in malloc for table\n");
+        exit(1);
+    }
 
     int rc;  
     int on = 1;
@@ -58,7 +70,7 @@ int main (int argc, char *argv[]) {
 
 
     strcpy(server_ip, SERVER_IP);
-    server_port = (unsigned char)SERVER_PORT;
+    server_port = (unsigned short)SERVER_PORT;
     backlog = BACKLOG;
 
     signal(SIGTSTP, sig_hander);
@@ -119,6 +131,8 @@ int main (int argc, char *argv[]) {
     /* set timeout */
     timeout = 3*60*1000;
 
+    conn_t* conn;
+
     do {
         printf("start poll(), fd_num = %d\n", fd_num);
         rc = poll(fd_arr, fd_num, timeout);
@@ -167,6 +181,14 @@ int main (int argc, char *argv[]) {
                 fd_arr[fd_num].events = POLLIN;
                 fd_num ++;
 
+                conn = init_conn(new_fd);
+                if (!conn) {
+                    perror("fail in malloc for conn");
+                    continue;
+                }
+
+                table_add(conn->fd, table, (void*)conn, (void**)conn->next);
+
             } else {
                 printf("fd %d is readable\n", fd_arr[i].fd);
                 close_conn = 0;
@@ -197,6 +219,12 @@ int main (int argc, char *argv[]) {
                     close(fd_arr[i].fd);
                     fd_arr[i].fd = -1;
                     compress_array = 1;
+
+                    rc = table_remove(fd_arr[i].fd, table, conn_iter, conn_match, conn_link);
+                    if (rc != 0) {
+                        printf("error in table_remove()");
+                        exit(1);
+                    }
                 } 
             }
         } // for iterate all fd

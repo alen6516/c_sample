@@ -21,8 +21,8 @@ table_t* init_table() {
     return (table_t*) ret;
 }
 
-int table_add(int (get_key)(void*), table_t* table, void *node, void **next) {
-    int idx = get_key(node) % TABLE_SIZE;
+int table_add(int key, table_t* table, void *node, void **next) {
+    int idx = key % TABLE_SIZE;
     if (table->arr[idx]) {
         *next = table->arr[idx];
     }
@@ -30,7 +30,7 @@ int table_add(int (get_key)(void*), table_t* table, void *node, void **next) {
     return 0;
 }
 
-int table_remove(int key, table_t* table, int (get_key)(void*), void* (iter_func)(void*), int (match_func)(void*, int), int (link_func)(void*, void*)) {
+int table_remove(int key, table_t* table, void* (iter_func)(void*), int (match_func)(void*, int), int (link_func)(void*, void*)) {
 
     void* prev = NULL;
     void* curr = table->arr[key % TABLE_SIZE];

@@ -2,7 +2,7 @@
 #define CONN_H
 
 #include <stdlib.h>
-
+#include <string.h>
 
 typedef struct __conn {
     int fd;
@@ -10,6 +10,14 @@ typedef struct __conn {
     struct __conn* next;
 } conn_t;
 
+conn_t* init_conn(int fd) {
+    conn_t* ret = (conn_t*) malloc(sizeof(conn_t));
+    if (ret) {
+        ret->fd = fd;
+        bzero(ret->name, sizeof(ret->name));
+    }
+    return ret;
+}
 
 int conn_get_key(void *conn) {
     if (!conn) return -1;
