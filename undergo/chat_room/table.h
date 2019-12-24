@@ -68,7 +68,6 @@ void* table_get(int key, table_t* table, void* (iter_func)(void*), int (match_fu
     return ret;
 }
 
-
 void table_show(table_t* table, void* (iter_func)(void*), int (get_key)(void*)) {
     printf("------ table ------\n");
     void* curr;

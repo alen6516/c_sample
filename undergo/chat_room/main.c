@@ -19,6 +19,7 @@
 
 #include "table.h"
 #include "conn.h"
+#include "util.h"
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 9000
@@ -63,7 +64,8 @@ int main (int argc, char *argv[]) {
     int timeout;
     int curr_fd_num;
 
-    char buff[BUFF_SIZE];
+    char rece_buff[BUFF_SIZE];
+    char send_buff[BUFF_SIZE];
     int rece_len;
 
     int end_server = 0, compress_array = 0;
@@ -190,8 +192,8 @@ int main (int argc, char *argv[]) {
 
                 table_add(this_fd, table, (void*)conn, (void**)conn->next);
 
-                strncpy(buff, "Entry your name: ", BUFF_SIZE);
-                rc = send(this_fd, buff, BUFF_SIZE, 0);
+                strncpy(send_buff, "Entry your name: ", BUFF_SIZE);
+                rc = send(this_fd, send_buff, BUFF_SIZE, 0);
                 if (rc < 0) {
                     perror("fail in send()");
                     close_conn = 1;
@@ -201,7 +203,7 @@ int main (int argc, char *argv[]) {
                 this_fd = fd_arr[i].fd;
                 printf("fd %d is readable\n", this_fd);
                 
-                rc = recv(fd_arr[i].fd, buff, sizeof(buff), 0);
+                rc = recv(fd_arr[i].fd, rece_buff, BUFF_SIZE, 0);
 
                 
                 conn = (conn_t*) table_get(this_fd, table, conn_iter, conn_match);
@@ -210,7 +212,6 @@ int main (int argc, char *argv[]) {
                     exit(-1);
                 }
 
-                // TODO: 
 
                 if (rc < 0) {
                     if (errno != EWOULDBLOCK) {
@@ -227,18 +228,32 @@ int main (int argc, char *argv[]) {
                 rece_len = rc;
                 printf("%d bytes received\n", rece_len);
 
-                rc = send(fd_arr[i].fd, buff, rece_len, 0);
-                if (rc < 0) {
-                    perror("fail in send()");
-                    close_conn = 1;
+                if (!conn->name[0]) {
+                    strncpy(conn->name, rece_buff, 10);
+                    snprintf(send_buff, BUFF_SIZE, "%s joined", conn->name);
+                } else {
+                    snprintf(send_buff, BUFF_SIZE, "%s: %s\n", conn->name, rece_buff);
+                }
+               
+
+                for (int j=0; j<curr_fd_num; j++) {
+                    if (fd_arr[j].fd == this_fd) continue;
+                    rc = send(fd_arr[j].fd, send_buff, BUFF_SIZE, 0);
+                    if (rc < 0) {
+                        perror("fail in send()");
+                    }
                 }
             }
+
             if (close_conn) {
-                close(fd_arr[i].fd);
+                if (close(this_fd) < 0 ) {
+                    perror("fail on close fd");
+                    exit(-1);
+                }
                 fd_arr[i].fd = -1;
                 compress_array = 1;
 
-                rc = table_remove(fd_arr[i].fd, table, conn_iter, conn_match, conn_link);
+                rc = table_remove(this_fd, table, conn_iter, conn_match, conn_link);
                 if (rc != 0) {
                     printf("error in table_remove()");
                     exit(1);
