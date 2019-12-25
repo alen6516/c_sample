@@ -1,3 +1,7 @@
+/*
+ * https://www.gnu.org/software/libc/manual/html_node/Server-Example.html
+ */
+
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
