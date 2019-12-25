@@ -69,7 +69,7 @@ int main (int argc, char *argv[]) {
     int rece_len;
 
     int end_server = 0, compress_array = 0;
-    int close_conn = 0;;
+    int close_conn = 0;
 
 
     strcpy(server_ip, SERVER_IP);
@@ -168,6 +168,7 @@ int main (int argc, char *argv[]) {
                 break;
             }
 
+            bzero(send_buff, BUFF_SIZE);
             if (fd_arr[i].fd == listen_fd) {
                 printf("listening socket is readable\n");
 
@@ -203,6 +204,7 @@ int main (int argc, char *argv[]) {
                 this_fd = fd_arr[i].fd;
                 printf("fd %d is readable\n", this_fd);
                 
+                bzero(rece_buff, BUFF_SIZE);
                 rc = recv(fd_arr[i].fd, rece_buff, BUFF_SIZE, 0);
 
                 
@@ -226,18 +228,18 @@ int main (int argc, char *argv[]) {
                 }
 
                 rece_len = rc;
-                printf("%d bytes received\n", rece_len);
+                printf("%d bytes received from %s\n", rece_len, conn->name);
 
-                if (!conn->name[0]) {
-                    strncpy(conn->name, rece_buff, 10);
-                    snprintf(send_buff, BUFF_SIZE, "%s joined", conn->name);
+                if (conn->name[0] == 0) {
+                    strncpy(conn->name, rece_buff, rece_len-2);
+                    snprintf(send_buff, BUFF_SIZE, "%s joined\n", conn->name);
                 } else {
-                    snprintf(send_buff, BUFF_SIZE, "%s: %s\n", conn->name, rece_buff);
+                    snprintf(send_buff, BUFF_SIZE, "%s: %s", conn->name, rece_buff);
                 }
                
 
                 for (int j=0; j<curr_fd_num; j++) {
-                    if (fd_arr[j].fd == this_fd) continue;
+                    if (fd_arr[j].fd == listen_fd || fd_arr[j].fd == this_fd) continue;
                     rc = send(fd_arr[j].fd, send_buff, BUFF_SIZE, 0);
                     if (rc < 0) {
                         perror("fail in send()");
