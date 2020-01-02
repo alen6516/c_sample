@@ -19,11 +19,18 @@ void sort(int *arr, int len) {
                     SWAP(arr[i], arr[j]);
                 } else {
                     tmp = arr[i];
-                    memmove()
+                    memmove(&arr[j+1], &arr[j], sizeof(int)*(i-j));
+                    arr[j] = tmp;
                 }
             }
         }
     } 
+
+
+    for (int i=0; i<len; i++) {
+        printf("%d, ", arr[i]);
+    }
+    printf("\n");
 }
 
 int main () {
