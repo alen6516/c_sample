@@ -7,20 +7,26 @@
 #include "list.h"
 #include "node.h"
 
-#define LEN 5
+#define LEN 2
 
 list_t* list;
 
 _Atomic int g_val = 0;
 
+_Atomic int _id = 0;
+__thread int my_id;
+
 void* putter(void* arg) {
-
-    node_t* node = node_init();
-    node->val = rand() % 10;
-    g_val += node->val;
-    sleep(rand() % 3);
-    list_put(list, (void*)node, (void**)&node->next);
-
+    my_id = ++_id;
+    node_t* node;
+    for (int i=0; i<2; i++) {
+        node = node_init();
+        node->val = rand() % 10;
+        g_val += node->val;
+        sleep(rand() % 3);
+        list_put(list, (void*)node, (void**)&node->next);
+        printf("putter %d put val %d to list\n", my_id, node->val);
+    }
     return NULL;
 }
 
@@ -28,11 +34,17 @@ void* taker(void* arg) {
     int i=0;
     void* out;
     int sum = 0;
-    while (i<LEN) {
+    while (1) {
         sleep(rand() % 3);
         out = list_take(list, node_get_next, node_link);
-        if (!out) continue;
-        printf("val = %d\n", ((node_t*)out)->val);
+        if (!out) {
+            /*
+            printf("take fail\n");
+            continue;
+            */
+            break;
+        }
+        printf("take val = %d\n", ((node_t*)out)->val);
         sum += ((node_t*)out)->val;
         i++;
     }
@@ -49,20 +61,15 @@ int main () {
 
     list = list_init((void*)root, node_get_ref_of_next);
     
-    pthread_t parr[10];
+    pthread_t parr[LEN];
     for (int i=0; i<LEN; i++) {
         pthread_create(&parr[i], NULL, putter, NULL);
     }
 
     sleep(5);
+    pthread_t ta;
+    pthread_create(&ta, NULL, taker, NULL);
 
-    void *out;
-    int sum = 0;
-    
-    while ((out = list_take(list, node_get_next, node_link))) {
-        printf("val = %d\n", ((node_t*)out)->val);
-        sum += ((node_t*)out)->val;
-    }
-    printf("g_val = %d, sum = %d\n", g_val, sum);
+    pthread_join(ta, NULL);
 }
 
