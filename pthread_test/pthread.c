@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <pthread.h>
 
+// tls varaible
+// it is atomic type
+__thread _Atomic int id;
+
 typedef struct my_data {
     int a;
     int b;
