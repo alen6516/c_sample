@@ -26,7 +26,7 @@ int main () {
     printf("put %d, node addr: %p\n", node->val, node);
     printf("root->next val: %p\n", node_get_next(list->root));
 
-    out = list_take(list, node_get_next, node_link);
+    out = list_take(list, node_get_next, node_link, node_get_ref_of_next);
     printf("take %d\n", ((node_t*)out)->val);
     printf("root->next val: %p\n", node_get_next(list->root));
 
@@ -40,7 +40,7 @@ int main () {
     printf("root->next val: %p\n", node_get_next(list->root));
 
 
-    out = list_take(list, node_get_next, node_link);
+    out = list_take(list, node_get_next, node_link, node_get_ref_of_next);
     if (out) {
         printf("take %d\n", ((node_t*)out)->val);
         printf("root->next val: %p\n", node_get_next(list->root));

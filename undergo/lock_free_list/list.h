@@ -39,17 +39,25 @@ int list_put(list_t* list, void* node, void** next) {
 }
 
 
-void* list_take(list_t* list, void* (node_get_next)(void*), int (node_link)(void*, void*)) {
+void* list_take(list_t* list, void* (node_get_next)(void*), int (node_link)(void*, void*), void** node_get_ref_of_next(void*)) {
 
     if (!list) {
         return NULL;
     }
 
     void *ret = NULL;
+    void *tmp_next;
 
     ret = node_get_next(list->root);
     if (ret) {
-        node_link(list->root, node_get_next(ret));
+        tmp_next = node_get_next(ret);
+
+        if (tmp_next == NULL) {
+            node_link(list->root, NULL);
+            list->next = node_get_ref_of_next(list->root);
+        } else {
+            node_link(list->root, tmp_next);
+        }
     }
 
     return ret;
