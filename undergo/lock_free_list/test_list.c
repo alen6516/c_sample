@@ -34,15 +34,12 @@ void* taker(void* arg) {
     int i=0;
     void* out;
     int sum = 0;
-    while (1) {
+    while (i< LEN*2) {
         sleep(rand() % 3);
-        out = list_take(list, node_get_next, node_link);
+        out = list_take(list, node_get_next, node_link, node_get_ref_of_next);
         if (!out) {
-            /*
             printf("take fail\n");
             continue;
-            */
-            break;
         }
         printf("take val = %d\n", ((node_t*)out)->val);
         sum += ((node_t*)out)->val;
@@ -66,7 +63,6 @@ int main () {
         pthread_create(&parr[i], NULL, putter, NULL);
     }
 
-    sleep(5);
     pthread_t ta;
     pthread_create(&ta, NULL, taker, NULL);
 
