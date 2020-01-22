@@ -46,39 +46,19 @@ void* list_take(list_t* list, void* (node_get_next)(void*), int (node_link)(void
     }
 
     void *ret = NULL;
-    void *root_next;
+    void *ret_next;
 
 
     do {
         ret = node_get_next(list->root);
         if (ret) {
-            root_next = node_get_next(ret);
+            ret_next = node_get_next(ret);
         } else {
             return NULL;
         }
-    } while (!__sync_bool_compare_and_swap(node_get_ref_of_next(list->root), ret, root_next));
-
-    void* ret_next;
-
-    if (root_next == NULL) {
-        //ret_next = node_get_next(ret);
-        
+    } while (!__sync_bool_compare_and_swap(node_get_ref_of_next(list->root), ret, ret_next));
 
 
-    }
-
-
-
-    if (ret) {
-        tmp_next = node_get_next(ret);
-
-        if (tmp_next == NULL) {
-            node_link(list->root, NULL);
-            list->next = node_get_ref_of_next(list->root);
-        } else {
-            node_link(list->root, tmp_next);
-        }
-    }
 
     return ret;
 }
