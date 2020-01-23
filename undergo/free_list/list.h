@@ -58,6 +58,16 @@ void* list_take(list_t* list, void* (node_get_next)(void*), int (node_link)(void
         }
     } while (!__sync_bool_compare_and_swap(node_get_ref_of_next(list->root), ret, ret_next));
 
+    if (ret_next == NULL) {
+        void** tmp_list_next;
+
+        do {
+            if (node_get_ref_of_next(ret) != list->next) {
+                break;
+            }
+            tmp_list_next = list->next;
+        } while(!__sync_bool_compare_and_swap(&list->next, tmp_list_next, node_get_ref_of_next(list->root)));
+    }
 
 
     return ret;
