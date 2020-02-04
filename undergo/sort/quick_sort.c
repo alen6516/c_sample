@@ -67,8 +67,8 @@ void quick_sort(int arr[], int left, int right) {
     q = partition(arr, left, right);
     
     if (q != left && q != left+1)
-        quick_sort(arr, left, q-1);
+        quick_sort(arr, left, q);
     if (q != right && q != right-1)
-        quick_sort(arr, q+1, right);
+        quick_sort(arr, q, right);
 }
 
