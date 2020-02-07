@@ -64,21 +64,45 @@ void quick_sort(int arr[], int left, int right) {
         quick_sort(arr, q, right);
 }
 
-int threeSumClosest(int* nums, int numsSize, int target) {
+void check_and_replace(int target, int sum, int *r) {
+    if (target == 0) {
+        if (*r > abs(sum)) {
+            *r = abs(sum);
+        }
+    } else if (target > 0) {
+        if (sum >= 0) {
+            if (*r > abs(target-sum)) {
+                *r = abs(target-sum);
+            }
+        } else {
+            if (*r > target-sum) {
+                *r = target-sum;
+            }
+        }
+    } else {
+        if (sum >= 0) {
+            if (*r > sum-target) {
+                *r = sum-target;
+            }
+        } else {
+            if (*r > abs(sum-target)) {
+                *r = abs(sum-target);
+            }
+        }
+    }
+}
 
-    if(numsSize == 3) {
-        return nums[0]+nums[1]+nums[2];
+void cut(int nums[], int left, int right, int target, int *closest_num) {
+    if (right-left < 1) return;
+    else if (right-left == 1) {
+        
     }
 
-    quick_sort(nums, 0, numsSize-1);
-    
-    int left=0, mid = 1, right = numsSize-1;
+    int mid=left+1;
+    int check_if_too_large =1;
     int curr_sum;
 
-    int cont = 1;
-    int check_if_too_large = 1;
-
-    while(cont && right>mid && mid>left) {
+    while(right>mid && mid>left) {
         curr_sum = nums[left]+nums[mid]+nums[right];
         if (curr_sum-target > 0) {
             if (check_if_too_large) {
@@ -101,6 +125,24 @@ int threeSumClosest(int* nums, int numsSize, int target) {
         }
     }
 
+
+}
+
+void walk_through(int nums[], int left, int right, int target, int* closest) {
+    
+}
+
+int threeSumClosest(int* nums, int numsSize, int target) {
+
+    if(numsSize == 3) {
+        return nums[0]+nums[1]+nums[2];
+    }
+
+    quick_sort(nums, 0, numsSize-1);
+    
+    int left=0, mid = 1, right = numsSize-1;
+
+
     for (int i=left; i<=right; i++) {
         printf("%d, ", nums[i]);
     }
@@ -113,6 +155,8 @@ int threeSumClosest(int* nums, int numsSize, int target) {
 int main () {
     int nums[] = {-50, -40, -39, -20, -15, -14, 0, 10, 20, 100, 200};
     int len = ARR_LEN(nums);
+    int target = 1;
+    printf("target = %d\n", target);
     for (int i=0; i<len; i++) {
         printf("%d, ", nums[i]);
     }
@@ -120,6 +164,5 @@ int main () {
 
     quick_sort(nums, 0, len-1);
 
-    int target = 1;
     threeSumClosest(nums, len, target);
 }
