@@ -20,14 +20,17 @@ node_t* node_init() {
 }
 
 void** node_get_ref_of_next(void* node) {
+    // return &node->next
     return (void**)&((node_t*)node)->next;
 }
 
 void* node_get_next(void* node) {
+    // return node->next
     return ((node_t*)node)->next;
 }
 
 int node_link(void *a, void* b) {
+    // let a->next = b
     int ret = 0;
     if (!a) ret = -1;;
     ((node_t*)a)->next = (node_t*)b;

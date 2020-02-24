@@ -22,7 +22,6 @@ list_t* list_init(void* root, void** (node_get_ref_of_next)(void*)) {
     return list;
 }
 
-
 int list_put(list_t* list, void* node, void** next) {
     if (!list || !node || !next) {
         return -1;
@@ -34,10 +33,8 @@ int list_put(list_t* list, void* node, void** next) {
     } while (!__sync_bool_compare_and_swap(&list->next, tmp_next, next));
 
     *tmp_next = node;
-
     return 0;
 }
-
 
 void* list_take(list_t* list, void* (node_get_next)(void*), int (node_link)(void*, void*), void** node_get_ref_of_next(void*)) {
 
@@ -47,7 +44,6 @@ void* list_take(list_t* list, void* (node_get_next)(void*), int (node_link)(void
 
     void *ret = NULL;
     void *ret_next;
-
 
     do {
         ret = node_get_next(list->root);
@@ -68,7 +64,6 @@ void* list_take(list_t* list, void* (node_get_next)(void*), int (node_link)(void
             tmp_list_next = list->next;
         } while(!__sync_bool_compare_and_swap(&list->next, tmp_list_next, node_get_ref_of_next(list->root)));
     }
-
 
     return ret;
 }
