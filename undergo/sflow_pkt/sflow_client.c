@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 
 #include <sys/socket.h>             /* socket(), bind(), listen(), ... */
@@ -214,9 +215,22 @@ int make_sflow_packet(u8 **msg) {
 
     int sflow_pkt_len = sampled_pkt_len + raw_pkt_hdr_len + sflow_sample_len + sflow_hdr_len;
 
+    u8* ret = (u8*) calloc(1, sflow_pkt_len);
 
+    int curr_len = 0;
+    memcpy(ret, sflow_hdr, sflow_hdr_len);
+    curr_len += sflow_hdr_len;
+    memcpy(ret+curr_len, sflow_sample, sflow_sample_len);
+    curr_len += sflow_sample_len;
+    memcpy(ret+curr_len, raw_pkt_hdr, raw_pkt_hdr_len);
+    curr_len += raw_pkt_hdr_len;
+    memcpy(ret+curr, sampled_pkt, sampled_pkt_len);
+    curr_len += sampled_pkt_len;
 
+    assert(curr_len == sflow_pkt_len);
 
+    *msg = ret;
+    return curr_len;
     
 }
 
