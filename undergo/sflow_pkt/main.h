@@ -14,7 +14,7 @@ struct sflow_hdr_t {
     u32 seq_num;
     u32 sys_uptime;
     u32 sample_num;
-};
+}__attribute__((packed));;
 
 struct sflow_sample_t {
     u32 sample_type;
@@ -27,7 +27,7 @@ struct sflow_sample_t {
     u32 input_intf;
     u32 output_intf;
     u32 flow_record;
-};
+}__attribute__((packed));;
 
 struct raw_pkt_hdr_t { 
     u32 format;
@@ -36,7 +36,7 @@ struct raw_pkt_hdr_t {
     u32 frame_len;
     u32 payload_removed;
     u32 ori_pkt_len;
-};
+}__attribute__((packed));;
 
 struct arp_hdr_t {
     u16 hd_type;
@@ -62,7 +62,7 @@ struct ipv4_hdr_t {
     u16 hdr_chksum;
     u32 src_ip;
     u32 dst_ip;
-};
+}__attribute__((packed));;
 
 struct icmpv4_hdr_t {
     u8  type;
@@ -70,6 +70,12 @@ struct icmpv4_hdr_t {
     u16 chksum;
     u16 id;
     u16 seq_num;
-};
+}__attribute__((packed));;
 
+struct udp_hdr_t {
+    u16 sport;
+    u16 dport;
+    u16 len;
+    u16 chksum;
+}__attribute__((packed));;
 #endif

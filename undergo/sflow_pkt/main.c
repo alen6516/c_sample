@@ -11,13 +11,18 @@
 
 #include "main.h"
 
-
 #define COLLECTOR_IP "127.0.0.1"
 #define SFLOW_PORT   6343
 
+#define SRC_IP 0xa1141414         // 20.20.20.160
+#define DST_IP 0xa2651414         // 20.20.101.162
+
+#define SRC_PORT 9487
+#define DST_PORT 8000
+
 #define SAMPLE_NUM 1
 
-#define ARP
+#define UDP
 
 int make_sflow_hdr(u8 **msg) {
 
@@ -65,6 +70,10 @@ int make_sflow_sample(u8 **msg, int curr_len)
 
 int make_sampled_pkt(u8 **msg, int sampled_pkt_payload_len) 
 {
+    u8 *ret;
+    int ori_len = 0;
+    int padding_len = 0;
+    int ret_len = 0;
 
 #ifdef ARP
     u8 eth_data[14] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -75,6 +84,8 @@ int make_sampled_pkt(u8 **msg, int sampled_pkt_payload_len)
                         0x00, 0x19, 0xb9, 0xdd, 0xb2, 0x64,
                         0x08, 0x00 };
 #endif
+
+    ori_len += 14;
 
 
 #ifdef ARP
@@ -87,18 +98,16 @@ int make_sampled_pkt(u8 **msg, int sampled_pkt_payload_len)
     arp_hdr->hd_size = 6;
     arp_hdr->prot_size = 4;
     arp_hdr->op_code = htons(1);
-
     u8 smac[6] = { 0xd8, 0x50, 0xe6, 0x94, 0x2c, 0xf8 };
     memcpy((void*) arp_hdr->smac, (void*) smac, 6);
-
     arp_hdr->sip = htonl(0xc0a862fb);
-
     u8 dmac[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
     memcpy((void*) arp_hdr->dmac, (void*) dmac, 6);
-
     arp_hdr->dip = htonl(0xc0a86298);
+    ori_len += arp_hdr_len;
+#endif
 
-#else
+#ifdef ICMP
     int ipv4_hdr_len = sizeof(struct ipv4_hdr_t);
     struct ipv4_hdr_t* ipv4_hdr;
     ipv4_hdr = (struct ipv4_hdr_t*) calloc(1, sizeof(struct ipv4_hdr_t));
@@ -111,52 +120,71 @@ int make_sampled_pkt(u8 **msg, int sampled_pkt_payload_len)
     ipv4_hdr->ttl = 124;
     ipv4_hdr->protocol = 1;     // 1 for icmpv4
     ipv4_hdr->hdr_chksum = htons(0x9487);
-    ipv4_hdr->src_ip = htonl(0xac1520fe);
-    ipv4_hdr->dst_ip = htonl(0xac1520f1);
+    ipv4_hdr->src_ip = htonl(SRC_IP);
+    ipv4_hdr->dst_ip = htonl(DST_IP);
+    ori_len += ipv4_hdr_len;
 
-    /*
     int icmpv4_hdr_len = sizeof(struct icmpv4_hdr_t);
     struct icmpv4_hdr_t *icmpv4_hdr;
-    icmpv4_hdr = (struct icmpv4_hdr_t*) calloc(1, sizeof(struct icmpv4_hdr_t));
+    icmpv4_hdr = (struct icmpv4_hdr_t*) calloc(1, icmpv4_hdr_len);
     icmpv4_hdr->type = 8;
     icmpv4_hdr->code = 0;
     icmpv4_hdr->chksum = htons(0x9487);
     icmpv4_hdr->id = htons(0xa948);
     icmpv4_hdr->seq_num = htons(0x0cb2);
-    */
-
+    ori_len += icmpv4_hdr_len;
 #endif
 
+#ifdef UDP
+    int ipv4_hdr_len = sizeof(struct ipv4_hdr_t);
+    struct ipv4_hdr_t* ipv4_hdr;
+    ipv4_hdr = (struct ipv4_hdr_t*) calloc(1, sizeof(struct ipv4_hdr_t));
+    ipv4_hdr->version = 0x4;
+    ipv4_hdr->hdr_len = 0x5;
+    ipv4_hdr->dsf = 0;
+    ipv4_hdr->total_len = htons(20+sampled_pkt_payload_len);
+    ipv4_hdr->id = htons(23559);
+    ipv4_hdr->flag = 0;
+    ipv4_hdr->ttl = 124;
+    ipv4_hdr->protocol = 17;     // 17 for udp
+    ipv4_hdr->hdr_chksum = htons(0x9487);
+    ipv4_hdr->src_ip = htonl(SRC_IP);
+    ipv4_hdr->dst_ip = htonl(DST_IP);
+    ori_len += ipv4_hdr_len;
+    int udp_hdr_len = sizeof(struct udp_hdr_t);
 
-    u8 *ret;
-    int ori_len = 0;
-    int padding_len = 0;
-    int ret_len = 0;
+    struct udp_hdr_t *udp_hdr;
+    udp_hdr = (struct udp_hdr_t*) calloc(1, udp_hdr_len);
+    udp_hdr->sport = htons(SRC_PORT);
+    udp_hdr->dport = htons(DST_PORT);
+    udp_hdr->len = htons(8);
+    udp_hdr->chksum = htons(0x9487);
+    ori_len += udp_hdr_len;
+#endif
+
+    if (ori_len % 4 != 0) {
+        padding_len = (ori_len/4 +1)*4 -ori_len;
+    }
+    ret = (u8*) calloc(1, ori_len + padding_len);
+    memcpy(ret, eth_data, 14);
+    ret_len += 14;
 
 #ifdef ARP
-    ori_len = 14+arp_hdr_len;
-    if (ori_len % 4 != 0) {
-        padding_len = (ori_len/4 +1)*4 -ori_len;
-    }
-    ret = (u8*) calloc(1, ori_len + padding_len);
-    memcpy(ret, eth_data, 14);
-    ret_len += 14;
     memcpy(ret+ret_len, (void*) arp_hdr, arp_hdr_len);
     ret_len += arp_hdr_len;
-
 #else
-    ori_len = 14+ipv4_hdr_len;
-    if (ori_len % 4 != 0) {
-        padding_len = (ori_len/4 +1)*4 -ori_len;
-    }
-    //ret = (u8*) calloc(1, 14 + ipv4_hdr_len + icmpv4_hdr_len);
-    ret = (u8*) calloc(1, ori_len + padding_len);
-
-    memcpy(ret, eth_data, 14);
-    ret_len += 14;
     memcpy(ret+ret_len, (void*) ipv4_hdr, ipv4_hdr_len);
-    //memcpy(ret+ret_len, (void*) icmpv4_hdr, icmpv4_hdr_len);
-    
+    ret_len += ipv4_hdr_len;
+#endif
+
+#ifdef ICMP
+    memcpy(ret+ret_len, (void*) icmpv4_hdr, icmpv4_hdr_len);
+    ret_len += icmpv4_hdr_len;
+#endif
+
+#ifdef UDP
+    memcpy(ret+ret_len, (void*) udp_hdr, udp_hdr_len);
+    ret_len += udp_hdr_len;
 #endif
 
     *msg = ret;
@@ -166,7 +194,6 @@ int make_sampled_pkt(u8 **msg, int sampled_pkt_payload_len)
 int make_raw_pkt_hdr(u8 **msg, int sampled_pkt_len, int padding_len) 
 {
     
-
     struct raw_pkt_hdr_t* raw_pkt_hdr;
     raw_pkt_hdr = (struct raw_pkt_hdr_t*) calloc(1, sizeof(struct raw_pkt_hdr_t));
     raw_pkt_hdr->format = htonl(1);
@@ -184,15 +211,14 @@ int make_raw_pkt_hdr(u8 **msg, int sampled_pkt_len, int padding_len)
     return ret_len;
 }
 
-
+/* main caller */
 int make_sflow_packet(u8 **msg) 
 {
 
     // make sampled packet
     int sampled_pkt_len = 0;
     u8 *sampled_pkt;
-    //int sampled_pkt_payload_len = 8;    // icmpv4 length
-    int sampled_pkt_payload_len = 0;
+    int sampled_pkt_payload_len = sizeof(struct icmpv4_hdr_t);    // icmpv4 length
     sampled_pkt_len = make_sampled_pkt(&sampled_pkt, sampled_pkt_payload_len);
     printf("sampled_pkt_len: %d\n", sampled_pkt_len);
     
