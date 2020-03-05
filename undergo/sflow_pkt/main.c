@@ -10,19 +10,73 @@
 #include <unistd.h>                 /* read(), write(), close() */
 
 #include "main.h"
+#include "list.h"
 
 #define COLLECTOR_IP "127.0.0.1"
 #define SFLOW_PORT   6343
 
-#define SRC_IP 0xa1141414         // 20.20.20.160
-#define DST_IP 0xa2651414         // 20.20.101.162
+#define SRC_IP 0x141414a1         // 20.20.20.160
+#define DST_IP 0x141465a2         // 20.20.101.162
 
 #define SRC_PORT 9487
 #define DST_PORT 8000
 
 #define SAMPLE_NUM 1
 
-#define UDP
+struct node_t* head_node;
+
+void handle_argv(int argc, char **argv) {
+
+    head_node = NODE_CALLOC();
+    if (NULL == head_node) {
+        printf("Can not malloc for head_node\n");
+        exit(1);
+    }
+
+    if (argc == 1) {
+        head_node->type = 0x1;
+        head_node->sip = SRC_IP;
+        head_node->dip = DST_IP;
+        return;
+    }
+
+    struct node_t* curr = head_node;
+    struct node_t* prev = NULL;
+    int i = 1;
+    while (i < argc) {
+
+        if (0 == strcmp("-i", argv[i])) {
+            curr->type = 0x1;
+            curr->sip = SRC_IP;
+            curr->dip = DST_IP;
+            i += 1;
+        } else if (0 == strcmp("-u", argv[i]) && i+1 <= argc) {
+            curr->type = 0x11;
+            curr->sip = SRC_IP;
+            curr->dip = DST_IP;
+            curr->sport = SRC_PORT;
+            curr->dport = strtol(argv[i+1], NULL, 10);
+            i += 2;
+        } else if (0 == strcmp("-t", argv[i]) && i+1 <= argc) {
+            curr->type = 0x6;
+            curr->sip = SRC_IP;
+            curr->dip = DST_IP;
+            curr->sport = SRC_PORT;
+            curr->dport = strtol(argv[i+1], NULL, 10);
+            i += 2;
+        } else {
+            printf("Parse arg fail\n");
+            exit(1);
+        }
+
+        if (curr != head_node) {
+            prev->next = curr;
+        } 
+        prev = curr;
+        curr = NODE_CALLOC();
+    } 
+    show(head_node);
+}
 
 int make_sflow_hdr(u8 **msg) {
 
@@ -34,7 +88,7 @@ int make_sflow_hdr(u8 **msg) {
     sflow_hdr->sub_agent_id = htonl(1);
     sflow_hdr->seq_num = htonl(0x01a2);
     sflow_hdr->sys_uptime = htonl(0x673e7f08);
-    sflow_hdr->sample_num = htonl(SAMPLE_NUM);
+    sflow_hdr->sample_num = htonl(get_node_num(head_node));
 
     int ret_len = (int) sizeof(struct sflow_hdr_t);
     u8* ret = (u8*) calloc(1, ret_len);
@@ -44,123 +98,81 @@ int make_sflow_hdr(u8 **msg) {
     return ret_len;
 }
 
-int make_sflow_sample(u8 **msg, int curr_len) 
+int make_sflow_sample_hdr(u8 **msg, int curr_len) 
 {
 
-    struct sflow_sample_t* sflow_sample;
-    sflow_sample = (struct sflow_sample_t*) calloc(1, sizeof(struct sflow_sample_t));
-    sflow_sample->sample_type = htonl(1);
-    sflow_sample->sample_len = htonl(curr_len+(int)sizeof(struct sflow_sample_t)-8);
-    sflow_sample->seq_num = htonl(6);
-    sflow_sample->idx = htonl(1043);
-    sflow_sample->sample_rate = htonl(2048);
-    sflow_sample->sample_pool = htonl(12288);
-    sflow_sample->dropped_pkt = 0;
-    sflow_sample->input_intf = htonl(1048);
-    sflow_sample->output_intf = htonl(0x00000413);
-    sflow_sample->flow_record = htonl(1);
+    struct sflow_sample_hdr_t* sflow_sample_hdr;
+    sflow_sample_hdr = (struct sflow_sample_hdr_t*) calloc(1, sizeof(struct sflow_sample_hdr_t));
+    sflow_sample_hdr->sample_type = htonl(1);
+    sflow_sample_hdr->sample_len = htonl(curr_len+(int)sizeof(struct sflow_sample_hdr_t)-8);
+    sflow_sample_hdr->seq_num = htonl(6);
+    sflow_sample_hdr->idx = htonl(1043);
+    sflow_sample_hdr->sample_rate = htonl(2048);
+    sflow_sample_hdr->sample_pool = htonl(12288);
+    sflow_sample_hdr->dropped_pkt = 0;
+    sflow_sample_hdr->input_intf = htonl(1048);
+    sflow_sample_hdr->output_intf = htonl(0x00000413);
+    sflow_sample_hdr->flow_record = htonl(1);
 
-    int ret_len = (int) sizeof(struct sflow_sample_t);
+    int ret_len = (int) sizeof(struct sflow_sample_hdr_t);
     u8* ret = (u8*) calloc(1, ret_len);
-    memcpy(ret, sflow_sample, ret_len);
+    memcpy(ret, sflow_sample_hdr, ret_len);
 
     *msg = ret;
     return ret_len;
 }
 
-int make_sampled_pkt(u8 **msg, int sampled_pkt_payload_len) 
+int make_sampled_pkt(u8 **msg, u8 type) 
 {
+    int sampled_pkt_payload_len = 0;
+    if (type == 0x1) {
+        sampled_pkt_payload_len = ICMPV4_HDR_LEN;
+    } else if (type == 0x6) {
+        sampled_pkt_payload_len = TCP_HDR_LEN;
+    } else if (type == 0x11) {
+        sampled_pkt_payload_len = UDP_HDR_LEN;
+    }
+
+
     u8 *ret;
     int ori_len = 0;
     int padding_len = 0;
     int ret_len = 0;
 
-#ifdef ARP
-    u8 eth_data[14] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                        0xd8, 0x50, 0xe6, 0x94, 0x2c, 0xf8,
-                        0x08, 0x06 };
-#else
     u8 eth_data[14] = { 0x00, 0x1c, 0x23, 0x9f, 0x15, 0x0b,
                         0x00, 0x19, 0xb9, 0xdd, 0xb2, 0x64,
                         0x08, 0x00 };
-#endif
-
     ori_len += 14;
 
-
-#ifdef ARP
-    int arp_hdr_len = sizeof(struct arp_hdr_t);
-    printf("%d\n", arp_hdr_len);
-    struct arp_hdr_t* arp_hdr;
-    arp_hdr = (struct arp_hdr_t*) calloc(1, arp_hdr_len);
-    arp_hdr->hd_type = htons(1);
-    arp_hdr->prot_type = htons(0x0800);
-    arp_hdr->hd_size = 6;
-    arp_hdr->prot_size = 4;
-    arp_hdr->op_code = htons(1);
-    u8 smac[6] = { 0xd8, 0x50, 0xe6, 0x94, 0x2c, 0xf8 };
-    memcpy((void*) arp_hdr->smac, (void*) smac, 6);
-    arp_hdr->sip = htonl(0xc0a862fb);
-    u8 dmac[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-    memcpy((void*) arp_hdr->dmac, (void*) dmac, 6);
-    arp_hdr->dip = htonl(0xc0a86298);
-    ori_len += arp_hdr_len;
-#endif
-
-#ifdef ICMP
-    int ipv4_hdr_len = sizeof(struct ipv4_hdr_t);
     struct ipv4_hdr_t* ipv4_hdr;
+    struct icmpv4_hdr_t* icmpv4_hdr;
+    struct udp_hdr_t* udp_hdr;
+    struct tcp_hdr_t* tcp_hdr;
+
     ipv4_hdr = (struct ipv4_hdr_t*) calloc(1, sizeof(struct ipv4_hdr_t));
-    ipv4_hdr->version = 0x4;
-    ipv4_hdr->hdr_len = 0x5;
-    ipv4_hdr->dsf = 0;
-    ipv4_hdr->total_len = htons(20+sampled_pkt_payload_len);
-    ipv4_hdr->id = htons(23559);
-    ipv4_hdr->flag = 0;
-    ipv4_hdr->ttl = 124;
-    ipv4_hdr->protocol = 1;     // 1 for icmpv4
-    ipv4_hdr->hdr_chksum = htons(0x9487);
-    ipv4_hdr->src_ip = htonl(SRC_IP);
-    ipv4_hdr->dst_ip = htonl(DST_IP);
-    ori_len += ipv4_hdr_len;
+    make_ipv4(ipv4_hdr, sampled_pkt_payload_len, type, SRC_IP, DST_IP);
+    ori_len += IPV4_HDR_LEN;
 
-    int icmpv4_hdr_len = sizeof(struct icmpv4_hdr_t);
-    struct icmpv4_hdr_t *icmpv4_hdr;
-    icmpv4_hdr = (struct icmpv4_hdr_t*) calloc(1, icmpv4_hdr_len);
-    icmpv4_hdr->type = 8;
-    icmpv4_hdr->code = 0;
-    icmpv4_hdr->chksum = htons(0x9487);
-    icmpv4_hdr->id = htons(0xa948);
-    icmpv4_hdr->seq_num = htons(0x0cb2);
-    ori_len += icmpv4_hdr_len;
-#endif
+    if (type == 0x1) {
 
-#ifdef UDP
-    int ipv4_hdr_len = sizeof(struct ipv4_hdr_t);
-    struct ipv4_hdr_t* ipv4_hdr;
-    ipv4_hdr = (struct ipv4_hdr_t*) calloc(1, sizeof(struct ipv4_hdr_t));
-    ipv4_hdr->version = 0x4;
-    ipv4_hdr->hdr_len = 0x5;
-    ipv4_hdr->dsf = 0;
-    ipv4_hdr->total_len = htons(20+sampled_pkt_payload_len);
-    ipv4_hdr->id = htons(23559);
-    ipv4_hdr->flag = 0;
-    ipv4_hdr->ttl = 124;
-    ipv4_hdr->protocol = 17;     // 17 for udp
-    ipv4_hdr->hdr_chksum = htons(0x9487);
-    ipv4_hdr->src_ip = htonl(SRC_IP);
-    ipv4_hdr->dst_ip = htonl(DST_IP);
-    ori_len += ipv4_hdr_len;
-    int udp_hdr_len = sizeof(struct udp_hdr_t);
+        icmpv4_hdr = (struct icmpv4_hdr_t*) calloc(1, ICMPV4_HDR_LEN);
+        make_icmpv4(icmpv4_hdr);
+        ori_len += ICMPV4_HDR_LEN;
 
-    struct udp_hdr_t *udp_hdr;
-    udp_hdr = (struct udp_hdr_t*) calloc(1, udp_hdr_len);
-    udp_hdr->sport = htons(SRC_PORT);
-    udp_hdr->dport = htons(DST_PORT);
-    udp_hdr->len = htons(8);
-    udp_hdr->chksum = htons(0x9487);
-    ori_len += udp_hdr_len;
-#endif
+    } else if (type == 0x6) {
+
+        tcp_hdr = (struct tcp_hdr_t*) calloc(1, TCP_HDR_LEN);
+        make_tcp(tcp_hdr, SRC_PORT, DST_PORT);
+        ori_len += TCP_HDR_LEN;
+
+    } else if (type == 0x11) {
+        ipv4_hdr->protocol = 17;     // 17 for udp
+
+        udp_hdr = (struct udp_hdr_t*) calloc(1, UDP_HDR_LEN);
+        make_udp(udp_hdr, SRC_PORT, DST_PORT);
+        ori_len += UDP_HDR_LEN;
+    }
+
 
     if (ori_len % 4 != 0) {
         padding_len = (ori_len/4 +1)*4 -ori_len;
@@ -169,23 +181,19 @@ int make_sampled_pkt(u8 **msg, int sampled_pkt_payload_len)
     memcpy(ret, eth_data, 14);
     ret_len += 14;
 
-#ifdef ARP
-    memcpy(ret+ret_len, (void*) arp_hdr, arp_hdr_len);
-    ret_len += arp_hdr_len;
-#else
-    memcpy(ret+ret_len, (void*) ipv4_hdr, ipv4_hdr_len);
-    ret_len += ipv4_hdr_len;
-#endif
+    memcpy(ret+ret_len, (void*) ipv4_hdr, IPV4_HDR_LEN);
+    ret_len += IPV4_HDR_LEN;
 
-#ifdef ICMP
-    memcpy(ret+ret_len, (void*) icmpv4_hdr, icmpv4_hdr_len);
-    ret_len += icmpv4_hdr_len;
-#endif
-
-#ifdef UDP
-    memcpy(ret+ret_len, (void*) udp_hdr, udp_hdr_len);
-    ret_len += udp_hdr_len;
-#endif
+    if (type == 0x1) {
+        memcpy(ret+ret_len, (void*) icmpv4_hdr, ICMPV4_HDR_LEN);
+        ret_len += ICMPV4_HDR_LEN;
+    } else if (type == 0x6) {
+        memcpy(ret+ret_len, (void*) tcp_hdr, TCP_HDR_LEN);
+        ret_len += TCP_HDR_LEN;
+    } else if (type == 0x11) {
+        memcpy(ret+ret_len, (void*) udp_hdr, UDP_HDR_LEN);
+        ret_len += UDP_HDR_LEN;
+    }
 
     *msg = ret;
     return ret_len;
@@ -218,29 +226,57 @@ int make_sflow_packet(u8 **msg)
     // make sampled packet
     int sampled_pkt_len = 0;
     u8 *sampled_pkt;
-    int sampled_pkt_payload_len = sizeof(struct icmpv4_hdr_t);    // icmpv4 length
-    sampled_pkt_len = make_sampled_pkt(&sampled_pkt, sampled_pkt_payload_len);
-    printf("sampled_pkt_len: %d\n", sampled_pkt_len);
-    
 
-    // make raw packet header
+    struct node_t* curr_node;
+    curr_node = head_node;
+    u8 type;
+
+    int curr_len = 0;
     int raw_pkt_hdr_len = 0;
     u8 *raw_pkt_hdr;
     int padding_len = 0;
-    if (sampled_pkt_len % 4 != 0) {
-        padding_len = (sampled_pkt_len/4 +1)*4 -sampled_pkt_len;
-    }
-    printf("padding_len: %d\n", padding_len);
-    raw_pkt_hdr_len = make_raw_pkt_hdr(&raw_pkt_hdr, sampled_pkt_len, padding_len);
-    printf("raw_pkt_hdr_len: %d\n", raw_pkt_hdr_len);
-
-
-    // make sflow sample
     int sflow_sample_hdr_len = 0;
-    u8* sflow_sample;
-    sflow_sample_hdr_len = make_sflow_sample(&sflow_sample, sampled_pkt_len+raw_pkt_hdr_len);
-    printf("sflow_sample_hdr_len: %d\n", sflow_sample_hdr_len);
+    int all_sample_len = 0;
 
+    while (curr_node) {  // for every node, make a sample
+        type = curr_node->type;
+    
+        // make sampled pkt
+        sampled_pkt_len = make_sampled_pkt(&sampled_pkt, type);
+        printf("sampled_pkt_len: %d\n", sampled_pkt_len);
+        
+        // cal padding len
+        if (sampled_pkt_len % 4 != 0) {
+            padding_len = (sampled_pkt_len/4 +1)*4 -sampled_pkt_len;
+        }
+        printf("padding_len: %d\n", padding_len);
+
+        // make raw packet header
+        raw_pkt_hdr_len = make_raw_pkt_hdr(&raw_pkt_hdr, sampled_pkt_len, padding_len);
+        printf("raw_pkt_hdr_len: %d\n", raw_pkt_hdr_len);
+
+
+        // make sflow sample
+        u8* sflow_sample_hdr;
+        sflow_sample_hdr_len = make_sflow_sample_hdr(&sflow_sample_hdr, sampled_pkt_len+raw_pkt_hdr_len+padding_len);
+        printf("sflow_sample_hdr_len: %d\n", sflow_sample_hdr_len);
+
+
+        // copy this sample to node->sample_ptr
+        curr_node->sample_len = sflow_sample_hdr_len+raw_pkt_hdr_len+sampled_pkt_len+padding_len;
+        curr_node->sample_ptr = (u8*) calloc(1, curr_node->sample_len);
+        curr_len = 0;
+        memcpy(curr_node->sample_ptr, sflow_sample_hdr, sflow_sample_hdr_len);
+        curr_len += sflow_sample_hdr_len;
+        memcpy(curr_node->sample_ptr+curr_len, raw_pkt_hdr, raw_pkt_hdr_len);
+        curr_len += raw_pkt_hdr_len;
+        memcpy(curr_node->sample_ptr+curr_len, sampled_pkt, sampled_pkt_len);
+
+
+        // before goto next
+        all_sample_len += curr_node->sample_len;
+        curr_node = curr_node->next;
+    }
 
     // make sflow header
     int sflow_hdr_len = 0;
@@ -250,22 +286,22 @@ int make_sflow_packet(u8 **msg)
 
 
     // make sflow packet
-    int sflow_pkt_len = sampled_pkt_len + padding_len + raw_pkt_hdr_len + sflow_sample_hdr_len + sflow_hdr_len;
+    int sflow_pkt_len = all_sample_len + sflow_hdr_len;
     printf("sflow_pkt_len: %d\n", sflow_pkt_len);
     u8* ret = (u8*) calloc(1, sflow_pkt_len);
 
-
-    // copy all stuff into
-    int curr_len = 0;
+    
+    curr_len = 0;
     memcpy(ret, sflow_hdr, sflow_hdr_len);
     curr_len += sflow_hdr_len;
-    memcpy(ret+curr_len, sflow_sample, sflow_sample_hdr_len);
-    curr_len += sflow_sample_hdr_len;
-    memcpy(ret+curr_len, raw_pkt_hdr, raw_pkt_hdr_len);
-    curr_len += raw_pkt_hdr_len;
-    memcpy(ret+curr_len, sampled_pkt, sampled_pkt_len);
-    curr_len += sampled_pkt_len;
-    curr_len += padding_len;
+
+    // copy all stuff into
+    curr_node = head_node;
+    while (curr_node) {
+        memcpy(ret+curr_len, curr_node->sample_ptr, curr_node->sample_len);
+        curr_len += curr_node->sample_len;
+        curr_node = curr_node->next;
+    }
 
     assert(curr_len == sflow_pkt_len);
 
@@ -273,7 +309,9 @@ int make_sflow_packet(u8 **msg)
     return curr_len;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    
+    handle_argv(argc, argv);
 
     u8 *msg;
     int len = make_sflow_packet(&msg);
