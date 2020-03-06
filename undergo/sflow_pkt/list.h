@@ -18,7 +18,7 @@ struct node_t {
 
 #define NODE_CALLOC() (struct node_t*) calloc(1, sizeof(struct node_t))
 
-void show(struct node_t* curr) {
+static inline void show(struct node_t* curr) {
     while (curr) {
         printf("-------------------\n");
         switch (curr->type) {

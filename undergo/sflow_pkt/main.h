@@ -11,7 +11,7 @@ struct sflow_hdr_t {
     u32 seq_num;
     u32 sys_uptime;
     u32 sample_num;
-}__attribute__((packed));;
+}__attribute__((packed));
 
 struct sflow_sample_hdr_t {
     u32 sample_type;

@@ -26,6 +26,10 @@
 struct node_t* head_node;
 
 void handle_argv(int argc, char **argv) {
+    /*
+     * -u 20.20.20.1 8787
+     * -i 20.20.20.1
+     */
 
     head_node = NODE_CALLOC();
     if (NULL == head_node) {
@@ -43,32 +47,42 @@ void handle_argv(int argc, char **argv) {
     struct node_t* curr = head_node;
     struct node_t* prev = NULL;
     int i = 1;
+    int ret = 0;
     while (i < argc) {
 
-        if (0 == strcmp("-i", argv[i])) {
+        if (0 == strcmp("-i", argv[i]) && i+1 <= argc) {
             curr->type = 0x1;
             curr->sip = SRC_IP;
-            curr->dip = DST_IP;
-            i += 1;
-        } else if (0 == strcmp("-u", argv[i]) && i+1 <= argc) {
+            ret = inet_pton(AF_INET, argv[i+1], &curr->dip);
+            //curr->dip = DST_IP;
+            i += 2;
+        } else if (0 == strcmp("-u", argv[i]) && i+2 <= argc) {
             curr->type = 0x11;
             curr->sip = SRC_IP;
-            curr->dip = DST_IP;
+            ret = inet_pton(AF_INET, argv[i+1], &curr->dip);
+            //curr->dip = DST_IP;
             curr->sport = SRC_PORT;
-            curr->dport = strtol(argv[i+1], NULL, 10);
-            i += 2;
-        } else if (0 == strcmp("-t", argv[i]) && i+1 <= argc) {
+            curr->dport = strtol(argv[i+2], NULL, 10);
+            i += 3;
+        } else if (0 == strcmp("-t", argv[i]) && i+2 <= argc) {
             curr->type = 0x6;
             curr->sip = SRC_IP;
-            curr->dip = DST_IP;
+            ret = inet_pton(AF_INET, argv[i+1], &curr->dip);
+            //curr->dip = DST_IP;
             curr->sport = SRC_PORT;
-            curr->dport = strtol(argv[i+1], NULL, 10);
-            i += 2;
+            curr->dport = strtol(argv[i+2], NULL, 10);
+            i += 3;
         } else {
             printf("Parse arg fail\n");
             exit(1);
         }
 
+        if (ret == 0) {
+            printf("Parse ip addr fail\n");
+            exit(1);
+        }
+
+        // before goto next
         if (curr != head_node) {
             prev->next = curr;
         } 
@@ -76,6 +90,7 @@ void handle_argv(int argc, char **argv) {
         curr = NODE_CALLOC();
     } 
     show(head_node);
+    exit(0);
 }
 
 int make_sflow_hdr(u8 **msg) {
