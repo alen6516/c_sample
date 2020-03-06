@@ -113,7 +113,7 @@ static inline int make_ipv4(struct ipv4_hdr_t* ipv4_hdr, int sampled_pkt_payload
     }
     ipv4_hdr->hdr_chksum = htons(0x9487);
     ipv4_hdr->src_ip = htonl(src_ip);
-    ipv4_hdr->dst_ip = htonl(dst_ip);
+    ipv4_hdr->dst_ip = dst_ip;
 
     return IPV4_HDR_LEN;
 }

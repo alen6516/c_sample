@@ -74,12 +74,12 @@ void handle_argv(int argc, char **argv) {
             i += 3;
         } else {
             printf("Parse arg fail\n");
-            exit(1);
+            goto err;
         }
 
         if (ret == 0) {
             printf("Parse ip addr fail\n");
-            exit(1);
+            goto err;
         }
 
         // before goto next
@@ -90,7 +90,10 @@ void handle_argv(int argc, char **argv) {
         curr = NODE_CALLOC();
     } 
     show(head_node);
-    exit(0);
+    return;
+
+err:
+    exit(1);
 }
 
 int make_sflow_hdr(u8 **msg) {
@@ -137,14 +140,14 @@ int make_sflow_sample_hdr(u8 **msg, int curr_len)
     return ret_len;
 }
 
-int make_sampled_pkt(u8 **msg, u8 type) 
+int make_sampled_pkt(u8 **msg, struct node_t* node) 
 {
     int sampled_pkt_payload_len = 0;
-    if (type == 0x1) {
+    if (node->type == 0x1) {
         sampled_pkt_payload_len = ICMPV4_HDR_LEN;
-    } else if (type == 0x6) {
+    } else if (node->type == 0x6) {
         sampled_pkt_payload_len = TCP_HDR_LEN;
-    } else if (type == 0x11) {
+    } else if (node->type == 0x11) {
         sampled_pkt_payload_len = UDP_HDR_LEN;
     }
 
@@ -165,22 +168,22 @@ int make_sampled_pkt(u8 **msg, u8 type)
     struct tcp_hdr_t* tcp_hdr;
 
     ipv4_hdr = (struct ipv4_hdr_t*) calloc(1, sizeof(struct ipv4_hdr_t));
-    make_ipv4(ipv4_hdr, sampled_pkt_payload_len, type, SRC_IP, DST_IP);
+    make_ipv4(ipv4_hdr, sampled_pkt_payload_len, node->type, node->sip, node->dip);
     ori_len += IPV4_HDR_LEN;
 
-    if (type == 0x1) {
+    if (node->type == 0x1) {
 
         icmpv4_hdr = (struct icmpv4_hdr_t*) calloc(1, ICMPV4_HDR_LEN);
         make_icmpv4(icmpv4_hdr);
         ori_len += ICMPV4_HDR_LEN;
 
-    } else if (type == 0x6) {
+    } else if (node->type == 0x6) {
 
         tcp_hdr = (struct tcp_hdr_t*) calloc(1, TCP_HDR_LEN);
         make_tcp(tcp_hdr, SRC_PORT, DST_PORT);
         ori_len += TCP_HDR_LEN;
 
-    } else if (type == 0x11) {
+    } else if (node->type == 0x11) {
         ipv4_hdr->protocol = 17;     // 17 for udp
 
         udp_hdr = (struct udp_hdr_t*) calloc(1, UDP_HDR_LEN);
@@ -199,13 +202,13 @@ int make_sampled_pkt(u8 **msg, u8 type)
     memcpy(ret+ret_len, (void*) ipv4_hdr, IPV4_HDR_LEN);
     ret_len += IPV4_HDR_LEN;
 
-    if (type == 0x1) {
+    if (node->type == 0x1) {
         memcpy(ret+ret_len, (void*) icmpv4_hdr, ICMPV4_HDR_LEN);
         ret_len += ICMPV4_HDR_LEN;
-    } else if (type == 0x6) {
+    } else if (node->type == 0x6) {
         memcpy(ret+ret_len, (void*) tcp_hdr, TCP_HDR_LEN);
         ret_len += TCP_HDR_LEN;
-    } else if (type == 0x11) {
+    } else if (node->type == 0x11) {
         memcpy(ret+ret_len, (void*) udp_hdr, UDP_HDR_LEN);
         ret_len += UDP_HDR_LEN;
     }
@@ -244,7 +247,6 @@ int make_sflow_packet(u8 **msg)
 
     struct node_t* curr_node;
     curr_node = head_node;
-    u8 type;
 
     int curr_len = 0;
     int raw_pkt_hdr_len = 0;
@@ -254,10 +256,9 @@ int make_sflow_packet(u8 **msg)
     int all_sample_len = 0;
 
     while (curr_node) {  // for every node, make a sample
-        type = curr_node->type;
     
         // make sampled pkt
-        sampled_pkt_len = make_sampled_pkt(&sampled_pkt, type);
+        sampled_pkt_len = make_sampled_pkt(&sampled_pkt, curr_node);
         printf("sampled_pkt_len: %d\n", sampled_pkt_len);
         
         // cal padding len
