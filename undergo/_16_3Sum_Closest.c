@@ -64,10 +64,13 @@ void quick_sort(int arr[], int left, int right) {
         quick_sort(arr, q, right);
 }
 
+
 void check_and_replace(int target, int left, int mid, int right, int nums[], int *record) {
 
+    int is_change = 0;
     int diff, sum;
     sum = nums[left] + nums[mid] + nums[right];
+    /*
     if (target * *(record) >= 0 ) {
         diff = abs(target - *(record));
     } else {
@@ -77,36 +80,44 @@ void check_and_replace(int target, int left, int mid, int right, int nums[], int
             diff = *(record) - target;
         }
     }
+    */
 
     if (target == 0) {
-        if (diff > abs(sum)) {
+        if (*record > abs(sum)) {
             *record = abs(sum);
-            printf("idx %d %d %d make new closest sum %d\n", left, mid, right, sum);
+            is_change = 1;
         }
     } else if (target > 0) {
         if (sum >= 0) {
-            if (diff > abs(target-sum)) {
+            if (*record > abs(target-sum)) {
                 *record = abs(target-sum);
-                printf("idx %d %d %d make new closest sum %d\n", left, mid, right, sum);
+                is_change = 1;
             }
         } else {
-            if (diff > target-sum) {
+            if (*record > target-sum) {
                 *record = target-sum;
-                printf("idx %d %d %d make new closest sum %d\n", left, mid, right, sum);
+                is_change = 1;
             }
         }
     } else {
         if (sum >= 0) {
-            if (diff > sum-target) {
+            if (*record > sum-target) {
                 *record = sum-target;
-                printf("idx %d %d %d make new closest sum %d\n", left, mid, right, sum);
+                is_change = 1;
             }
         } else {
-            if (diff > abs(sum-target)) {
+            if (*record > abs(sum-target)) {
                 *record = abs(sum-target);
-                printf("idx %d %d %d make new closest sum %d\n", left, mid, right, sum);
+                is_change = 1;
             }
         }
+    }
+    if (is_change) {
+        printf("idx %d %d %d make new closest sum %d, the new diff is %d\n", left, mid, right, sum, *record);
+    }
+
+    if (*record == 0) {
+        exit(0);
     }
 }
 
@@ -117,6 +128,9 @@ void walk_through(int nums[], int left, int right, int target, int *closest_num)
 
     for (int mid = left +1; mid<right; mid++) {
         check_and_replace(target, left, mid, right, nums, closest_num);
+        if (*closest_num == 0) {
+            return;
+        }
     }
 }
 
@@ -127,7 +141,6 @@ void cut(int nums[], int left, int right, int target, int *closest_num) {
     if (right-left < 2) return;
     else if (right-left == 2) {
         check_and_replace(target, left, left, right, nums, closest_num);
-        return;
     }
 
     int mid=left+1;
@@ -193,9 +206,9 @@ int threeSumClosest(int* nums, int numsSize, int target) {
 
 
 int main () {
-    int nums[] = {-50, -40, -39, -20, -15, -14, 0, 10, 20, 100, 200};
+    int nums[] = {-32, -4, -22, -5, 11, 11, 2, -9, 3, 10, 17};
     int len = ARR_LEN(nums);
-    int target = 1;
+    int target = 5;
     printf("target = %d\n", target);
     for (int i=0; i<len; i++) {
         printf("%d, ", nums[i]);
@@ -203,6 +216,10 @@ int main () {
     printf("\n");
 
     quick_sort(nums, 0, len-1);
+    for (int i=0; i<len; i++) {
+        printf("%d, ", nums[i]);
+    }
+    printf("\n");
 
     threeSumClosest(nums, len, target);
 }

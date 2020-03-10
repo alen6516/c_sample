@@ -24,3 +24,10 @@ int join_str_list(struct str_list_t* str_list, char *ret, size_t max_len) {
     }
     return curr_len;
 }
+
+int main () {
+    
+    const char* str = "123, 312";
+    printf("%s\n", str);
+
+}
