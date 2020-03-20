@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define SERVER_PORT  12345
+#define SERVER_PORT  9000
 
 #define TRUE             1
 #define FALSE            0

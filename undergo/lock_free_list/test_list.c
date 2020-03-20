@@ -7,7 +7,8 @@
 #include "list.h"
 #include "node.h"
 
-#define LEN 2
+#define P_NUM 10
+#define N_NUM 10
 
 list_t* list;
 
@@ -19,7 +20,7 @@ __thread int my_id;
 void* putter(void* arg) {
     my_id = ++_id;
     node_t* node;
-    for (int i=0; i<2; i++) {
+    for (int i=0; i<N_NUM; i++) {
         node = node_init();
         node->val = rand() % 10;
         g_val += node->val;
@@ -34,8 +35,8 @@ void* taker(void* arg) {
     int i=0;
     void* out;
     int sum = 0;
-    while (i< LEN*2) {
-        sleep(rand() % 3);
+    while (i< P_NUM*N_NUM) {
+        sleep(rand() % 2);
         out = list_take(list, node_get_next, node_link, node_get_ref_of_next);
         if (!out) {
             printf("take fail\n");
@@ -45,7 +46,8 @@ void* taker(void* arg) {
         sum += ((node_t*)out)->val;
         i++;
     }
-    printf("sum = %d\n", sum);
+    printf("sum  = %d\n", sum);
+    printf("gval = %d\n", g_val);
 
     return NULL;
 }
@@ -58,8 +60,8 @@ int main () {
 
     list = list_init((void*)root, node_get_ref_of_next);
     
-    pthread_t parr[LEN];
-    for (int i=0; i<LEN; i++) {
+    pthread_t parr[P_NUM];
+    for (int i=0; i<P_NUM; i++) {
         pthread_create(&parr[i], NULL, putter, NULL);
     }
 

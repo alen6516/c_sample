@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <time.h>
 
+/*
+ * for arr with 0 like [1, 2, 0, 3, 4, 0, 5, ...]
+ * collect all 0 to the back of the arr
+ * no sorting
+ */
+
+
+
 #define LEN 20
 
 void show(int arr[]) {
