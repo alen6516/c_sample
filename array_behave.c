@@ -48,10 +48,10 @@ int main() {
 	printf("%d\n", (int)sizeof(arr+0));	// 出現 + 時，arr 視為 pointer => 8
 
 	// char arr shift
-	char str = "abc";
+	char *str = "abc";
 	printf("%c\n", (str+1)[1]); 		// c
 	printf("%d\n", sizeof(str+1));		// pointer => 8
-	printf("%d\n", sizeof(str));		// 3+1 個 char (結尾的 '\0' 也要算) => 4
+	printf("%d\n", sizeof(str));		// pointer => 8
 
 
 }
