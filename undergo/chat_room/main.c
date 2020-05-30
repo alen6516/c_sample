@@ -102,11 +102,13 @@ int main (int argc, char *argv[]) {
         exit(-1);
     }
 
-    /* bind the socket */
+    /* config socket */
     bzero(&serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     inet_pton(AF_INET, server_ip, &(serv_addr.sin_addr.s_addr));
     serv_addr.sin_port = htons(9000);
+
+    /* bind the socket */
     rc = bind(listen_fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
     if (rc < 0 ) {
         perror("fail in bind()");
@@ -135,7 +137,7 @@ int main (int argc, char *argv[]) {
     timeout = 3*60*1000;
 
     conn_t* conn;
-
+    /* poll loop */
     do {
         printf("start poll(), fd_num = %d\n", fd_num);
         rc = poll(fd_arr, fd_num, timeout);
@@ -154,10 +156,10 @@ int main (int argc, char *argv[]) {
             break;
         }
 
-        // if rc > 0
         curr_fd_num = fd_num;
         for (int i=0; i<curr_fd_num; i++) {
         
+            /* check */
             if (fd_arr[i].revents == 0) {
                 continue;
             }
@@ -167,6 +169,7 @@ int main (int argc, char *argv[]) {
                 end_server = 1;
                 break;
             }
+            /* end of check*/
 
             bzero(send_buff, BUFF_SIZE);
             if (fd_arr[i].fd == listen_fd) {
@@ -208,7 +211,7 @@ int main (int argc, char *argv[]) {
                 rc = recv(fd_arr[i].fd, rece_buff, BUFF_SIZE, 0);
 
                 
-                conn = (conn_t*) table_get(this_fd, table, conn_iter, conn_match);
+                conn = (conn_t*) table_get(this_fd, table, conn_get_next, conn_match);
                 if (!conn) {
                     printf("fail in search table\n");
                     exit(-1);
@@ -255,7 +258,7 @@ int main (int argc, char *argv[]) {
                 fd_arr[i].fd = -1;
                 compress_array = 1;
 
-                rc = table_remove(this_fd, table, conn_iter, conn_match, conn_link);
+                rc = table_remove(this_fd, table, conn_get_next, conn_match, conn_link);
                 if (rc != 0) {
                     printf("error in table_remove()");
                     exit(1);

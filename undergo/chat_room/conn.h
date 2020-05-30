@@ -24,7 +24,7 @@ int conn_get_key(void *conn) {
     return ((conn_t*) conn)->fd;
 }
 
-void* conn_iter(void *conn) {
+void* conn_get_next(void *conn) {
     if (!conn) return NULL;
     return ((conn_t*) conn)->next;
 }

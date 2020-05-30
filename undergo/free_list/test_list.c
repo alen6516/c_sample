@@ -36,6 +36,9 @@ void* taker(void* arg) {
     void* out;
     while (taken< P_NUM*N_NUM) {
         sleep(rand() % 3);
+        if (taken >= P_NUM * N_NUM) {
+            return NULL;
+        }
         out = list_take(list, node_get_next, node_link, node_get_ref_of_next);
         if (!out) {
             printf("take fail\n");

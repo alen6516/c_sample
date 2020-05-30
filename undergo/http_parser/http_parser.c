@@ -146,10 +146,10 @@ int main () {
     char buf1[] = "Host: this is Host\r\nServer: my_server\r";
     int len = strlen(buf1);
     parse(buf1, len);
-    char buf2[] = "\rContent-Length: 14\r\n";
+    char buf2[] = "\nContent-Length: 14\r\n\r";
     len = strlen(buf2);
     parse(buf2, len);
-    char buf3[] = "\r\nthis is body.\n";
+    char buf3[] = "\nthis is body.\n";
     len = strlen(buf3);
     parse(buf3, len);
 }

@@ -53,7 +53,7 @@ int table_remove(int key, table_t* table, void* (iter_func)(void*), int (match_f
     return -1;
 }
 
-
+/* get certain node from the table */
 void* table_get(int key, table_t* table, void* (iter_func)(void*), int (match_func)(void*, int)) {
     void* ret = NULL;
     int idx = key % TABLE_SIZE;

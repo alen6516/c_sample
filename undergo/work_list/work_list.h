@@ -7,7 +7,7 @@
 
 /*
  * producer just append task to the tail of the list,
- * once comsumer work, he will take tasks from head until all tasks are taken.
+ * once consumer works, he will take tasks from head until all tasks are taken.
  *
  * 1. no length limit, need to count to know the len
  * 2. 1 reader 1 writer can be no contention
