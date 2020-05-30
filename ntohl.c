@@ -17,17 +17,15 @@ uint32_t ntohl(uint32_t netlong) {
 
     
     if (endian_test.num == 0x0001) {
-        netlong = (netlong << 24) | \
-                 ((netlong & 0xff00ul) << 8) | \
-                 ((netlong & 0xff0000ul) >> 8) | \
+        netlong = (netlong << 24) | 
+                 ((netlong & 0xff00ul) << 8) | 
+                 ((netlong & 0xff0000ul) >> 8) | 
                  (netlong >> 24);
     }
 
     return netlong;
 }
 
-
-/*
 
 #include <stdio.h>
 int main () {
@@ -42,4 +40,3 @@ int main () {
 
 }
 
-*/

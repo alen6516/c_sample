@@ -3,35 +3,41 @@
 
 #include "logger.h"
 
-struct logger_t logger;
+extern struct logger_t logger;
 
-int init_logger(const char *log_file) {
-    logger.mode = CHECK_MODE;
-    logger.log_file = fopen(log_file, "w+");
+int init_logger(logger_t* logger, const char *log_file) {
+    if (NULL == logger) {
+        return -1;
+    }
+    logger->mode = CHECK_MODE;
+    logger->log_file = fopen(log_file, "w+");
+    logger->file_line_f = 1;
     return 0;
 }
 
+void _log(const char* __file__, unsigned long __line__, mode_e this_mode, const char *format, va_list arg) {
 
-void _log(mode_e this_mode, const char *format, va_list arg) {
+    char buf[FILE_LINE_SIZE + MODE_SIZE + MSG_SIZE];
+    int len = 0;
+    
+    if ()
 
-    char buf[PRE_SIZE+LOG_SIZE];
-    int plen = 0;
 
     switch (this_mode) {
         case INFO_MODE:
-            snprintf(buf, PRE_SIZE, "[%5s] ", "INFO");
+            len = snprintf(buf, PRE_SIZE, "[%5s] ", "INFO");
             break;
         case DEBUG_MODE:
-            snprintf(buf, PRE_SIZE, "[%5s] ", "DEBUG");
+            len = snprintf(buf, PRE_SIZE, "[%5s] ", "DEBUG");
             break;
         case CHECK_MODE:
-            snprintf(buf, PRE_SIZE, "[%5s] ", "CHECK");
+            len = snprintf(buf, PRE_SIZE, "[%5s] ", "CHECK");
             break;
         case WARN_MODE:
-            snprintf(buf, PRE_SIZE, "[%5s] ", "WARN");
+            len = snprintf(buf, PRE_SIZE, "[%5s] ", "WARN");
             break;
         case ERROR_MODE:
-            snprintf(buf, PRE_SIZE, "[%5s] ", "ERROR");
+            len = snprintf(buf, PRE_SIZE, "[%5s] ", "ERROR");
             break;
     }
 

@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+ * integer to string
+ */
+
 char *itoa(int num) {
 	int len;
 	int tmp = num;
