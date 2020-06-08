@@ -32,9 +32,9 @@ int get_idx(int input, int *arr, int total) {
 
 void threeSum(int *nums, int size) {
     
-	int f1;
-	int f2;
-	int f3;
+    int f1;
+    int f2;
+    int f3;
 
 
     int this_max, this_min;
@@ -45,7 +45,7 @@ void threeSum(int *nums, int size) {
     int arr_min[c_size_get_2(size)];
     int arr_max[c_size_get_2(size)];
 
-	for (f1 = 0; f1 < size; f1++) { 
+    for (f1 = 0; f1 < size; f1++) { 
         for (f2 = f1+1; f2 < size; f2++) { 
             for (f3 = f2+1; f3 < size; f3++) {
                 if (0 == nums[f1]+nums[f2]+nums[f3]) {
@@ -72,9 +72,9 @@ void threeSum(int *nums, int size) {
 
 int main () {
 
-	int nums[] = {1, -2, 1, -5, 1, 0, -1, -2, 4, 3};
-	printf("{1, -2, 1, -5, 1, 0, -1, -2, 4, 3}\n");
-	int numsSize = 10;
-		
-	threeSum(nums, numsSize);
+    int nums[] = {1, -2, 1, -5, 1, 0, -1, -2, 4, 3};
+    printf("{1, -2, 1, -5, 1, 0, -1, -2, 4, 3}\n");
+    int numsSize = 10;
+        
+    threeSum(nums, numsSize);
 }
