@@ -4,6 +4,11 @@
  Created Time: 2019-06-24
 ***/
 
+/*
+ * give a byte array data[], and target
+ * if data contain target, then find where it is
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -13,6 +18,8 @@ int main() {
     
     unsigned char target = 0b11001111;
 
+
+    // show data
     for (int i=0; i<3; i++) {
         for (int j=7; j>=0; j--) {
             printf("%d", ( data[i] >> j ) & 0x1);
@@ -22,6 +29,7 @@ int main() {
     printf("\n");
 
     
+    // show target
     for (int j=7; j>=0; j--) {
         printf("%d", ( target >> j ) & 0x1);
     }
@@ -64,13 +72,10 @@ int main() {
                 break;
             }
 
-
-
         } else {
             previus_match = 0;
             current_match = 0;
             target_small = 7;
-            
         }
 
         data_small--;
@@ -82,6 +87,4 @@ int main() {
     }
 
     printf("big = %d, small = %d\n", start_big, start_small);
-
-
 }
