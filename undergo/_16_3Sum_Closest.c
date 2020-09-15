@@ -15,14 +15,13 @@
     a = a^b;                \
     b = a^b;                \
     a = a^b;                \
-} while (0);
+} while (0)
 
 int partition (int arr[], int left, int right) {
 
     int mid_idx = right;
     right--;
     int swap_with_mid_before_return = -1;
-
 
     for (;left <= right; left++) {
         if (arr[left] > arr[mid_idx]) {     // if this one is larger then mid
@@ -75,58 +74,28 @@ void check_and_replace(int target, int left, int mid, int right, int nums[], int
         is_change = 1;
     }
 
-    /*
-    if (target == 0) {
-        if (abs(*diff) > abs(sum)) {
-            *diff = sum;
-            is_change = 1;
-        }
-    } else if (target > 0) {
-        if (sum >= 0) {
-            if (abs(*diff) > abs(target-sum)) {
-                *diff = sum-target;
-                is_change = 1;
-            }
-        } else {
-            if (*diff > target-sum) {
-                *diff = target-sum;
-                is_change = 1;
-            }
-        }
-    } else {
-        if (sum >= 0) {
-            if (*diff > sum-target) {
-                *diff = sum-target;
-                is_change = 1;
-            }
-        } else {
-            if (*diff > abs(sum-target)) {
-                *diff = abs(sum-target);
-                is_change = 1;
-            }
-        }
-    }
-    */
     // debug print
     if (is_change) {
         printf("idx %d %d %d make new closest sum %d, the new diff is %d\n", left, mid, right, sum, *diff);
     }
 }
 
+// walk through every element from left to right and check
 void walk_through(int nums[], int left, int right, int target, int *diff) {
     if (right - left < 2) {
         return ;
     }
 
 
+    printf("walk start\n");
     for (int mid = left +1; mid<right; mid++) {
         check_and_replace(target, left, mid, right, nums, diff);
         if (*diff == 0) {
             return;
         }
     }
+    printf("walk ends\n");
 }
-
 
 void cut(int nums[], int left, int right, int target, int *diff) {
 
@@ -139,10 +108,10 @@ void cut(int nums[], int left, int right, int target, int *diff) {
     }
 
     int mid=left+1;
-    int check_if_too_large =1;
     int curr_sum;
+    int mid_from_left = 1;
 
-    while(right>mid && mid>left) {
+    while(right > mid && mid > left) {
         curr_sum = nums[left]+nums[mid]+nums[right];
 
         check_and_replace(target, left, mid, right, nums, diff);
@@ -150,41 +119,58 @@ void cut(int nums[], int left, int right, int target, int *diff) {
             return;
         }
 
+#ifdef cut_simple       //should work
         if (curr_sum-target > 0) {
-            if (check_if_too_large) {
-                right--;
-                mid = left+1;
+            right --;
+            //mid = left + 1;
+            continue;
+        } else if (curr_sum-target < 0) {
+            walk_through(nums, left, right, target, diff);
+            if (*diff == 0) {
+                return ;
+            }
+
+            left ++;
+            mid = left+1;
+            continue;
+        }
+#else                   // still broken
+        if (curr_sum-target > 0) {
+            if (mid_from_left) {
+                right --;
+                mid = left + 1;
                 continue;
             } else {
-                break;
+                walk_through(nums, left, right, target, diff);
+                if (*diff == 0) {
+                    return ;
+                }
+
+                right --;
+                mid = left+1;
+                mid_from_left = 1;
+                continue;
             }
         } else if (curr_sum-target < 0) {
-            if (!check_if_too_large) {
-                left++;
-                mid = right-1;
+            if (mid_from_left) {
+                walk_through(nums, left, right, target, diff);
+                if (*diff == 0) {
+                    return ;
+                }
+
+                left ++;
+                mid = right - 1;
+                mid_from_left = 0;
                 continue;
             } else {
-                check_if_too_large = 0;
-                mid = right-1;
+                left ++;
+                mid = right -1;
                 continue;
             }
         }
+#endif
     }
-
-    walk_through(nums, left, right, target, diff);
-    if (*diff == 0) {
-        return ;
-    }
-
-    cut(nums, left+1, right, target, diff);
-    if (*diff == 0) {
-        return ;
-    }
-    cut(nums, left, right-1, target, diff);
-    if (*diff == 0) {
-        return ;
-    }
-
+    return;
 }
 
 
@@ -206,7 +192,7 @@ int threeSumClosest(int* nums, int numsSize, int target) {
 
     // the algurithm
     int left=0, right = numsSize-1;
-    int diff = 100;
+    int diff = nums[numsSize-1] + nums[numsSize-2] + nums[numsSize-3];
     cut(nums, left, right, target, &diff);
     
     printf("sum = %d\n", target+diff);
@@ -215,9 +201,9 @@ int threeSumClosest(int* nums, int numsSize, int target) {
 
 
 int main () {
-    int nums[] = {1, 1, 1, 2};
+    int nums[] = {-23, -13, -8, -3, 0, 1, 7, 11, 25, 30, 31};
     int len = ARR_LEN(nums);
-    int target = 0;
+    int target = 12;
     printf("target = %d\n", target);
     for (int i=0; i<len; i++) {
         printf("%d, ", nums[i]);
