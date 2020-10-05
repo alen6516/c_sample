@@ -15,19 +15,14 @@ int main () {
     quick_sort(arr, 0, sizeof(arr)/sizeof(arr[0])-1);
     end_t = clock();
     total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
-    print_arr();
+    show();
     printf("total: %f sec\n", total_t);
 }
 
-int partition (int arr[], int left, int right) {
+int partition (int arr[], int left, int right)
+{
 
-    /*
-    if (left == right-1) {
-        if (arr[left] > arr[right])
-            SWAP(arr[left], arr[right]);
-        return 0;
-    }
-    */
+    printf("in this partition, left = %d, right = %d\n", left, right);
 
     int mid_idx = right;
     right--;
@@ -45,6 +40,7 @@ int partition (int arr[], int left, int right) {
 
                     // if find, then swap them
                     SWAP(arr[left], arr[right]);
+                    show();
                     swap_with_mid_before_return = right;
                     break;
                 }
@@ -54,21 +50,31 @@ int partition (int arr[], int left, int right) {
 
     if (swap_with_mid_before_return != -1) {
         SWAP(arr[swap_with_mid_before_return], arr[mid_idx]);
+        printf("swap before return\n");
+        show();
         return swap_with_mid_before_return;
     } else {
         return right;
     }
 }
 
-void quick_sort(int arr[], int left, int right) {
+void quick_sort(int arr[], int left, int right)
+{
+
+    if (right == left+1) {
+        if (arr[left] > arr[right]) {
+            SWAP(arr[left], arr[right]);
+        }
+        return;
+    }
 
     int q;
 
     q = partition(arr, left, right);
     
-    if (q != left && q != left+1)
+    if (q != left)
         quick_sort(arr, left, q);
-    if (q != right && q != right-1)
+    if (q != right)
         quick_sort(arr, q, right);
 }
 
