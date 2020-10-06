@@ -4,9 +4,13 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define MY_PRINTF(...) ({       \
-    printf(__VA_ARGS__);        \
-})
+typedef uint8_t bool_t;
+typedef uint8_t  u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+
+#define SIZE_OF_ARR(arr) ((int)(sizeof(arr)/sizeof(arr[0])))
 
 int do_nothing(const char *format, ...) {
     //printf("in test\n");
@@ -27,15 +31,5 @@ int do_nothing(const char *format, ...) {
         exit(-1);                                       \
     }                                                   \
 } while(0)
-
-
-#define SIZE_OF_ARR(arr) ((int)(sizeof(arr)/sizeof(arr[0])))
-
-
-
-typedef uint8_t  u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
 
 #endif
