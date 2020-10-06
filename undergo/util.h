@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#define MY_PRINTF(...) ({       \
+    printf(__VA_ARGS__);        \
+})
+
 int do_nothing(const char *format, ...) {
     //printf("in test\n");
     return 0;
