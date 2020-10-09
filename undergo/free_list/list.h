@@ -6,7 +6,7 @@
 
 typedef struct __list {
     void *root;
-    void **next;
+    void **next;    // the reference of the last_node->next, aka &last_node->next
 } list_t;
 
 list_t* list_init(void* root, void** (node_get_ref_of_next)(void*)) {

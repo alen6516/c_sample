@@ -9,6 +9,9 @@ typedef struct __node {
     struct __node* next;
 } node_t;
 
+/**
+ * alloc a node
+ */
 node_t* node_init() {
     void* node;
     node = (node_t*)malloc(sizeof(node_t));
@@ -19,18 +22,24 @@ node_t* node_init() {
     return (node_t*)node;
 }
 
+/**
+ * return the reference of node->next
+ */
 void** node_get_ref_of_next(void* node) {
-    // return &node->next
     return (void**)&((node_t*)node)->next;
 }
 
+/**
+ * return node->next
+ */
 void* node_get_next(void* node) {
-    // return node->next
     return ((node_t*)node)->next;
 }
 
+/** 
+ * let node_a->next = node_b
+ */
 int node_link(void *a, void* b) {
-    // let a->next = b
     int ret = 0;
     if (!a) ret = -1;;
     ((node_t*)a)->next = (node_t*)b;

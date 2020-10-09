@@ -13,26 +13,32 @@
 
 list_t* list;
 
-_Atomic int g_sum = 0;
+_Atomic int take_sum = 0;
+_Atomic int put_sum = 0;
 _Atomic int taken = 0;
 
-_Atomic int _id = 0;
-__thread int my_id;
+_Atomic int _putter_id;
+__thread int putter_id;
+
+_Atomic int _taker_id;
+__thread int taker_id;
 
 void* putter(void* arg) {
-    my_id = ++_id;
+    putter_id = ++ _putter_id;
     node_t* node;
     for (int i=0; i<N_NUM; i++) {
         node = node_init();
         node->val = rand() % 10;
         sleep(rand() % 3);
         list_put(list, (void*)node, (void**)&node->next);
-        printf("putter %d put val %d to list\n", my_id, node->val);
+        put_sum += node->val;
+        printf("putter %d put val %d to list\n", putter_id, node->val);
     }
     return NULL;
 }
 
 void* taker(void* arg) {
+    taker_id = ++ _taker_id;
     void* out;
     while (taken< P_NUM*N_NUM) {
         sleep(rand() % 3);
@@ -41,14 +47,15 @@ void* taker(void* arg) {
         }
         out = list_take(list, node_get_next, node_link, node_get_ref_of_next);
         if (!out) {
-            printf("take fail\n");
+            printf("taker %d take fail\n", taker_id);
             continue;
         }
-        printf("take val = %d\n", ((node_t*)out)->val);
-        g_sum += ((node_t*)out)->val;
+        printf("taker %d take val = %d\n", taker_id, ((node_t*)out)->val);
+        take_sum += ((node_t*)out)->val;
         taken++;
     }
-    printf("sum = %d\n", g_sum);
+    printf("sum from taker = %d\n", take_sum);
+    printf("sum from putter = %d\n", put_sum);
 
     return NULL;
 }
