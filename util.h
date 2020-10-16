@@ -12,7 +12,7 @@ typedef uint64_t u64;
 
 #define SIZE_OF_ARR(arr) ((int)(sizeof(arr)/sizeof(arr[0])))
 
-int do_nothing(const char *format, ...) {
+int print_nothing(const char *format, ...) {
     //printf("in test\n");
     return 0;
 }
