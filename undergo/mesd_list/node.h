@@ -9,4 +9,4 @@ struct node_t {
 struct list_t {
     void *root;
     
-];
+};

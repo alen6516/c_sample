@@ -21,6 +21,8 @@ typedef struct __list {
  *  @return: Return list_t obj, or NULL in failure.
  */
 list_t* list_init(void *root, void** (node_get_ref_of_next)(void*)) {
+    if (!node_get_ref_of_next) return NULL;
+
     list_t *list = LIST_MALLOC();
     if (!list) {
         return NULL;
@@ -49,6 +51,36 @@ int list_enqueue(list_t *list, void *node, void **next) {
 
     *_next = node;
     return 0;
+}
+
+/** Dequeue the node from the list
+ */
+void* list_dequeue(list_t *list, void* (node_get_next)(void*), int (node_link)(void*, void*), void** node_get_ref_of_next(void*))
+{
+    if (!list || 
+        !node_get_next || 
+        !node_link || 
+        !node_get_ref_of_next || 
+        !node_get_next(list->root)) return NULL;
+
+    void *ret;
+    void **tmp;
+
+    ret = node_get_next(list->root);
+    if (ret) {
+        do {
+            tmp = node_get_ref_of_next(ret);
+            if (tmp != list->next) {
+                // already other nodes link to ret node, so just relink
+                node_link(list->root, node_get_next(ret));
+                return ret;
+            } else {
+                
+            }
+        }
+    } else {
+        return NULL;
+    }
 }
 
 #endif /* MESD_LIST_H */
