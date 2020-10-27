@@ -63,24 +63,22 @@ void* list_dequeue(list_t *list, void* (node_get_next)(void*), int (node_link)(v
         !node_get_ref_of_next || 
         !node_get_next(list->root)) return NULL;
 
-    void *ret;
-    void **tmp;
+    void *ret = NULL;
 
     ret = node_get_next(list->root);
     if (ret) {
+        void **tmp_list_next;
+
         do {
-            tmp = node_get_ref_of_next(ret);
-            if (tmp != list->next) {
-                // already other nodes link to ret node, so just relink
-                node_link(list->root, node_get_next(ret));
-                return ret;
-            } else {
-                
+            if (node_get_ref_of_next(ret) != list->next) {
+                break;
             }
-        }
-    } else {
-        return NULL;
+            tmp_list_next = list->next;
+        } while(!__sync_bool_compare_and_swap(&list->next, tmp_list_next, node_get_ref_of_next(list->root)));
+        
     }
+
+    return ret;
 }
 
 #endif /* MESD_LIST_H */

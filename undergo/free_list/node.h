@@ -12,36 +12,39 @@ typedef struct __node {
 /**
  * alloc a node
  */
-node_t* node_init() {
-    void* node;
+node_t* node_init()
+{
+    node_t* node;
     node = (node_t*)malloc(sizeof(node_t));
     if (!node) {
         return NULL;
     }
-    bzero(node, sizeof(node_t));
-    return (node_t*)node;
+    memset(node, 0, sizeof(node_t));
+    return node;
 }
 
 /**
  * return the reference of node->next
  */
-void** node_get_ref_of_next(void* node) {
+void** node_get_ref_of_next(void* node)
+{
     return (void**)&((node_t*)node)->next;
 }
 
 /**
  * return node->next
  */
-void* node_get_next(void* node) {
+void* node_get_next(void* node)
+{
     return ((node_t*)node)->next;
 }
 
 /** 
  * let node_a->next = node_b
  */
-int node_link(void *a, void* b) {
-    int ret = 0;
-    if (!a) ret = -1;;
+int node_link(void *a, void* b)
+{
+    if (!a) return 1;
     ((node_t*)a)->next = (node_t*)b;
     return 0;
 }
