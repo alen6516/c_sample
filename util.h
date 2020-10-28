@@ -17,6 +17,14 @@ int print_nothing(const char *format, ...) {
     return 0;
 }
 
+#ifdef DEBUG
+#define debug_printf(...) ((    \
+        printf(__VA_ARGS__);    \
+})
+#else
+#define debug_printf(...)
+#endif
+
 /* when condition occur, we must exit, but we don't want to */
 #define ASSERT_WARN(con, msg) do {                      \
     if (!!(con)==0) {                                   \
