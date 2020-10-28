@@ -28,7 +28,7 @@ list_t* list_init(void *root, void** (node_get_ref_of_next)(void*)) {
         return NULL;
     }
 
-    memset(list, 0, LIST_SIZE);
+    list->root = root;
     list->next = node_get_ref_of_next(root);
     return list;
 }

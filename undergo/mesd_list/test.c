@@ -14,12 +14,18 @@ list_t* list;
 int main ()
 {
     node_t *root = node_init();
+    if (!root) {
+        printf("node mallc fail\n");
+    }
 
     list = list_init((void*)root, node_get_ref_of_next);
 
     node_t* node;
     void *out;
     node = node_init();
+    if (!node) {
+        printf("node mallc fail\n");
+    }
     node->val = 1;
 
     list_enqueue(list, (void*)node, (void**)&node->next);
