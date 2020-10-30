@@ -20,8 +20,9 @@ typedef struct __list {
  *  @param node_get_ref_of_next: fn of node obj to get the reference of node->next, that is, &node->next.
  *  @return: Return list_t obj, or NULL in failure.
  */
-list_t* list_init(void *root, void** (node_get_ref_of_next)(void*)) {
-    if (!node_get_ref_of_next) return NULL;
+list_t* list_init(void *root, void** ref_of_root_next)
+{
+    if (!ref_of_root_next) return NULL;
 
     list_t *list = LIST_MALLOC();
     if (!list) {
@@ -29,7 +30,7 @@ list_t* list_init(void *root, void** (node_get_ref_of_next)(void*)) {
     }
 
     list->root = root;
-    list->next = node_get_ref_of_next(root);
+    list->next = ref_of_root_next;
     return list;
 }
 
@@ -39,7 +40,8 @@ list_t* list_init(void *root, void** (node_get_ref_of_next)(void*)) {
  *  @param next: The reference of the reference of the input node obj.
  *  @return: Return 0 in success, -1 in failure. 
  */
-int list_enqueue(list_t *list, void *node, void **next) {
+int list_enqueue(list_t *list, void *node, void **next)
+{
     if (!list || !node || !next) {
         return -1;
     }
@@ -75,10 +77,20 @@ void* list_dequeue(list_t *list, void* (node_get_next)(void*), int (node_link)(v
             }
             tmp_list_next = list->next;
         } while(!__sync_bool_compare_and_swap(&list->next, tmp_list_next, node_get_ref_of_next(list->root)));
-        
     }
 
     return ret;
+
+
+
+    if (list->next != node_get_ref_of_next(ret)) {
+        // not only 1 node
+        
+    } else {
+    
+    }
+
 }
+
 
 #endif /* MESD_LIST_H */
