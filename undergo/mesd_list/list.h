@@ -69,27 +69,28 @@ void* list_dequeue(list_t *list, void* (node_get_next)(void*), int (node_link)(v
 
     ret = node_get_next(list->root);
     if (ret) {
-        void **tmp_list_next;
 
-        do {
-            if (node_get_ref_of_next(ret) != list->next) {
-                break;
+        node_link(list->root, node_get_next(ret));
+        if (NULL != node_get_next(list->root)) {
+            return ret;
+        } else {
+            
+
+            if (__sync_bool_compare_and_swap(&list->next, node_get_ref_of_next(ret), node_get_ref_of_next(list->root))) {
+            
+                return ret;
+            } else {
+                while (1) {
+                    if (node_get_next(ret) != NULL) {
+                        node_link(list->root, node_get_next(ret));
+                        return ret;
+                    }
+                }
             }
-            tmp_list_next = list->next;
-        } while(!__sync_bool_compare_and_swap(&list->next, tmp_list_next, node_get_ref_of_next(list->root)));
+        }
     }
 
     return ret;
-
-
-
-    if (list->next != node_get_ref_of_next(ret)) {
-        // not only 1 node
-        
-    } else {
-    
-    }
-
 }
 
 
