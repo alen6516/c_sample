@@ -7,9 +7,9 @@
 #include "list.h"
 #include "node.h"
 
-#define P_NUM 3
-#define T_NUM 2
-#define N_NUM 4
+#define P_NUM 10
+#define T_NUM 10
+#define N_NUM 10
 
 list_t* list;
 
@@ -25,6 +25,7 @@ __thread int taker_id;
 
 void* putter(void* arg) {
     putter_id = ++ _putter_id;
+    printf("putter %d initiated\n", putter_id);
     node_t* node;
     for (int i=0; i<N_NUM; i++) {
         node = node_init();
@@ -34,16 +35,18 @@ void* putter(void* arg) {
         put_sum += node->val;
         printf("putter %d put val %d to list\n", putter_id, node->val);
     }
+    printf("putter %d finished\n", putter_id);
     return NULL;
 }
 
 void* taker(void* arg) {
     taker_id = ++ _taker_id;
+    printf("taker %d initiated\n", taker_id);
     void* out;
     while (taken< P_NUM*N_NUM) {
         sleep(rand() % 3);
         if (taken >= P_NUM * N_NUM) {
-            return NULL;
+            break;
         }
         out = list_take(list, node_get_next, node_link, node_get_ref_of_next);
         if (!out) {
@@ -54,9 +57,8 @@ void* taker(void* arg) {
         take_sum += ((node_t*)out)->val;
         taken++;
     }
-    printf("sum from taker = %d\n", take_sum);
-    printf("sum from putter = %d\n", put_sum);
 
+    printf("taker %d finished\n", taker_id);
     return NULL;
 }
 
@@ -69,17 +71,19 @@ int main () {
     list = list_init((void*)root, node_get_ref_of_next);
     
     pthread_t parr[P_NUM];
+    pthread_t tarr[T_NUM];
     for (int i=0; i<P_NUM; i++) {
         pthread_create(&parr[i], NULL, putter, NULL);
     }
 
-    pthread_t tarr[T_NUM];
-    for (int i=0; i<N_NUM; i++) {
+    for (int i=0; i<T_NUM; i++) {
         pthread_create(&tarr[i], NULL, taker, NULL);
     }
 
     for (int i=0; i<T_NUM; i++) {
         pthread_join(tarr[i], NULL);
     }
+    printf("sum from taker = %d\n", take_sum);
+    printf("sum from putter = %d\n", put_sum);
 }
 
