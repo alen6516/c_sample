@@ -6,17 +6,10 @@
 #include <stdint.h>
 #include <string.h>
 
-<<<<<<< HEAD
-
-#define LOGGER_FILE "./log.txt"
-#define PRE_SIZE 9      // "[WARN] "
-#define LOG_SIZE 100    // msg body 
-=======
 #define LOGGER_FILE "./log.txt"
 #define FILE_LINE_SIZE 40 // this_is_file_name: 900
 #define MODE_SIZE 10       // "[WARN] "
 #define MSG_SIZE 100      // msg body 
->>>>>>> 80a804ea05c0499ce9a8e0e49aaab8ea54f1471c
 
 
 typedef enum {
@@ -28,26 +21,6 @@ typedef enum {
 } mode_e;
 
 
-<<<<<<< HEAD
-struct logger_t {
-    mode_e mode;
-    FILE* log_file;
-};
-
-#define LOGGER_CALLOC() (struct logger_t*)calloc(1, sizeof(struct logger_t))
-
-
-int init_logger(const char *);
-
-void _log(mode_e this_mode, const char *format, va_list arg);
-
-
-void INFO(const char *format, ...);
-void DEBUG(const char *format, ...);
-void CHECK(const char *format, ...);
-void WARN(const char *format, ...);
-void ERROR(const char *format, ...);
-=======
 typedef struct __logger {
     mode_e mode;
     FILE* log_file;
@@ -75,7 +48,6 @@ void _log(const char*, unsigned long, mode_e, const char *, va_list);
 #define CHECK(format, ...) _log(__FILE__, __LINE__, CHECK_MODE, format, __VA_ARGS__)
 #define WARN(format, ...)  _log(__FILE__, __LINE__, WARN_MODE, format, __VA_ARGS__)
 #define ERROR(format, ...) _log(__FILE__, __LINE__, ERROR_MODE, format, __VA_ARGS__)
->>>>>>> 80a804ea05c0499ce9a8e0e49aaab8ea54f1471c
 
 
 /*
