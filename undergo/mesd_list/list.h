@@ -73,35 +73,7 @@ void* list_dequeue(list_t *list, void* (node_get_next)(void*), int (node_link)(v
     }
     
     node_link(list->root, node_get_next(ret));
-    if (__sync_bool_compare_and_swap(&list->next, node_get_ref_of_next(ret), node_get_ref_of_next(list->root))) {
-        //assert(node_get_next(list->root) == NULL);
-        return ret;
-    } else {
-    }
-
-/*
-    if (ret) {
-
-        node_link(list->root, node_get_next(ret));
-        if (NULL != node_get_next(list->root)) {
-            return ret;
-        } else {
-            
-
-            if (__sync_bool_compare_and_swap(&list->next, node_get_ref_of_next(ret), node_get_ref_of_next(list->root))) {
-            
-                return ret;
-            } else {
-                while (1) {
-                    if (node_get_next(ret) != NULL) {
-                        node_link(list->root, node_get_next(ret));
-                        return ret;
-                    }
-                }
-            }
-        }
-    }
-*/
+    __sync_bool_compare_and_swap(&list->next, node_get_ref_of_next(ret), node_get_ref_of_next(list->root));
     return ret;
 }
 

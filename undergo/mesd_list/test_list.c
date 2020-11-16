@@ -7,7 +7,7 @@
 #include "list.h"
 #include "node.h"
 
-#define P_NUM 3
+#define P_NUM 10
 #define T_NUM 1
 #define N_NUM 4
 
@@ -30,7 +30,7 @@ void* putter(void* arg) {
     for (int i=0; i<N_NUM; i++) {
         node = node_init();
         node->val = rand() % 10;
-        sleep(rand() % 3);
+        //sleep(rand() % 1);
         list_enqueue(list, (void*)node, (void**)&node->next);
         put_sum += node->val;
         printf("putter %d put val %d to list\n", putter_id, node->val);
@@ -43,7 +43,7 @@ void* taker(void* arg) {
     taker_id = ++ _taker_id;
     void* out;
     while (taken< P_NUM*N_NUM) {
-        sleep(rand() % 3);
+        //sleep(rand() % 1);
         out = list_dequeue(list, node_get_next, node_link, node_get_ref_of_next);
         if (!out) {
             printf("taker %d take fail\n", taker_id);
@@ -73,7 +73,7 @@ int main () {
     }
 
     pthread_t tarr[T_NUM];
-    for (int i=0; i<N_NUM; i++) {
+    for (int i=0; i<T_NUM; i++) {
         pthread_create(&tarr[i], NULL, taker, NULL);
     }
 
