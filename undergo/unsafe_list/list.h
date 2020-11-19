@@ -6,7 +6,7 @@
 
 
 typedef struct __list {
-    void *root;
+    void *head;
     void **next;
     // _Atomic unsigned len;
     
@@ -18,14 +18,14 @@ typedef struct __list {
 /** Allocate and reset list_t obj.
  *  @return: Return list_t obj, or NULL in failure.
  */
-list_t* list_init(void* root, void** root_next)
+list_t* list_init()
 {
     list_t *list = LIST_MALLOC();
     if (!list) {
         return NULL;
     }
-    list->root = root;
-    list->next = root_next;
+    list->head = NULL;
+    list->next = &list->head;
 
     return list;
 }
@@ -57,14 +57,19 @@ void* list_dequeue(list_t *list, void* node_get_next(void*), int (node_link)(voi
         !node_get_ref_of_next) return NULL;
 
     void *ret, *ret_next;
-    ret = node_get_next(list->root);
-    if (ret) {
+
+    if (!list->head) {
+        return NULL;
+    } else {
+        ret = list->head;
         ret_next = node_get_next(ret);
-        node_link(list->root, ret_next);
-        if (!ret_next) {
-            list->next = node_get_ref_of_next(list->root);
-        }
     }
+
+    list->head = ret_next;
+    if (!ret_next) {
+        list->next = &list->head;
+    }
+
     return ret;
 }
 
