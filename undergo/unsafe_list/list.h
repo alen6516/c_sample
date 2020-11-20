@@ -6,8 +6,8 @@
 
 
 typedef struct __list {
-    void *head;
-    void **next;
+    void *head;     // the first node
+    void **next;    // &(last_node->next)
     // _Atomic unsigned len;
     
 } list_t;
@@ -49,19 +49,18 @@ int list_enqueue(list_t *list, void *node, void** node_next)
 
 /** Dequeue the node from the list
  */
-void* list_dequeue(list_t *list, void* node_get_next(void*), int (node_link)(void*, void*), void** node_get_ref_of_next(void*))
+void* list_dequeue(list_t *list, void* node_get_next(void*), int (node_link)(void*, void*))
 {
     if (!list ||
         !node_link || 
-        !node_get_next ||
-        !node_get_ref_of_next) return NULL;
+        !node_get_next) return NULL;
 
     void *ret, *ret_next;
 
-    if (!list->head) {
+    ret = list->head;
+    if (!ret) {
         return NULL;
     } else {
-        ret = list->head;
         ret_next = node_get_next(ret);
     }
 
@@ -72,6 +71,5 @@ void* list_dequeue(list_t *list, void* node_get_next(void*), int (node_link)(voi
 
     return ret;
 }
-
 
 #endif /* MESD_LIST_H */

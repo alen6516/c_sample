@@ -18,8 +18,8 @@ int main ()
         printf("node mallc fail\n");
     }
 
-    list = list_init((void*)root, node_get_ref_of_next(root));
-    printf("ref of root next: %p, list next: %p\n", &root->next, list->next);
+    list = list_init();
+    printf("&list->head: %p, list->next: %p\n", &list->head, list->next);
 
     node_t* node;
     void *out;
@@ -31,11 +31,9 @@ int main ()
 
     list_enqueue(list, (void*)node, (void**)&node->next);
     printf("put %d, node addr: %p\n", node->val, node);
-    printf("root->next val: %p\n", node_get_next(list->root));
     printf("ref of node next: %p, list next: %p\n", &node->next, list->next);
 
-    out = list_dequeue(list, node_get_next, node_link, node_get_ref_of_next);
+    out = list_dequeue(list, node_get_next, node_link);
     printf("take %d, node addr: %p\n", ((node_t*)out)->val, out);
-    printf("root->next val: %p\n", node_get_next(list->root));
-    printf("ref of root next: %p, list next: %p\n", &root->next, list->next);
+    printf("&list->head: %p, list next: %p\n", &list->head, list->next);
 }

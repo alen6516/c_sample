@@ -7,9 +7,9 @@
 #include "list.h"
 #include "node.h"
 
-#define P_NUM 5
-#define T_NUM 5
-#define N_NUM 4
+#define P_NUM 4
+#define T_NUM 1
+#define N_NUM 100
 
 list_t* list;
 
@@ -30,7 +30,7 @@ void* putter(void* arg) {
     for (int i=0; i<N_NUM; i++) {
         node = node_init();
         node->val = rand() % 10;
-        //sleep(rand() % 1);
+        sleep(rand() % 1);
         list_enqueue(list, (void*)node, (void**)&node->next);
         put_sum += node->val;
         printf("putter %d put val %d to list\n", putter_id, node->val);
@@ -43,8 +43,8 @@ void* taker(void* arg) {
     taker_id = ++ _taker_id;
     void* out;
     while (taken< P_NUM*N_NUM) {
-        //sleep(rand() % 1);
-        out = list_dequeue(list, node_get_next, node_link, node_get_ref_of_next);
+        sleep(rand() % 1);
+        out = list_dequeue(list, node_get_next, node_link);
         if (!out) {
             printf("taker %d take fail\n", taker_id);
             continue;
@@ -61,11 +61,13 @@ void* taker(void* arg) {
 
 int main () {
 
+    printf("putter number: %d\n", P_NUM);
+    printf("taker number:  %d\n", T_NUM);
+    printf("node number:   %d\n", N_NUM);
+
     srand(time(NULL));
 
-    node_t* root = node_init();
-
-    list = list_init((void*)root, (void**)&root->next);
+    list = list_init();
     
     pthread_t parr[P_NUM];
     for (int i=0; i<P_NUM; i++) {
