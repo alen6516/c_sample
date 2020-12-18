@@ -18,37 +18,37 @@ typedef enum {
     CHECK_MODE,
     WARN_MODE,
     ERROR_MODE
-} mode_e;
+} LOG_MODE;
 
 
 typedef struct __logger {
-    mode_e mode;
+    LOG_MODE mode;
     FILE* log_file;
     unsigned char file_line_f :1,
                   spare:       7;
-} logger_t;
+} LOGGER;
 
 #define LOGGER_CALLOC() (logger_t*)calloc(1, sizeof(logger_t))
 
-extern logger_t logger;
+extern LOGGER logger;
 
-int init_logger(const char*);
+int init_logger(LOGGER *, const char*);
 
-void _log(const char*, unsigned long, mode_e, const char *, va_list);
-
-
-//void INFO(const char *format, ...);
-//void DEBUG(const char *format, ...);
-//void CHECK(const char *format, ...);
-//void WARN(const char *format, ...);
-//void ERROR(const char *format, ...);
+void _log(const char*, unsigned long, LOG_MODE, const char *, ...);
 
 #define INFO(format, ...)  _log(__FILE__, __LINE__, INFO_MODE, format, __VA_ARGS__)
 #define DEBUG(format, ...) _log(__FILE__, __LINE__, DEBUG_MODE, format, __VA_ARGS__)
 #define CHECK(format, ...) _log(__FILE__, __LINE__, CHECK_MODE, format, __VA_ARGS__)
-#define WARN(format, ...)  _log(__FILE__, __LINE__, WARN_MODE, format, __VA_ARGS__)
+#define WARN(format, ...)  _log(__FILE__, __LINE__, WARN_MODE, format, ##__VA_ARGS__)
 #define ERROR(format, ...) _log(__FILE__, __LINE__, ERROR_MODE, format, __VA_ARGS__)
 
+/*
+void INFO(const char *format, ...);
+void DEBUG(const char *format, ...);
+void CHECK(const char *format, ...);
+void WARN(const char *format, ...);
+void ERROR(const char *format, ...);
+*/
 
 /*
 int main () {

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
-
+/*
 #define LOG(format, ...) _LOG(__FILE__, __LINE__, format, ##__VA_ARGS__)
 
 void _log(const char* file, unsigned int line, const char* format, va_list arg) 
@@ -19,8 +19,14 @@ void _LOG(const char *file, unsigned int line, const char* format, ...)
     va_end(arg);
     _log(file, line, format, arg);
 }
+*/
+#include "logger.h"
+
+LOGGER logger;
 
 int main () 
 {
-   LOG("hello world\n");
+    
+   init_logger(&logger, (const char*)'\0');
+   WARN("123\n");
 }
