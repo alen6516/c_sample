@@ -18,7 +18,8 @@
 } while (0)
 
 int len;
-void show(int arr[]) {
+void show(int arr[])
+{
     for (int i=0; i<len; i++) {
         printf("%d, ", arr[i]);
     }
@@ -26,7 +27,9 @@ void show(int arr[]) {
 }
 
 
-int partition (int arr[], int left, int right) {
+/** Partition the input array in to 2 parts and sort. */
+int quick_sort_partition (int arr[], int left, int right)
+{
     printf("in this partition, left = %d, right = %d\n", left, right);
 
     int mid_idx = right;
@@ -62,9 +65,8 @@ int partition (int arr[], int left, int right) {
     }
 }
 
-void quick_sort(int arr[], int left, int right) {
-
-
+void quick_sort(int arr[], int left, int right)
+{
     if (right == left+1) {
         if (arr[left] > arr[right]) {
             SWAP(arr[left], arr[right]);
@@ -74,7 +76,7 @@ void quick_sort(int arr[], int left, int right) {
 
     int q;
 
-    q = partition(arr, left, right);
+    q = quick_sort_partition(arr, left, right);
     printf("partition return %d\n", q);
     
 
@@ -104,6 +106,8 @@ void check_and_replace(int target, int left, int mid, int right, int nums[], int
     }
 }
 */
+
+/** Check if input tuple makes closer result, replace the result if so. */
 #define check_and_replace(target, left, mid, right, nums, diff) ({  \
     int is_change = 0;                                              \
     int sum;                                                        \
@@ -133,6 +137,7 @@ void walk_through(int nums[], int left, int right, int target, int *diff) {
     printf("walk ends\n");
 }
 
+/** The algorithm */
 void cut(int nums[], int left, int right, int target, int *diff) {
 
     /*
@@ -186,7 +191,6 @@ int threeSumClosest(int* nums, int numsSize, int target) {
         printf("%d, ", nums[i]);
     }
     printf("\n");
-    return 0;
     
 
     // the algurithm
