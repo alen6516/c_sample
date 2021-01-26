@@ -20,8 +20,13 @@ char ** letterCombinations(char * digits, int* returnSize)
         [9] = "wxyz",
     };
 
-    int len = strlen(digits);
-    int arr_len = 1;
+    int len = strlen(digits);   // size of the input string
+    int arr_len = 1;            // size of the return array
+
+    printf("digits = %s\n", digits);
+    for (int i=0; i<len; i++) {
+        printf("%c = \"%s\"\n", digits[i], letter[digits[i]-('1'-1)]);
+    }
 
     for (int i=0; i<len; i++) {
         arr_len *= strlen(letter[digits[i]-('1'-1)]);
@@ -29,34 +34,39 @@ char ** letterCombinations(char * digits, int* returnSize)
 
     printf("arr_len = %d\n", arr_len);
 
-    int parr[len];
+    int parr[len];              // position array, length is the size of the input string
     memset(parr, 0, sizeof(parr));
 
     // alloc for return array
     char **ret = (char**) malloc(sizeof(char*)*arr_len);
 
-    
-    for (int i=0; i<arr_len; i++) {
+    char *str;
+    int finish = 0;
 
-        // alloc for each string
-        ret[i] = (char*) malloc(sizeof(char)*(len+1));
-
-        // fill each string by parr
-        for (int j=0; j<len; j++) {
-            ret[i][j] = letter[digits[j]-('1'-1)][parr[j]];
+    do {
+        // fill string with the prepared parr
+        str = (char*) malloc(sizeof(char)*(len+1));
+        for (int w=0; w<len; w++) {
+            str[w] = *letter[digits[w]-('1'-1)]+parr[w];
         }
-        ret[i][len] = '0';
+        ret[finish++] = str;
+        if (finish == arr_len) {
+            break;
+        }
 
-        // add 1 and check if carry
-        for (int k=0; k<len; k++) {
-            if (parr[k]+1 < strlen(letter[digits[k]-('1'-1)])) {
-                parr[k] += 1;
+        // prepare
+        for (int p=0; p<len; p++) {
+            if (parr[p] +1 == strlen(letter[digits[p]-('1'-1)])) {
+                parr[p] = 0;
+                continue;
             } else {
-                parr[k] = 0;
+            
+                parr[p] ++;
+                break;
             }
         }
-    }
-
+    } while (1);
+    
     for (int i=0; i<arr_len; i++) {
         printf("%s\n", ret[i]);
     }
@@ -68,7 +78,7 @@ char ** letterCombinations(char * digits, int* returnSize)
 int main ()
 {
 
-    const char *digit = "29";
+    const char *digit = "23";
     int returnSize = 0;
 
     char **ret = letterCombinations((char*)digit, &returnSize);
