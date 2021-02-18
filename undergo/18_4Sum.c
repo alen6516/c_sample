@@ -87,33 +87,46 @@ void quick_sort(int arr[], int left, int right)
 
 int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** returnColumnSizes){
 
-	// debug print
-	printf("nums = [");
-	for (int i=0; i<numsSize; i++) {
-		printf("%d, ", nums[i]);
-	}
-	printf("]\n");
+#ifdef SORT
+    // debug print
+    printf("nums = [");
+    for (int i=0; i<numsSize; i++) {
+        printf("%d, ", nums[i]);
+    }
+    printf("]\n");
 
-	printf("target = %d\n", target);
+    printf("target = %d\n", target);
 
 
-	// sort
-	quick_sort(nums, 0, numsSize-1);
-	show(nums);
+    // sort
+    quick_sort(nums, 0, numsSize-1);
+    show(nums);
+#endif
 
-	return NULL;
+    for (int i=0; i<numsSize-3; i++) {
+        for (int j=i+1; j<numsSize-2; j++) {
+            for (int k=j+1; k<numsSize-1; k++) {
+                for (int m=k+1; m<numsSize; m++) {
+                    if (nums[i]+nums[j]+nums[k]+nums[m] == target) {
+                        printf("%d + %d + %d + %d = %d\n", nums[i], nums[j], nums[k], nums[m], target);
+                    }
+                }
+            }
+        }
+    }
+    return NULL;
 }
 
 
 int main () {
 
-	int nums[] = {1, 0, -1, 0, -2, 2};
-	int target = 0;
-	len = ARR_SIZE(nums);
+    int nums[] = {1, 0, -1, 0, -2, 2, 0, 0};
+    int target = 0;
+    len = ARR_SIZE(nums);
 
-	int **ret;
-	int returnSize;
-	int *returnColumnSizes;
-	ret = fourSum(nums, ARR_SIZE(nums), target, &returnSize, &returnColumnSizes);
-	
+    int **ret;
+    int returnSize;
+    int *returnColumnSizes;
+    ret = fourSum(nums, ARR_SIZE(nums), target, &returnSize, &returnColumnSizes);
+    
 }
