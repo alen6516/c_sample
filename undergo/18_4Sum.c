@@ -85,6 +85,11 @@ void quick_sort(int arr[], int left, int right)
         quick_sort(arr, q, right);
 }
 
+typedef struct __node {
+    int arr[4];
+    struct __node* next;
+} Node;
+
 int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** returnColumnSizes){
 
 #ifdef SORT
@@ -103,16 +108,45 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
     show(nums);
 #endif
 
+    Node *head = NULL;
+    Node **curr = &head;
+    int ret_len = 0;
+
     for (int i=0; i<numsSize-3; i++) {
+        if (i>0 && nums[i] == nums[i-1]) {
+            printf("dup\n");
+            continue;
+        }
         for (int j=i+1; j<numsSize-2; j++) {
+            if (j>i+1 && nums[j] == nums[j-1]) {
+                printf("dup\n");
+                continue;
+            }
             for (int k=j+1; k<numsSize-1; k++) {
+                if (k>j+1 && nums[k] == nums[k-1]) {
+                    printf("dup\n");
+                    continue;
+                }
                 for (int m=k+1; m<numsSize; m++) {
                     if (nums[i]+nums[j]+nums[k]+nums[m] == target) {
                         printf("%d + %d + %d + %d = %d\n", nums[i], nums[j], nums[k], nums[m], target);
+                        ret_len ++;
+                        *curr = (Node*) malloc(sizeof(Node));
+                        (*curr)->arr[0] = nums[i];
+                        (*curr)->arr[1] = nums[j];
+                        (*curr)->arr[2] = nums[k];
+                        (*curr)->arr[3] = nums[m];
+                        (*curr)->next = NULL;
+                        curr = &((*curr)->next);
                     }
                 }
             }
         }
+    }
+
+    printf("show node:\n");
+    for (Node *iter=head; iter!=NULL; iter = iter->next) {
+        printf("%d + %d + %d + %d = %d\n", iter->arr[0], iter->arr[1], iter->arr[2], iter->arr[3], target);
     }
     return NULL;
 }
@@ -120,8 +154,8 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
 
 int main () {
 
-    int nums[] = {1, 0, -1, 0, -2, 2, 0, 0};
-    int target = 0;
+    int nums[] = {1, 0, -1, 0, -2, 3, 0, -5, -4, 7};
+    int target = -1;
     len = ARR_SIZE(nums);
 
     int **ret;
