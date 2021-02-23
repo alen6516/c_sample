@@ -108,9 +108,9 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
     show(nums);
 #endif
 
+    *returnSize = 0;
     Node *head = NULL;
     Node **curr = &head;
-    int ret_len = 0;
 
     for (int i=0; i<numsSize-3; i++) {
         if (i>0 && nums[i] == nums[i-1]) {
@@ -130,7 +130,7 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
                 for (int m=k+1; m<numsSize; m++) {
                     if (nums[i]+nums[j]+nums[k]+nums[m] == target) {
                         printf("%d + %d + %d + %d = %d\n", nums[i], nums[j], nums[k], nums[m], target);
-                        ret_len ++;
+                        (*returnSize) ++;
                         *curr = (Node*) malloc(sizeof(Node));
                         (*curr)->arr[0] = nums[i];
                         (*curr)->arr[1] = nums[j];
@@ -144,9 +144,16 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
         }
     }
 
-    printf("show node:\n");
+    returnColumnSizes = (int**)malloc(sizeof(int*)*(*returnSize));
+    int i = 0;
     for (Node *iter=head; iter!=NULL; iter = iter->next) {
-        printf("%d + %d + %d + %d = %d\n", iter->arr[0], iter->arr[1], iter->arr[2], iter->arr[3], target);
+        returnColumnSizes[i++] = iter->arr;
+    }
+
+    // debug
+    printf("show node:\n");
+    for (int i=0; i<(*returnSize); i++) {
+        printf("%d + %d + %d + %d = %d\n", returnColumnSizes[i][0], returnColumnSizes[i][1], returnColumnSizes[i][2], returnColumnSizes[i][3],target);
     }
     return NULL;
 }

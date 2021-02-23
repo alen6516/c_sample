@@ -45,14 +45,15 @@ char ** letterCombinations(char * digits, int* returnSize)
 
     //printf("returnSize = %d\n", *returnSize);
 
-    unsigned char parr[digi_len];              // position array, length is the size of the input string
+    unsigned char parr[digi_len];               // position array, length is the size of the input string
+                                                // record the target letter in the strings of letters
     memset(parr, 0, sizeof(parr));
 
     // alloc for return array
     char **ret = (char**) malloc(sizeof(char*)*arr_len);
 
-    char *str;
-    unsigned char finish = 0;
+    char *str;                  // each string in return arr
+    unsigned char finish = 0;   // how many strings have been finished
 
     do {
         // fill string with the prepared parr
