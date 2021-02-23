@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* sort object { */
 struct __sort_class;
 struct __sort;
-
 
 #define SORT_CLASS_METHOD(type) void (*sort_it)(type*)
 typedef struct __sort_class {
@@ -25,8 +25,9 @@ void sort_it(Sort* sort) {
 SortClass sort_class = {
     .sort_it = sort_it
 };
+/* } sort object */
 
-
+/* quick sort object { */
 struct __quick_sort_class;
 struct __quick_sort;
 
@@ -49,10 +50,10 @@ QuickSortClass q_sort_class = {
     .sort_it = quick_sort_it,
     .sort_show = quick_sort_show
 };
+/* } quick sort obj */
 
 
-
-// define quick sort method
+/* util { */
 #define ARR_SIZE(arr) (int)sizeof(arr)/sizeof(arr[0])
 
 #define SWAP(a, b) do {     \
@@ -68,7 +69,10 @@ void quick_sort_show(QuickSort *q_sort)
     }
     printf("\n");
 }
+/* } util */
 
+
+/* quick sort method { */
 int __quick_sort_partition (QuickSort *q_sort, int left, int right)
 {
     printf("in this partition, left = %d, right = %d\n", left, right);
@@ -126,6 +130,7 @@ void quick_sort_it(QuickSort *q_sort, int left, int right)
     if (q != right)
         quick_sort_it(q_sort, q, right);
 }
+/* } quicl sort method */
 
 int main () {
     int arr[] = {1, 3, -1, 2, -4, 9, 0, 1, -5};
