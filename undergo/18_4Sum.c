@@ -144,18 +144,22 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
         }
     }
 
-    returnColumnSizes = (int**)malloc(sizeof(int*)*(*returnSize));
+    int **ret_arr = (int**)malloc(sizeof(int*)*(*returnSize));
+    
+
+    // fill ret_arr
     int i = 0;
     for (Node *iter=head; iter!=NULL; iter = iter->next) {
-        returnColumnSizes[i++] = iter->arr;
+        ret_arr[i++] = iter->arr;
     }
 
     // debug
     printf("show node:\n");
     for (int i=0; i<(*returnSize); i++) {
-        printf("%d + %d + %d + %d = %d\n", returnColumnSizes[i][0], returnColumnSizes[i][1], returnColumnSizes[i][2], returnColumnSizes[i][3],target);
+        printf("%d + %d + %d + %d = %d\n", ret_arr[i][0], ret_arr[i][1], ret_arr[i][2], ret_arr[i][3],target);
     }
-    return NULL;
+
+    return ret_arr;
 }
 
 
