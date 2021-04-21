@@ -21,17 +21,18 @@
 #include "conn.h"
 #include "util.h"
 
-#define SERVER_IP "127.0.0.1"
+#define SERVER_IP   "127.0.0.1"
 #define SERVER_PORT 9000
-#define BACKLOG 128
-#define BUFF_SIZE 100
+#define MAX_FD_NUM  200
+#define BACKLOG     128
+#define BUFF_SIZE   100
 
 
 char server_ip[12];
 unsigned short server_port;
 int backlog;
-struct pollfd fd_arr[200];
-int fd_num = 1;
+struct pollfd fd_arr[MAX_FD_NUM];
+int curr_fd_num = 0;    // num of fd, including listen_fd
 
 
 table_t *table;
@@ -40,14 +41,26 @@ table_t *table;
 void sig_hander(int sig) {
 
     printf("\n================================\n");
-    printf("fd_num = %d, fd_arr = [ ", fd_num);
-    for (int i=0; i<fd_num; i++) {
+    printf("curr_fd_num = %d, fd_arr = [ ", curr_fd_num);
+    for (int i=0; i<curr_fd_num; i++) {
         printf("%d ", fd_arr[i].fd);
     }
     printf("]\n");
     printf("================================\n");
 }
 
+
+void broadcast_msg(int curr_fd_num, int listen_fd, int this_fd, char *send_buff)
+{
+    int rc = 0;
+    for (int j=0; j<curr_fd_num; j++) {
+        if (fd_arr[j].fd == listen_fd || fd_arr[j].fd == this_fd) continue;
+        rc = send(fd_arr[j].fd, send_buff, BUFF_SIZE, 0);
+        if (rc < 0) {
+            perror("fail in send()");
+        }
+    }
+}
 
 int main (int argc, char *argv[]) {
 
@@ -62,7 +75,7 @@ int main (int argc, char *argv[]) {
     int listen_fd = -1, this_fd = -1;
     struct sockaddr_in serv_addr;
     int timeout;
-    int curr_fd_num;
+    int curr_fd_num = 0;
 
     char rece_buff[BUFF_SIZE];
     char send_buff[BUFF_SIZE];
@@ -87,8 +100,7 @@ int main (int argc, char *argv[]) {
 
 
     /* set socket reuse */
-    rc = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, 
-        (char*) &on, sizeof(on));
+    rc = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (char*) &on, sizeof(on));
     if (rc) {
         perror("fail in set socket reuse");
         exit(-1);
@@ -124,6 +136,7 @@ int main (int argc, char *argv[]) {
         exit(-1);
     }
     
+    curr_fd_num ++;
     printf("start listen!\n");
 
     /* init pollfd structure */
@@ -139,8 +152,8 @@ int main (int argc, char *argv[]) {
     conn_t* conn;
     /* poll loop */
     do {
-        printf("start poll(), fd_num = %d\n", fd_num);
-        rc = poll(fd_arr, fd_num, timeout);
+        printf("start poll(), curr_fd_num = %d\n", curr_fd_num);
+        rc = poll(fd_arr, MAX_FD_NUM, timeout);
         if (errno == EINTR) {
             // poll() may be interrupted by signal, if so, just ignore the fail and continue
             errno = 0;  // need to reset errno, or it will enter a infinite loop
@@ -156,7 +169,6 @@ int main (int argc, char *argv[]) {
             break;
         }
 
-        curr_fd_num = fd_num;
         for (int i=0; i<curr_fd_num; i++) {
         
             /* check */
@@ -184,9 +196,9 @@ int main (int argc, char *argv[]) {
                     }
                 }
                 printf(" New incoming connection - %d\n", this_fd);
-                fd_arr[fd_num].fd = this_fd;
-                fd_arr[fd_num].events = POLLIN;
-                fd_num ++;
+                curr_fd_num ++;
+                fd_arr[curr_fd_num-1].fd = this_fd;
+                fd_arr[curr_fd_num-1].events = POLLIN;
 
                 conn = init_conn(this_fd);
                 if (!conn) {
@@ -226,27 +238,24 @@ int main (int argc, char *argv[]) {
                 }
 
                 if (rc == 0) {
+                    // client close
                     printf("Connection closed\n");
                     close_conn = 1;
-                }
-
-                rece_len = rc;
-                printf("%d bytes received from %s\n", rece_len, conn->name);
-
-                if (conn->name[0] == 0) {
-                    strncpy(conn->name, rece_buff, rece_len-2);
-                    snprintf(send_buff, BUFF_SIZE, "%s joined\n", conn->name);
+                    snprintf(send_buff, BUFF_SIZE, "%s left\n", conn->name);
+                    broadcast_msg(curr_fd_num, listen_fd, this_fd, send_buff);
                 } else {
-                    snprintf(send_buff, BUFF_SIZE, "%s: %s", conn->name, rece_buff);
-                }
-               
+                    // client sent msg
+                    rece_len = rc;
+                    printf("%d bytes received from %s\n", rece_len, conn->name);
 
-                for (int j=0; j<curr_fd_num; j++) {
-                    if (fd_arr[j].fd == listen_fd || fd_arr[j].fd == this_fd) continue;
-                    rc = send(fd_arr[j].fd, send_buff, BUFF_SIZE, 0);
-                    if (rc < 0) {
-                        perror("fail in send()");
+                    if (conn->name[0] == 0) {
+                        strncpy(conn->name, rece_buff, rece_len-2);
+                        snprintf(send_buff, BUFF_SIZE, "%s joined\n", conn->name);
+                    } else {
+                        snprintf(send_buff, BUFF_SIZE, "%s: %s", conn->name, rece_buff);
                     }
+                    
+                    broadcast_msg(curr_fd_num, listen_fd, this_fd, send_buff);
                 }
             }
 
@@ -267,19 +276,26 @@ int main (int argc, char *argv[]) {
             } 
         } // for iterate all fd
         if (compress_array) {
+            //FIXME
             printf("in compress\n");
-            compress_array = 0;
-            for (int i=0; i<fd_num; i++) {
+            for (int i=0; i<curr_fd_num; i++) {
                 if (fd_arr[i].fd == -1) {
-                    for (int j=fd_num-1; j>=i; j--) {
-                        fd_num --;
-                        if (fd_arr[j].fd != -1) {
-                            fd_arr[i].fd = fd_arr[j].fd;
-                            break;
+                    if (i == curr_fd_num-1) {
+                        // last fd is -1, no need to move
+                        curr_fd_num --;
+                        break;
+                    } else {
+                        for (int j=curr_fd_num-1; j>=i; j--) {
+                            if (fd_arr[j].fd != -1) {
+                                fd_arr[i].fd = fd_arr[j].fd;
+                                curr_fd_num --;
+                                break;
+                            }
                         }
                     }
                 }
             }
+            compress_array = 0;
         }
     } while (end_server == 0);
 

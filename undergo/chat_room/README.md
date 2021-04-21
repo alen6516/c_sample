@@ -1,5 +1,8 @@
 * TCP chat room
+## Function
+* multiple user chat room, no limit on the number of the users
 * once enter the room, user need to log their name
+* use TCP
 
 * directory structure
     * main.c
