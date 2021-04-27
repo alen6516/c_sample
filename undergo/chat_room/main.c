@@ -265,7 +265,7 @@ int main (int argc, char *argv[]) {
                     exit(-1);
                 }
                 fd_arr[i].fd = -1;
-                compress_array = 1;
+                compress_array ++;
 
                 rc = table_remove(this_fd, table, conn_get_next, conn_match, conn_link);
                 if (rc != 0) {
@@ -278,23 +278,8 @@ int main (int argc, char *argv[]) {
         if (compress_array) {
             //FIXME
             printf("in compress\n");
-            for (int i=0; i<curr_fd_num; i++) {
-                if (fd_arr[i].fd == -1) {
-                    if (i == curr_fd_num-1) {
-                        // last fd is -1, no need to move
-                        curr_fd_num --;
-                        break;
-                    } else {
-                        for (int j=curr_fd_num-1; j>=i; j--) {
-                            if (fd_arr[j].fd != -1) {
-                                fd_arr[i].fd = fd_arr[j].fd;
-                                curr_fd_num --;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            
+
             compress_array = 0;
         }
     } while (end_server == 0);
