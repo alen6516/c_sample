@@ -38,8 +38,8 @@ int curr_fd_num = 0;    // num of fd, including listen_fd
 table_t *table;
 
 
-void sig_hander(int sig) {
-
+void sig_hander(int sig)
+{
     printf("\n================================\n");
     printf("curr_fd_num = %d, fd_arr = [ ", curr_fd_num);
     for (int i=0; i<curr_fd_num; i++) {
@@ -75,21 +75,22 @@ int main (int argc, char *argv[]) {
     int listen_fd = -1, this_fd = -1;
     struct sockaddr_in serv_addr;
     int timeout;
-    int curr_fd_num = 0;
+    int curr_fd_num = 0;        // including listen_fd
 
     char rece_buff[BUFF_SIZE];
     char send_buff[BUFF_SIZE];
     int rece_len;
 
-    int end_server = 0, compress_array = 0;
+    int end_server = 0;
     int close_conn = 0;
 
 
     strcpy(server_ip, SERVER_IP);
     server_port = (unsigned short)SERVER_PORT;
     backlog = BACKLOG;
-
-    signal(SIGTSTP, sig_hander);
+    
+    // register handler
+    signal(SIGTSTP, sig_hander);    // ctrl-z
 
     /* create listen_fd */
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -142,7 +143,7 @@ int main (int argc, char *argv[]) {
     /* init pollfd structure */
     bzero(&fd_arr, sizeof(fd_arr));
 
-    /* setup init listening socket */
+    /* init listening socket */
     fd_arr[0].fd = listen_fd;
     fd_arr[0].events = POLLIN;
     
@@ -208,7 +209,7 @@ int main (int argc, char *argv[]) {
 
                 table_add(this_fd, table, (void*)conn, (void**)conn->next);
 
-                strncpy(send_buff, "Entry your name: ", BUFF_SIZE);
+                snprintf(send_buff, BUFF_SIZE, "Enter your name: ");
                 rc = send(this_fd, send_buff, BUFF_SIZE, 0);
                 if (rc < 0) {
                     perror("fail in send()");
@@ -249,7 +250,7 @@ int main (int argc, char *argv[]) {
                     printf("%d bytes received from %s\n", rece_len, conn->name);
 
                     if (conn->name[0] == 0) {
-                        strncpy(conn->name, rece_buff, rece_len-2);
+                        strncpy(conn->name, rece_buff, NAME_LEN-1);
                         snprintf(send_buff, BUFF_SIZE, "%s joined\n", conn->name);
                     } else {
                         snprintf(send_buff, BUFF_SIZE, "%s: %s", conn->name, rece_buff);
@@ -264,8 +265,16 @@ int main (int argc, char *argv[]) {
                     perror("fail on close fd");
                     exit(-1);
                 }
+
+                // find fd from the tail and swap
                 fd_arr[i].fd = -1;
-                compress_array ++;
+                for (int j = curr_fd_num-1; j>0; j--) {
+                    if (fd_arr[j].fd != -1) {
+                        fd_arr[i] = fd_arr[j];
+                        fd_arr[j].fd = 0;
+                    }
+                }
+                curr_fd_num --;
 
                 rc = table_remove(this_fd, table, conn_get_next, conn_match, conn_link);
                 if (rc != 0) {
@@ -275,16 +284,9 @@ int main (int argc, char *argv[]) {
                 close_conn = 0;
             } 
         } // for iterate all fd
-        if (compress_array) {
-            //FIXME
-            printf("in compress\n");
-            
-
-            compress_array = 0;
-        }
     } while (end_server == 0);
 
-    for (int i=0; i<fd_num; i++) {
+    for (int i=0; i<curr_fd_num; i++) {
         if (fd_arr[i].fd == 0) {
             close(fd_arr[i].fd);
         }

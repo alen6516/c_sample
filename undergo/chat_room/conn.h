@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define NAME_LEN 10
+
 typedef struct __conn {
     int fd;
-    char name[10];
+    char name[NAME_LEN];
     struct __conn* next;
 } conn_t;
 
