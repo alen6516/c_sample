@@ -20,6 +20,7 @@
 #include "table.h"
 #include "conn.h"
 #include "util.h"
+#include "poll_event.h"
 
 #define SERVER_IP   "127.0.0.1"
 #define SERVER_PORT 9000
@@ -185,7 +186,32 @@ int main (int argc, char *argv[]) {
             /* end of check*/
 
             bzero(send_buff, BUFF_SIZE);
-            if (fd_arr[i].fd == listen_fd) {
+
+            if ((fd_arr[i].revents & POLLRDHUP) || (fd_arr[i].revents & POLLERR)) {
+                // error or client close
+                if (close(this_fd) < 0 ) {
+                    perror("fail on close fd");
+                    exit(-1);
+                }
+
+                // find fd from the tail and swap
+                fd_arr[i].fd = -1;
+                for (int j = curr_fd_num-1; j>0; j--) {
+                    if (fd_arr[j].fd != -1) {
+                        fd_arr[i] = fd_arr[j];
+                        fd_arr[j].fd = 0;
+                    }
+                }
+                curr_fd_num --;
+
+                rc = table_remove(this_fd, table, conn_get_next, conn_match, conn_link);
+                if (rc != 0) {
+                    printf("error in table_remove()");
+                    exit(1);
+                }
+
+            } else if ((fd_arr[i].fd == listen_fd) && (fd_arr[i].revents & POLLIN)) {
+                // new client
                 printf("listening socket is readable\n");
 
                 this_fd = accept(listen_fd, NULL, NULL);
@@ -216,79 +242,44 @@ int main (int argc, char *argv[]) {
                     close_conn = 1;
                 }
 
-            } else {
-                this_fd = fd_arr[i].fd;
-                printf("fd %d is readable\n", this_fd);
-                
-                bzero(rece_buff, BUFF_SIZE);
-                rc = recv(fd_arr[i].fd, rece_buff, BUFF_SIZE, 0);
-
-                
-                conn = (conn_t*) table_get(this_fd, table, conn_get_next, conn_match);
-                if (!conn) {
-                    printf("fail in search table\n");
-                    exit(-1);
+            
+            } else if (fd_arr[i].revents & POLLIN) {
+                // readable
+ 
+                rc = recv(fd_arr[i].fd, rece_buff, BUFF_SIZE-1, 0);
+                if (rc > 0)
+                {
+                    //mapdata[fds[i].fd] = buf;
+                    fd_arr[i].events &= (~POLLIN);
+                    fd_arr[i].events |= POLLOUT;
                 }
-
-
-                if (rc < 0) {
-                    if (errno != EWOULDBLOCK) {
-                        close_conn = 1;
-                    }
-                    break;
+                else if (rc == 0)
+                {
+                    printf("------- client %d exit (not print) --------\n", fd_arr[i].fd);
                 }
-
-                if (rc == 0) {
-                    // client close
-                    printf("Connection closed\n");
-                    close_conn = 1;
-                    snprintf(send_buff, BUFF_SIZE, "%s left\n", conn->name);
-                    broadcast_msg(curr_fd_num, listen_fd, this_fd, send_buff);
-                } else {
-                    // client sent msg
-                    rece_len = rc;
-                    printf("%d bytes received from %s\n", rece_len, conn->name);
-
-                    if (conn->name[0] == 0) {
-                        strncpy(conn->name, rece_buff, NAME_LEN-1);
-                        snprintf(send_buff, BUFF_SIZE, "%s joined\n", conn->name);
-                    } else {
-                        snprintf(send_buff, BUFF_SIZE, "%s: %s", conn->name, rece_buff);
-                    }
-                    
-                    broadcast_msg(curr_fd_num, listen_fd, this_fd, send_buff);
-                }
-            }
-
-            if (close_conn) {
-                if (close(this_fd) < 0 ) {
-                    perror("fail on close fd");
-                    exit(-1);
-                }
-
-                // find fd from the tail and swap
-                fd_arr[i].fd = -1;
-                for (int j = curr_fd_num-1; j>0; j--) {
-                    if (fd_arr[j].fd != -1) {
-                        fd_arr[i] = fd_arr[j];
-                        fd_arr[j].fd = 0;
-                    }
-                }
-                curr_fd_num --;
-
-                rc = table_remove(this_fd, table, conn_get_next, conn_match, conn_link);
-                if (rc != 0) {
-                    printf("error in table_remove()");
+                else
+                {
+                    fprintf(stderr, "recv: %d, %s\n", errno, strerror(errno));
                     exit(1);
                 }
-                close_conn = 0;
-            } 
+            
+            } else if  (fd_arr[i].revents & POLLOUT) {
+                // writable
+				/*
+				if (send(fd_arr[i].fd, mapdata[fds[i].fd].c_str(), mapdata[fds[i].fd].size(), 0) < 0)
+                {
+                    if (ECONNRESET == errno)
+                    {
+                        continue;
+                    }
+                    fprintf(stderr, "send: %d, %s\n", errno, strerror(errno));
+                    exit(1);
+                }
+				*/
+				printf("writable\n");
+                fd_arr[i].events &= (~POLLOUT);
+                fd_arr[i].events |= POLLIN;
+            }
         } // for iterate all fd
     } while (end_server == 0);
-
-    for (int i=0; i<curr_fd_num; i++) {
-        if (fd_arr[i].fd == 0) {
-            close(fd_arr[i].fd);
-        }
-    }
 }

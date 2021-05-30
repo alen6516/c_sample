@@ -32,6 +32,15 @@ void sig_handler(int sig)
 {
 }
 
+void *send_thread(void* fd)
+{
+    int rc = 0;
+    char send_buff[BUFF_SIZE];
+    while (1) {
+        scanf("%[^\n]", send_buff);
+        rc = send(*(int*)fd, send_buff, BUFF_SIZE, 0);
+    }
+}
 
 int main (int argc, char **argv)
 {
@@ -39,9 +48,6 @@ int main (int argc, char **argv)
     int client_fd = -1;
     int end_client = 0;
     struct sockaddr_in client_addr;
-    char send_buff[BUFF_SIZE];
-    char rece_buff[BUFF_SIZE];
-    int rece_len;
 
     client_fd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -52,6 +58,7 @@ int main (int argc, char **argv)
 
 
     bzero(&client_addr, sizeof(client_addr));
+    client_addr.sin_family = AF_INET;
     inet_pton(AF_INET, SERVER_IP, &(client_addr.sin_addr.s_addr));
     client_addr.sin_port = htons(SERVER_PORT);
 
@@ -63,25 +70,17 @@ int main (int argc, char **argv)
     }
     printf("connect\n");
 
-    strcpy(send_buff, "hello");
-    rc = send(client_fd, send_buff, BUFF_SIZE, 0);
-    if (rc < 0) {
-        perror("fail to send");
-        goto done;
-    }
+    pthread_t send_thr;
+    pthread_create(&send_thr, NULL, send_thread, (void*)&client_fd);
+
+    char rece_buff[BUFF_SIZE];
 
     do {
-    
         rc = recv(client_fd, rece_buff, BUFF_SIZE, 0);
-        if (rc < 0) {
+        if (rc < 0 ) {
             perror("fail to receive");
-            break;
         }
-
         printf("%s\n", rece_buff);
-        //scanf("%[^\n]", send_buff);
-        break;
-
     } while (!end_client);
     
 done:

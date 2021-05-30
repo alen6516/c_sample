@@ -13,3 +13,7 @@
     * fd => array
     * conn => hash_table
     * parse_buf + thr_list => thr_node_list
+
+## update in 5/31
+decide to use select.
+poll version is main.c and select version is server.c
