@@ -16,8 +16,8 @@
 #include <unistd.h>                 /* read(), write(), close() */
 #include <sys/fcntl.h>              /* fcntl() */
 
-#include "table.h"
-#include "conn.h"
+//#include "table.h"
+//#include "conn.h"
 #include "util.h"
 
 #define SERVER_IP   "127.0.0.1"
@@ -37,7 +37,6 @@
 
 int main ()
 {
-    
     int rc;
     int listen_fd = -1;
     struct sockaddr_in  serv_addr;
@@ -87,6 +86,7 @@ int main ()
     tv.tv_usec = 0;
     fd_set read_fds;
     struct sockaddr_in cli_addr;
+    socklen_t *addr_len;
     int new_fd;
     char recv_buf[BUF_SIZE] = {};
     int recv_len;
@@ -107,7 +107,7 @@ int main ()
                     if (i == listen_fd) {
                         // new conn
                         
-                        new_fd = accept(listen_fd, (struct sockaddr*) &cli_addr, sizeof(cli_addr));
+                        new_fd = accept(listen_fd, (struct sockaddr*) &cli_addr, addr_len);
                         if (new_fd == -1) {
                             // fail to accept
                             
