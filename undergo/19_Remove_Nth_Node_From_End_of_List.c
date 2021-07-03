@@ -5,11 +5,11 @@ Memory Usage: 5.7 MB, less than 81.45% of C online submissions for Remove Nth No
 
 /**
  * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     struct ListNode *next;
- * };
  */
+struct ListNode {
+    int val;
+    struct ListNode *next;
+};
 
 
 #include <stdio.h>
