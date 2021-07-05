@@ -13,7 +13,7 @@ int init_logger(LOGGER* logger, const char *log_file) {
     if (log_file) {
         logger->log_file = fopen(log_file, "w+");
     }
-    logger->file_line_f = 1;
+    logger->is_file_line_on = 1;
     return 0;
 }
 
@@ -26,7 +26,7 @@ void _log(const char* __file__, unsigned long __line__, LOG_MODE mode, const cha
     char buf[FILE_LINE_SIZE + MODE_SIZE + MSG_SIZE];
     int len = 0;
     
-    if (logger.file_line_f) {
+    if (logger.is_file_line_on) {
         len += snprintf(buf, FILE_LINE_SIZE, "%5s: %5lu ", __file__, __line__);
     }
 
@@ -49,7 +49,7 @@ void _log(const char* __file__, unsigned long __line__, LOG_MODE mode, const cha
             break;
     }
 
-    len += vsnprintf(buf+len-1, MSG_SIZE-1, format, arg);
+    len += vsnprintf(buf+len, MSG_SIZE-1, format, arg);
 
     if (NULL != logger.log_file) {
         fwrite(buf, len, 1, logger.log_file);

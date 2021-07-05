@@ -24,7 +24,7 @@ typedef enum {
 typedef struct __logger {
     LOG_MODE mode;
     FILE* log_file;
-    unsigned char file_line_f :1,
+    unsigned char is_file_line_on :1,
                   spare:       7;
 } LOGGER;
 
@@ -36,19 +36,11 @@ int init_logger(LOGGER *, const char*);
 
 void _log(const char*, unsigned long, LOG_MODE, const char *, ...);
 
-#define INFO(format, ...)  _log(__FILE__, __LINE__, INFO_MODE, format, __VA_ARGS__)
-#define DEBUG(format, ...) _log(__FILE__, __LINE__, DEBUG_MODE, format, __VA_ARGS__)
-#define CHECK(format, ...) _log(__FILE__, __LINE__, CHECK_MODE, format, __VA_ARGS__)
+#define INFO(format, ...)  _log(__FILE__, __LINE__, INFO_MODE, format, ##__VA_ARGS__)
+#define DEBUG(format, ...) _log(__FILE__, __LINE__, DEBUG_MODE, format, ##__VA_ARGS__)
+#define CHECK(format, ...) _log(__FILE__, __LINE__, CHECK_MODE, format, ##__VA_ARGS__)
 #define WARN(format, ...)  _log(__FILE__, __LINE__, WARN_MODE, format, ##__VA_ARGS__)
-#define ERROR(format, ...) _log(__FILE__, __LINE__, ERROR_MODE, format, __VA_ARGS__)
-
-/*
-void INFO(const char *format, ...);
-void DEBUG(const char *format, ...);
-void CHECK(const char *format, ...);
-void WARN(const char *format, ...);
-void ERROR(const char *format, ...);
-*/
+#define ERROR(format, ...) _log(__FILE__, __LINE__, ERROR_MODE, format, ##__VA_ARGS__)
 
 /*
 int main () {
