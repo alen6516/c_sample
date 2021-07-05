@@ -6,6 +6,47 @@
 #include <stdlib.h>
 #include <string.h>
 
+// start: first char*'s addr
+// offset: the num of char we have
+void subroutine(char **start, int *offset, const char* pattern, int n, int right, int left)
+{
+    // fill (
+    start[*offset] = (char*) malloc(n+1);
+    if (pattern[0]) {
+        strncpy(start[*offset], pattern, n-right-left);
+    }
+    start[*offset][n-right-left] = '(';
+    *offset += 1;
+    left --;
+
+    if (left > 0) {
+        // next can fill ( or )
+        subroutine(start, offset, (const char*)start[(*offset)-1], n, right, left);
+    } else {
+        // only can fill )
+        memset(start[(*offset)-1], ')', right);
+        start[(*offset)-1][n] = '\0';
+        printf("%s\n", start[(*offset)-1]);
+    }
+
+    // fill )
+    if (right == 0 || left > right) {
+        return;
+    }
+
+    start[*offset] = (char*) malloc(n+1);
+    if (pattern[0]) {
+        strncpy(start[*offset], pattern, n-right-left);
+    }
+    start[*offset][n-right-left] = ')';
+    *offset += 1;
+    right --;
+
+    // next can fill ( or )
+    subroutine(start, offset, (const char*)start[(*offset)-1], n, right, left);
+}
+
+
 char ** generateParenthesis(int n, int* returnSize){
 
 	// count total_num
@@ -24,21 +65,12 @@ char ** generateParenthesis(int n, int* returnSize){
 	char **ret = (char**)malloc(sizeof(char*)*total_num);
 	
 
-	// render string
-	int curr_num = 0;
-	const char pre[] = "((((";
-	ret[curr_num] = (char*) malloc (n+1);
-	strncpy(ret[curr_num], pre, strlen(pre));
-	strncpy(ret[curr_num]+4, "))))", 4);
-	printf("%s, len = %d\n", ret[curr_num], (int)strlen(ret[curr_num]));
+    int right = n;
+    int left = n;
+    int offset = 0;
 
+    subroutine(ret, &offset, "\0", n, n/2, n/2);
 
-	ret[0] = (char*)malloc(2*n+1);
-	memset(ret[0], '(', 2*n);
-	ret[0][2*n] = '\0';
-	int count = 0;
-
-	divide()
 	
 	return NULL;
 }
