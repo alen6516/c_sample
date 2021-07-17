@@ -1,4 +1,13 @@
-// 5. Longest Palindromic Substring
+/* 
+Runtime: 20 ms, faster than 64.85% of C online submissions for Longest Palindromic Substring.
+Memory Usage: 6.1 MB, less than 72.47% of C online submissions for Longest Palindromic Substring.
+
+Solution: use a for loop to go through the string, detect 2 kinds of Palindromic Substring
+    1. str[i] == str[i+1], then use a while loop to expand and detect
+    2. str[i] == str[i+2], also use a while loop to expand and detect
+
+Improve: based on this method, thinking if we can skip some char when going through the string.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,16 +73,13 @@ char* foo(char *str) {
         
     }
 
-	char ret[1001] = {0};		// assume the larget str is 1000 len, add 1 for \0
-	strncpy(ret, str+position, longest_len);
-	ret[longest_len] = '\0';
+    if (str_len == longest_len) {
+        return str;
+    }
 
-	//printf("len = %d\n", str_len);
-    printf("longest = %d, position = %d\n", longest_len, position);
-	
-
-	char *a = ret;
-	return a;		// return ret on leetcode causes error, I don't know why
+    char *ret = (char*)malloc(longest_len+1);
+    strncpy(ret, str+position, longest_len);
+    ret[longest_len] = '\0';
 }
 
 

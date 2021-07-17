@@ -1,6 +1,6 @@
 /*
- * Runtime: 12 ms, faster than 95.64% of C online submissions for Container With Most Water.
- * Memory Usage: 7.9 MB, less than 14.29% of C online submissions for Container With Most Water.
+Runtime: 12 ms, faster than 95.64% of C online submissions for Container With Most Water.
+Memory Usage: 7.9 MB, less than 14.29% of C online submissions for Container With Most Water.
  */
 #include <stdio.h>
 #include <stdlib.h>

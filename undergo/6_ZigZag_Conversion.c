@@ -1,12 +1,15 @@
+/*
+Runtime: 0 ms, faster than 100.00% of C online submissions for ZigZag Conversion.
+Memory Usage: 7.7 MB, less than 100.00% of C online submissions for ZigZag Conversion.
+
+Solution: 
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 
-/*
- * Runtime: 0 ms, faster than 100.00% of C online submissions for ZigZag Conversion.
- * Memory Usage: 7.7 MB, less than 100.00% of C online submissions for ZigZag Conversion.
- */
 
 
 char * convert(char * s, int numRows) {
