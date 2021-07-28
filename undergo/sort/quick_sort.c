@@ -22,7 +22,7 @@ int main () {
 int partition (int arr[], int left, int right)
 {
 
-    printf("in this partition, left = %d, right = %d\n", left, right);
+    //printf("in this partition, left = %d, right = %d\n", left, right);
 
     int mid_idx = right;
     right--;
@@ -40,7 +40,7 @@ int partition (int arr[], int left, int right)
 
                     // if find, then swap them
                     SWAP(arr[left], arr[right]);
-                    show();
+                    //show();
                     swap_with_mid_before_return = right;
                     break;
                 }
@@ -50,8 +50,8 @@ int partition (int arr[], int left, int right)
 
     if (swap_with_mid_before_return != -1) {
         SWAP(arr[swap_with_mid_before_return], arr[mid_idx]);
-        printf("swap before return\n");
-        show();
+        //printf("swap before return\n");
+        //show();
         return swap_with_mid_before_return;
     } else {
         return right;
