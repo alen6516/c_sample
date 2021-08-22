@@ -1,7 +1,7 @@
 /*
- * Runtime: 0 ms, faster than 100.00% of C online submissions for Letter Combinations of a Phone Number.
- * Memory Usage: 5.7 MB, less than 90.77% of C online submissions for Letter Combinations of a Phone Number.
- */
+Runtime: 0 ms, faster than 100.00% of C online submissions for Letter Combinations of a Phone Number.
+Memory Usage: 5.7 MB, less than 90.77% of C online submissions for Letter Combinations of a Phone Number.
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

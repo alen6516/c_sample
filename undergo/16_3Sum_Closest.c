@@ -1,7 +1,7 @@
 /*
- * Runtime: 28 ms, faster than 34.72% of C online submissions for 3Sum Closest.
- * Memory Usage: 6.9 MB, less than 100.00% of C online submissions for 3Sum Closest.
- */
+Runtime: 28 ms, faster than 34.72% of C online submissions for 3Sum Closest.
+Memory Usage: 6.9 MB, less than 100.00% of C online submissions for 3Sum Closest.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>

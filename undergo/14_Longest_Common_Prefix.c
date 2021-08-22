@@ -1,6 +1,6 @@
 /*
- * Runtime: 0 ms, faster than 100.00% of C online submissions for Longest Common Prefix.
- * Memory Usage: 7.1 MB, less than 87.50% of C online submissions for Longest Common Prefix.
+Runtime: 0 ms, faster than 100.00% of C online submissions for Longest Common Prefix.
+Memory Usage: 7.1 MB, less than 87.50% of C online submissions for Longest Common Prefix.
  */
 
 #include <stdio.h>
