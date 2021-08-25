@@ -1,6 +1,6 @@
 /*
- * Runtime: 4 ms, faster than 85.96% of C online submissions for Integer to Roman.
- * Memory Usage: 7 MB, less than 80.00% of C online submissions for Integer to Roman.
+Runtime: 4 ms, faster than 85.96% of C online submissions for Integer to Roman.
+Memory Usage: 7 MB, less than 80.00% of C online submissions for Integer to Roman.
  */
 
 #include <stdio.h>

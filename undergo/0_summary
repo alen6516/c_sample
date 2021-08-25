@@ -1,0 +1,69 @@
+5_Longest_Palindromic_Substring.c
+Runtime: 20 ms, faster than 64.85% of C online submissions for Longest Palindromic Substring.
+Memory Usage: 6.1 MB, less than 72.47% of C online submissions for Longest Palindromic Substring.
+----------------------------------
+6_ZigZag_Conversion.c
+Runtime: 0 ms, faster than 100.00% of C online submissions for ZigZag Conversion.
+Memory Usage: 7.7 MB, less than 100.00% of C online submissions for ZigZag Conversion.
+----------------------------------
+8_String_to_Integer.c
+Runtime: 4 ms, faster than 65.31% of C online submissions for String to Integer (atoi).
+Memory Usage: 7 MB, less than 42.86% of C online submissions for String to Integer (atoi).
+----------------------------------
+11_Container_With_Most_Water.c
+Runtime: 12 ms, faster than 95.64% of C online submissions for Container With Most Water.
+Memory Usage: 7.9 MB, less than 14.29% of C online submissions for Container With Most Water.
+----------------------------------
+12_Integer_to_Roman.c
+Runtime: 4 ms, faster than 85.96% of C online submissions for Integer to Roman.
+Memory Usage: 7 MB, less than 80.00% of C online submissions for Integer to Roman.
+----------------------------------
+14_Longest_Common_Prefix.c
+Runtime: 0 ms, faster than 100.00% of C online submissions for Longest Common Prefix.
+Memory Usage: 7.1 MB, less than 87.50% of C online submissions for Longest Common Prefix.
+----------------------------------
+15_3Sum.c
+The sizes of the arrays are returned as *returnColumnSizes array.
+Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+----------------------------------
+16_3Sum_Closest.c
+Runtime: 28 ms, faster than 34.72% of C online submissions for 3Sum Closest.
+Memory Usage: 6.9 MB, less than 100.00% of C online submissions for 3Sum Closest.
+----------------------------------
+17_Letter_Combinations_of_a_Phone_Number.c
+Runtime: 0 ms, faster than 100.00% of C online submissions for Letter Combinations of a Phone Number.
+Memory Usage: 5.7 MB, less than 90.77% of C online submissions for Letter Combinations of a Phone Number.
+----------------------------------
+19_Remove_Nth_Node_From_End_of_List.c
+Runtime: 4 ms, faster than 52.75% of C online submissions for Remove Nth Node From End of List.
+Memory Usage: 5.7 MB, less than 81.45% of C online submissions for Remove Nth Node From End of List.
+----------------------------------
+20_Valid_Parentheses.c
+Runtime: 0 ms, faster than 100.00% of C online submissions for Valid Parentheses.
+Memory Usage: 5.5 MB, less than 84.13% of C online submissions for Valid Parentheses.
+----------------------------------
+21_Merge_Two_Sorted_Lists.c
+Runtime: 4 ms, faster than 82.71% of C online submissions for Merge Two Sorted Lists.
+Memory Usage: 6.1 MB, less than 73.40% of C online submissions for Merge Two Sorted Lists.
+----------------------------------
+22_Generate_Parentheses.c
+Runtime: 4 ms, faster than 66.46% of C online submissions for Generate Parentheses.
+Memory Usage: 6.7 MB, less than 44.51% of C online submissions for Generate Parentheses.
+----------------------------------
+24_Swap_Nodes_in_Pairs.c
+Runtime: 0 ms, faster than 100.00% of C online submissions for Swap Nodes in Pairs.
+Memory Usage: 5.8 MB, less than 91.22% of C online submissions for Swap Nodes in Pairs.
+----------------------------------
+26_Remove_Duplicates_from_Sorted_Array.c
+Runtime: 12 ms, faster than 93.43% of C online submissions for Remove Duplicates from Sorted Array.
+Meomory Usage: 7.4 MB, less than 90.41% of C online submissions for Remove Duplicates from Sorted Array.
+----------------------------------
+27_Remove_Element.c
+Runtime: 0 ms, faster than 100.00% of C online submissions for Remove Element.
+Meomory Usage: 6.1 MB, less than 50.19% of C online submissions for Remove Element.
+----------------------------------
+----------------------------------
+----------------------------------
+----------------------------------
+----------------------------------
+----------------------------------
