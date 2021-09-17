@@ -2,7 +2,18 @@
 #include <stdlib.h>
 #include <time.h>
 
-int strStr(char * haystack, char * needle){
+int _strStr(char * haystack, char * needle){
+    if (haystack[0] == '\0') {
+        if (needle[0] == '\0') {
+            return 0;
+        } else {
+            return -1;
+        }
+    } else if (needle[0] == '\0') {
+        return 0;
+    }
+
+
     int pos = 0;
     int adv = 0;
     int i = 0;
@@ -27,6 +38,48 @@ int strStr(char * haystack, char * needle){
             } else {
                 i++;
             }
+        }
+    }
+    return -1;
+}
+
+int strStr(char *haystack, char *needle) {
+    if (haystack[0] == '\0') {
+        if (needle[0] == '\0') {
+            return 0;
+        } else {
+            return -1;
+        }
+    } else if (needle[0] == '\0') {
+        return 0;
+    }
+
+    int len1, len2;
+    for (len1=0; haystack[len1] != '\0'; len1++);
+    for (len2=0; needle[len2] != '\0'; len2++);
+    
+    printf("%d, %d\n", len1, len2);
+
+    if (len1 < len2) return -1;
+
+    int i=0;
+    int pos = 0;
+    int adv = 0;
+    while (pos+len2 <= len1) {
+        if (haystack[pos+i] == needle[i] &&
+            haystack[pos+len2-1-i] == needle[len2-1-i]) {
+
+            if (pos+i == pos+len2-1-i) {
+                return pos;
+            }
+            if (haystack[pos+i] == needle[0] && i!=0 && adv==0) {
+                adv = i;
+            }
+
+        } else {
+            pos += adv;
+            i = 0;
+            adv = 0;
         }
     }
     return -1;
