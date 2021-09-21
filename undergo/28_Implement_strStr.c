@@ -54,6 +54,7 @@ int strStr(char *haystack, char *needle) {
         return 0;
     }
 
+    // get length
     int len1, len2;
     for (len1=0; haystack[len1] != '\0'; len1++);
     for (len2=0; needle[len2] != '\0'; len2++);
@@ -69,17 +70,23 @@ int strStr(char *haystack, char *needle) {
         if (haystack[pos+i] == needle[i] &&
             haystack[pos+len2-1-i] == needle[len2-1-i]) {
 
-            if (pos+i == pos+len2-1-i) {
+            if (pos+i >= pos+len2-1-i) {
                 return pos;
             }
             if (haystack[pos+i] == needle[0] && i!=0 && adv==0) {
                 adv = i;
             }
+            i++;
 
         } else {
-            pos += adv;
+            if (adv) {
+                pos += adv;
+                adv = 0;
+            } else {
+                pos++;
+            }
+
             i = 0;
-            adv = 0;
         }
     }
     return -1;
