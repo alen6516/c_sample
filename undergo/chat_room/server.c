@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +25,7 @@
 #define SERVER_PORT 9000
 #define MAX_FD_NUM  200
 #define BACKLOG     128
-#define BUF_SIZE    100
+#define BUFF_SIZE    100
 
 #ifdef DEBUG
 #define LOG(...) ({             \
@@ -34,8 +35,7 @@
 #define LOG(...)
 #endif
 
-
-int main ()
+int main()
 {
     int rc;
     int listen_fd = -1;
@@ -44,7 +44,6 @@ int main ()
     // create server socket
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (listen_fd < 0) {
-        // fail
         exit(-1);
     }
 
@@ -52,7 +51,6 @@ int main ()
     int socket_flag = 1;
     rc = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&socket_flag, sizeof(socket_flag));
     if (rc < 0) {
-        // fail
         exit(-1);
     }
 
@@ -73,75 +71,69 @@ int main ()
         exit(-1);
     }
 
-    // setup fd_set
-    fd_set active_fd_set;
+    // init the set of active socket
+    fd_set active_fd_set, read_fd_set;
     FD_ZERO(&active_fd_set);
     FD_SET(listen_fd, &active_fd_set);
     int max_fd = listen_fd;
 
 
-    // main loop
-    struct timeval tv;
-    tv.tv_sec = 2;
-    tv.tv_usec = 0;
-    fd_set read_fds;
+    //struct timeval tv;
+    //tv.tv_sec = 2;
+    //tv.tv_usec = 0;
+    //fd_set read_fds;
     struct sockaddr_in cli_addr;
     socklen_t *addr_len;
     int new_fd;
-    char recv_buf[BUF_SIZE] = {};
+    char recv_buff[BUFF_SIZE] = {};
     int recv_len;
+
     while (1) {
-        
-        // copy fd_set
-        read_fds = active_fd_set;
-        rc = select(max_fd+1, &read_fds, NULL, NULL, &tv);
-        if (rc == -1) {
-            // select fail
-        } else if (rc == 0) {
-            // select timeout
-        } else {
-            
-            // serve all sockets
-            for (int i=0; i<FD_SETSIZE; i++) {
-                if (FD_ISSET(i, &read_fds)) {
-                    if (i == listen_fd) {
-                        // new conn
-                        
-                        new_fd = accept(listen_fd, (struct sockaddr*) &cli_addr, addr_len);
-                        if (new_fd == -1) {
-                            // fail to accept
-                            
-                        } else {
-                            LOG("Accpet client come from [%s:%u] by fd [%d]\n",
-                                inet_ntoa(cli_addr.sin_addr),
-                                ntohs(cli_addr.sin_port), new_fd);
-
-                            // add to fd_set
-                            FD_SET(new_fd, &active_fd_set);
-                            if (new_fd > max_fd) {
-                                max_fd = new_fd;
-                            }
-                        }
-                    } else {
-                        // data to existing socket
-                        recv_len = recv(i, recv_buf, BUF_SIZE, 0);
-                        if (recv_len == -1) {
-                            // fail to recv
-                        } else if (recv_len == 0) {
-                            LOG("client disconnected\n");
-                        } else {
-                            LOG("Receive: len=[%d] msg=[%s]\n", recv_len, recv_buf);
-                            /* Send (In fact we should determine when it can be written)*/
-                            send(i, recv_buf, recv_len, 0);
-                        }
-
-                        /* Clean up */
-                        close(i);
-                        FD_CLR(i, &active_fd_set);
-                    }
-                }
-            } // end of iter all fd
+        // bock until input arrives on one or more active sockets.
+        read_fd_set = active_fd_set;
+        if (select(FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0) {
+            perror("fail to select");
+            exit(-1);
         }
-    } // end of main while
 
+        // iterate all sockets
+        for (int i=0; i<FD_SETSIZE; i++) {
+            if (FD_ISSET(i, &read_fd_set)) {
+                if (i == listen_fd) {
+                    /* new client */
+                    new_fd = accept(listen_fd, (struct sockaddr*) &cli_addr, &recv_len);
+                    if (new_fd < 0) {
+                        perror("fail to accept");
+                    }
+
+                    printf("Accpet client come from [%s:%u] by fd [%d]\n",
+                        inet_ntoa(cli_addr.sin_addr),
+                        ntohs(cli_addr.sin_port), new_fd);
+
+                    // add to fd_set
+                    FD_SET(new_fd, &active_fd_set);
+                    if (new_fd > max_fd) {
+                        max_fd = new_fd;
+                    }
+                } else {
+                    /* existing client */
+                    recv_len = recv(i, recv_buff, BUFF_SIZE, 0);
+                    if (recv_len == -1) {
+                        // fail to recv
+                        printf("fail to receive msg from a existing client\n");
+                    } else if (recv_len == 0) {
+                        printf("client disconnected\n");
+                    } else {
+                        printf("Receive: len=[%d] msg=[%s]\n", recv_len, recv_buff);
+                        /* Send (In fact we should determine when it can be written)*/
+                        continue;
+                    }
+
+                    /* Clean up */
+                    close(i);
+                    FD_CLR(i, &active_fd_set);
+                }
+            }
+        }
+    }
 }

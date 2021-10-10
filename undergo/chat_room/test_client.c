@@ -26,7 +26,7 @@ int main(int argc , char *argv[])
 
     //localhost test
     info.sin_addr.s_addr = INADDR_ANY;
-    info.sin_port = htons(8700);
+    info.sin_port = htons(9000);
 
 
     int err = connect(sockfd,(struct sockaddr *)&info,sizeof(info));
