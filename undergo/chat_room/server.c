@@ -17,8 +17,7 @@
 #include <unistd.h>                 /* read(), write(), close() */
 #include <sys/fcntl.h>              /* fcntl() */
 
-//#include "table.h"
-//#include "conn.h"
+#include "client_table.h"
 #include "util.h"
 
 #define SERVER_IP   "127.0.0.1"
@@ -27,51 +26,79 @@
 #define BACKLOG     128
 #define BUFF_SIZE    100
 
-#ifdef DEBUG
-#define LOG(...) ({             \
-        printf(__VA_ARGS__);    \
-})
-#else
-#define LOG(...)
-#endif
+int
+broadcast(int fd, char *recv_buff, u32 recv_len)
+{
+    u32 bucket;
+    cli_conn_t *cli_conn;
+    char send_buff[BUFF_SIZE];
+
+    cli_conn = client_conn_lookup(fd);
+    if (!cli_conn) {
+        cli_conn = (cli_conn_t*) malloc(sizeof(cli_conn_t));
+        cli_conn->key = fd;
+        strncpy(cli_conn->name, recv_buff, 10);
+        client_conn_insert(cli_conn);
+        snprintf(send_buff, BUFF_SIZE, "let's welcome %s!", cli_conn->name);
+
+    } else {
+        if (!recv_len) {
+            snprintf(send_buff, BUFF_SIZE, "%s leaves...", cli_conn->name);
+        } else {
+            snprintf(send_buff, BUFF_SIZE, "%s says: %s", cli_conn->name, recv_buff);
+        }
+    }
+    printf("%s\n", send_buff);
+
+
+    /* broadcast */
+    cli_conn_t *curr;
+    for (u32 curr_bucket = 0; curr_bucket < CLIENT_TABLE_BUCKET_SIZE; curr_bucket++) {
+        curr = cli_conn_bucket[curr_bucket];
+        while (curr && curr->fd != fd) {
+            send(curr->fd, send_buff, BUFF_SIZE, 0);
+            curr = curr->next;
+        }
+    }
+}
 
 int main()
 {
-    int rc;
+    int ret;
     int listen_fd = -1;
     struct sockaddr_in  serv_addr;
 
-    // create server socket
+    /* create server socket */
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (listen_fd < 0) {
         exit(-1);
     }
 
-    // set server socket reuse
+    /* set server socket reuse */
     int socket_flag = 1;
-    rc = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&socket_flag, sizeof(socket_flag));
-    if (rc < 0) {
+    ret = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&socket_flag, sizeof(socket_flag));
+    if (ret < 0) {
         exit(-1);
     }
 
-    // config & bind the socket
+    /* config & bind the socket */
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     inet_pton(AF_INET, SERVER_IP, &serv_addr.sin_addr.s_addr);
     serv_addr.sin_port = htons(SERVER_PORT);
-    rc = bind(listen_fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
-    if (rc < 0) {
+    ret = bind(listen_fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
+    if (ret < 0) {
         exit(-1);
     }
 
-    // listen
-    rc = listen(listen_fd, BACKLOG);
-    if (rc < 0) {
+    /* listen */
+    ret = listen(listen_fd, BACKLOG);
+    if (ret < 0) {
         close(listen_fd);
         exit(-1);
     }
 
-    // init the set of active socket
+    /* init the set of active socket */
     fd_set active_fd_set, read_fd_set;
     FD_ZERO(&active_fd_set);
     FD_SET(listen_fd, &active_fd_set);
@@ -86,10 +113,12 @@ int main()
     socklen_t *addr_len;
     int new_fd;
     char recv_buff[BUFF_SIZE] = {};
-    int recv_len;
+    char send_buff[BUFF_SIZE] = {};
+    int recv_len, send_len;
+    u8 is_client_close = 0;
 
     while (1) {
-        // bock until input arrives on one or more active sockets.
+        /* bock until input arrives on one or more active sockets. */
         read_fd_set = active_fd_set;
         if (select(FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0) {
             perror("fail to select");
@@ -97,7 +126,7 @@ int main()
         }
 
         // iterate all sockets
-        for (int i=0; i<FD_SETSIZE; i++) {
+        for (int i=0; i<=max_fd; i++) {
             if (FD_ISSET(i, &read_fd_set)) {
                 if (i == listen_fd) {
                     /* new client */
@@ -115,23 +144,37 @@ int main()
                     if (new_fd > max_fd) {
                         max_fd = new_fd;
                     }
+
+                    snprintf(send_buff, BUFF_SIZE, "Hello client, what's your name?");
+                    send_len = send(new_fd, send_buff, BUFF_SIZE, 0);
+
                 } else {
                     /* existing client */
                     recv_len = recv(i, recv_buff, BUFF_SIZE, 0);
                     if (recv_len == -1) {
                         // fail to recv
                         printf("fail to receive msg from a existing client\n");
-                    } else if (recv_len == 0) {
-                        printf("client disconnected\n");
+                        is_client_close = 1;
                     } else {
-                        printf("Receive: len=[%d] msg=[%s]\n", recv_len, recv_buff);
+                        if (recv_len == 0) {
+                            printf("client disconnected\n");
+                            is_client_close = 1;
+                        } else {
+                            printf("Receive: len=[%d] msg=[%s]\n", recv_len, recv_buff);
+                        }
                         /* Send (In fact we should determine when it can be written)*/
+                        
+                        broadcast(i, recv_buff, recv_len);
                         continue;
                     }
 
                     /* Clean up */
-                    close(i);
-                    FD_CLR(i, &active_fd_set);
+                    if (is_client_close) {
+                        close(i);
+                        FD_CLR(i, &active_fd_set);
+                        client_conn_remove(i);
+                        is_client_close = 0;
+                    }
                 }
             }
         }

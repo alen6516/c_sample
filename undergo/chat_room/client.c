@@ -37,7 +37,9 @@ void *sender_thread(void* fd)
     int rc = 0;
     char send_buff[BUFF_SIZE];
     while (1) {
-        scanf("%[^\n]", send_buff);
+        //scanf(" %[^\n]", send_buff);
+        scanf("%s", send_buff);
+        fflush(stdin);
         rc = send(*(int*)fd, send_buff, BUFF_SIZE, 0);
     }
 }
@@ -62,7 +64,6 @@ int main (int argc, char **argv)
     inet_pton(AF_INET, SERVER_IP, &(client_addr.sin_addr.s_addr));
     client_addr.sin_port = htons(SERVER_PORT);
 
-
     rc = connect(client_fd, (struct sockaddr*) &client_addr, sizeof(client_addr));
     if (rc < 0) {
         perror("fail to connect");
@@ -70,9 +71,9 @@ int main (int argc, char **argv)
     }
     printf("connect\n");
 
-    //pthread_t sender;
-    //pthread_create(&sender, NULL, sender_thread, (void*)&client_fd);
-
+    pthread_t sender;
+    pthread_create(&sender, NULL, sender_thread, (void*)&client_fd);
+    
     char recv_buff[BUFF_SIZE];
 
     do {
@@ -82,6 +83,18 @@ int main (int argc, char **argv)
         }
         printf("%s\n", recv_buff);
     } while (is_end_client);
+
+    rc = recv(client_fd, recv_buff, BUFF_SIZE, 0);
+    if (rc < 0 ) {
+        perror("fail to receive");
+    }
+    printf("%s\n", recv_buff);
+
+    /*
+    char send_buff[BUFF_SIZE] = {0};
+    scanf(" %[^\n]", send_buff);
+    send(client_fd, send_buff, BUFF_SIZE, 0);
+    */
     
 done:
     close(client_fd);
