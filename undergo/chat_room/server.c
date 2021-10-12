@@ -36,6 +36,11 @@ broadcast(int fd, char *recv_buff, u32 recv_len)
     cli_conn = client_conn_lookup(fd);
     if (!cli_conn) {
         cli_conn = (cli_conn_t*) malloc(sizeof(cli_conn_t));
+        if (!cli_conn) {
+            perror("out of memory\n");
+            exit(-1);
+        }
+        memset(cli_conn, 0, sizeof(cli_conn));
         cli_conn->key = fd;
         strncpy(cli_conn->name, recv_buff, 10);
         client_conn_insert(cli_conn);
@@ -116,6 +121,7 @@ int main()
     char send_buff[BUFF_SIZE] = {};
     int recv_len, send_len;
     u8 is_client_close = 0;
+    cli_conn_t* cli_conn;
 
     while (1) {
         /* bock until input arrives on one or more active sockets. */
@@ -135,7 +141,7 @@ int main()
                         perror("fail to accept");
                     }
 
-                    printf("Accpet client come from [%s:%u] by fd [%d]\n",
+                    printf("Accept client come from [%s:%u] by fd [%d]\n",
                         inet_ntoa(cli_addr.sin_addr),
                         ntohs(cli_addr.sin_port), new_fd);
 
@@ -165,14 +171,16 @@ int main()
                         /* Send (In fact we should determine when it can be written)*/
                         
                         broadcast(i, recv_buff, recv_len);
-                        continue;
                     }
 
                     /* Clean up */
                     if (is_client_close) {
                         close(i);
                         FD_CLR(i, &active_fd_set);
-                        client_conn_remove(i);
+                        cli_conn = client_conn_remove(i);
+                        if (cli_conn) {
+                            free(cli_conn);
+                        }
                         is_client_close = 0;
                     }
                 }

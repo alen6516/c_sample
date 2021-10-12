@@ -19,6 +19,6 @@ extern cli_conn_t *cli_conn_bucket[CLIENT_TABLE_BUCKET_SIZE];
 u32  client_conn_hash(u32);
 void client_conn_insert(cli_conn_t *);
 cli_conn_t* client_conn_lookup(u32);
-u8  client_conn_remove(u32);
+cli_conn_t*  client_conn_remove(u32);
 
 #endif 

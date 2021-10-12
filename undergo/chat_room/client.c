@@ -82,13 +82,7 @@ int main (int argc, char **argv)
             perror("fail to receive");
         }
         printf("%s\n", recv_buff);
-    } while (is_end_client);
-
-    rc = recv(client_fd, recv_buff, BUFF_SIZE, 0);
-    if (rc < 0 ) {
-        perror("fail to receive");
-    }
-    printf("%s\n", recv_buff);
+    } while (!is_end_client);
 
     /*
     char send_buff[BUFF_SIZE] = {0};

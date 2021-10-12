@@ -25,11 +25,12 @@ cli_conn_t* client_conn_lookup(u32 key)
         if (curr->key == key) {
             return curr;
         }
+        curr = curr->next;
     }
     return NULL;
 }
 
-u8 client_conn_remove(u32 key)
+cli_conn_t* client_conn_remove(u32 key)
 {
     u32 bucket = client_conn_hash(key);
     cli_conn_t *curr = cli_conn_bucket[bucket];
@@ -38,13 +39,13 @@ u8 client_conn_remove(u32 key)
         if (curr->key == key) {
             if (prev) {
                 prev->next = curr->next;
+            } else {
+                cli_conn_bucket[bucket] = NULL;
             }
-            free(curr);
-            curr = NULL;
-            return 1;
+            return curr;
         }
         prev = curr;
         curr = curr->next;
     }
-    return 0;
+    return NULL;
 }
