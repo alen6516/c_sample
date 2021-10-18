@@ -1,47 +1,11 @@
+/*
+Runtime: 0 ms, faster than 100.00% of C online submissions for Implement strStr().
+Memory Usage: 6.1 MB, less than 94.69% of C online submissions for Implement strStr().
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-int _strStr(char * haystack, char * needle){
-    if (haystack[0] == '\0') {
-        if (needle[0] == '\0') {
-            return 0;
-        } else {
-            return -1;
-        }
-    } else if (needle[0] == '\0') {
-        return 0;
-    }
-
-
-    int pos = 0;
-    int adv = 0;
-    int i = 0;
-
-    while(haystack[pos+i] != '\0') {
-        if (haystack[pos+i] == needle[0] && i!=0 && adv==0) {
-            adv = i;
-        }
-        if (haystack[pos+i] != needle[i]) {
-            if (adv) {
-                pos += adv;
-            } else {
-                pos += (i+1);
-            }
-            adv = 0;
-            i = 0;
-        } else { 
-            if (needle[i+1] == '\0') {
-                return pos;
-            } else if (haystack[pos+i+1] == '\0') {
-                return -1;
-            } else {
-                i++;
-            }
-        }
-    }
-    return -1;
-}
 
 int strStr(char *haystack, char *needle) {
     if (haystack[0] == '\0') {
@@ -87,6 +51,50 @@ int strStr(char *haystack, char *needle) {
             }
 
             i = 0;
+        }
+    }
+    return -1;
+}
+
+/** 
+ * this one fail in case ("aaaa...a", "aaa...b") due to time limit exceeded.
+ */
+int _strStr(char * haystack, char * needle){
+    if (haystack[0] == '\0') {
+        if (needle[0] == '\0') {
+            return 0;
+        } else {
+            return -1;
+        }
+    } else if (needle[0] == '\0') {
+        return 0;
+    }
+
+
+    int pos = 0;
+    int adv = 0;
+    int i = 0;
+
+    while(haystack[pos+i] != '\0') {
+        if (haystack[pos+i] == needle[0] && i!=0 && adv==0) {
+            adv = i;
+        }
+        if (haystack[pos+i] != needle[i]) {
+            if (adv) {
+                pos += adv;
+            } else {
+                pos += (i+1);
+            }
+            adv = 0;
+            i = 0;
+        } else { 
+            if (needle[i+1] == '\0') {
+                return pos;
+            } else if (haystack[pos+i+1] == '\0') {
+                return -1;
+            } else {
+                i++;
+            }
         }
     }
     return -1;
