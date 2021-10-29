@@ -14,6 +14,24 @@ int divide(int dividend, int divisor)
     } else if (divisor == -1) {
         return (dividend == (1<<31)) ? (~divisor) : (~divisor)+1 ;
     }
+#ifdef new
+    if (dividend < 0) {
+        dividend = (~dividend)+1;
+    }
+    if (divisor) {
+        divisor = (~divisor)+1;
+    }
+
+    int curr_bit = 0;
+    while ((dividend >> curr_bit) > divisor ) {
+        curr_bit ++;
+    }
+    curr_bit -= 1;
+
+    int ret, remain;
+    ret = remaina = 0;
+
+#else
 
     
     int ret = 0;
@@ -47,6 +65,7 @@ int divide(int dividend, int divisor)
     }
     */
     return (revert) ? (~ret+1) : ret;
+#endif
 }
 
 int main (int argc, char *argv[])
