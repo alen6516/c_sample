@@ -1,8 +1,8 @@
-/***
- File Name: ring_queue.c
- Author: alen6516
- Created Time: 2019-07-01
-***/
+/**
+ * Try to implement a one-producer-one-consumer ring_queue
+ * without lock and without wasting a unit in array.
+ * Not sure if success or not.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,10 +10,12 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
 //gcc 5.4.0
 
 #define LEN 10
 #define TEST_NODE_NUM 30
+#define TRIE_COUNT 1000
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -27,6 +29,7 @@ typedef struct node {
 typedef struct queue {
     void* queue[LEN];
     bool full;
+    bool empty;
     u32 head, tail;
 } q_t;
 
@@ -47,10 +50,19 @@ void* push (q_t *q, void *node)
     }
    
     q->queue[q->tail] = node;
-    q->tail = (q->tail+1) % LEN;
 
-    if (q->tail == q->head) {
+    int new_tail = (q->tail+1) % LEN;
+    if (new_tail == q->head) {
         q->full = true;
+        if (new_tail != q->head && q->full) {
+            q->full = false;    // prevent from block myself
+        }
+    }
+    q->tail = new_tail;
+
+
+    if (q->empty) {
+        q->empty = false;
     }
 
     return node;
@@ -58,62 +70,95 @@ void* push (q_t *q, void *node)
 
 void* pop (q_t *q)
 {
-    if (q->head == q->tail && !q->full ) {
+    if (q->empty) {
         printf("empty\n");
         return NULL;
     }
     
     void* ret = q->queue[q->head];
-    q->head = (q->head+1) % LEN;
+    int new_head = (q->head+1) % LEN;
+    if (new_head == q->tail) {
+        q->empty = true;
+        if (new_head != q->tail && q->empty) {
+            q->empty = false;   // prevent from block myself
+        }
+    }
+    q->head = new_head;
+
+
     if (q->full) {
         q->full = false;
     }
     return ret;
 }
 
+
+q_t *q;
+int push_arr[TEST_NODE_NUM];
+int pop_arr[TEST_NODE_NUM];
+
+void *pusher(void *arg)
+{
+    int i, count;
+    i = count = 0;
+    n_t *node;
+    srand(time(NULL));
+
+    while(i < TEST_NODE_NUM && count < TRIE_COUNT) {
+        node = (n_t*)malloc(sizeof(n_t));
+        node->val = rand() % 100;
+        if (push(q, node)) {
+            push_arr[i++] = node->val;
+        }
+        count ++;
+    }
+
+    printf("pusher push %d node and use %d count\n", i, count);
+    printf("push_arr = [");
+    for (int j=0; j<i; j++) {
+        printf("%d, ", push_arr[j]);       
+    }
+    printf("]\n");
+}
+
+
+void *poper(void *arg)
+{
+    int i, count;
+    i = count = 0;
+    n_t *node;
+
+    while(i < TEST_NODE_NUM && count < TRIE_COUNT) {
+        node = pop(q);
+        if (node) {
+            pop_arr[i++] = node->val;
+            free(node);
+        }
+        count ++;
+    }
+
+    printf("poper pop %d node and use %d count\n", i, count);
+    printf("pop_arr = [");
+    for (int j=0; j<i; j++) {
+        printf("%d, ", pop_arr[j]);       
+    }
+    printf("]\n");
+}
+
 int main ()
 {
-    q_t *q = init();
+    q = init();
     if (!q) {
         printf("out of mem\n");
         return -1;
     }
 
-    int push_arr[TEST_NODE_NUM];
-    int pop_arr[TEST_NODE_NUM];
-
     srand(time(NULL));
 
-    n_t *node;
-    int i, j;
-    i = j = 0;
-    while(j != TEST_NODE_NUM) {
-        if (rand() % 3 == 0 && i < TEST_NODE_NUM) {
-            node = (n_t*)malloc(sizeof(n_t));
-            node->val = rand() % 100;
-            if (push(q, node)) {
-                push_arr[i++] = node->val;
-            } else {
-                free(node);
-            }
-        } else {
-            node = pop(q);
-            if (node) {
-                pop_arr[j++] = node->val;
-                free(node);
-            }
-        }
-    }
+    pthread_t p1, p2;   
+    pthread_create(&p1, NULL, pusher, NULL);    // one producer
+    pthread_create(&p2, NULL, poper, NULL);     // one consumer
 
-    printf("push_arr = [");
-    for (int i=0; i<TEST_NODE_NUM; i++) {
-        printf("%d, ", push_arr[i]);       
-    }
-    printf("]\n");
-
-    printf("pop_arr = [");
-    for (int i=0; i<TEST_NODE_NUM; i++) {
-        printf("%d, ", pop_arr[i]);       
-    }
-    printf("]\n");
+    pthread_join(p1, NULL);
+    pthread_join(p2, NULL);
 }
