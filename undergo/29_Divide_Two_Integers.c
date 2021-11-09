@@ -14,22 +14,33 @@ int divide(int dividend, int divisor)
     } else if (divisor == -1) {
         return (dividend == (1<<31)) ? (~divisor) : (~divisor)+1 ;
     }
+
 #ifdef new
+    unsigned char is_same_sign = IS_SAME_SIGN(dividend, divisor);
     if (dividend < 0) {
         dividend = (~dividend)+1;
     }
-    if (divisor) {
+    if (divisor < 0) {
         divisor = (~divisor)+1;
     }
 
     int curr_bit = 0;
-    while ((dividend >> curr_bit) > divisor ) {
-        curr_bit ++;
-    }
-    curr_bit -= 1;
+    int ret = 0;
+    int ori = dividend;
 
-    int ret, remain;
-    ret = remaina = 0;
+    while(dividend >= divisor) {
+        while (((dividend - (divisor << curr_bit)) >> curr_bit) >= divisor) {
+            curr_bit ++;
+        }
+        //curr_bit -= 1;
+        dividend -= (divisor << curr_bit);
+        ret += (1 << curr_bit);
+        curr_bit = 0;
+    }
+    //printf("%d * %d + %d = %d\n", divisor, ret, dividend, ori);
+
+    return is_same_sign ? ret: (~ret)+1;
+    
 
 #else
 

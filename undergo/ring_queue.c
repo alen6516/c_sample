@@ -13,7 +13,7 @@
 #include <pthread.h>
 //gcc 5.4.0
 
-#define LEN 10
+#define LEN 5
 #define TEST_NODE_NUM 30
 #define TRIE_COUNT 1000
 
@@ -60,7 +60,6 @@ void* push (q_t *q, void *node)
     }
     q->tail = new_tail;
 
-
     if (q->empty) {
         q->empty = false;
     }
@@ -84,7 +83,6 @@ void* pop (q_t *q)
         }
     }
     q->head = new_head;
-
 
     if (q->full) {
         q->full = false;
@@ -114,11 +112,11 @@ void *pusher(void *arg)
     }
 
     printf("pusher push %d node and use %d count\n", i, count);
-    printf("push_arr = [");
-    for (int j=0; j<i; j++) {
-        printf("%d, ", push_arr[j]);       
-    }
-    printf("]\n");
+    //printf("push_arr = [");
+    //for (int j=0; j<i; j++) {
+    //    printf("%d, ", push_arr[j]);       
+    //}
+    //printf("]\n");
 }
 
 
@@ -138,11 +136,11 @@ void *poper(void *arg)
     }
 
     printf("poper pop %d node and use %d count\n", i, count);
-    printf("pop_arr = [");
-    for (int j=0; j<i; j++) {
-        printf("%d, ", pop_arr[j]);       
-    }
-    printf("]\n");
+    //printf("pop_arr = [");
+    //for (int j=0; j<i; j++) {
+    //    printf("%d, ", pop_arr[j]);       
+    //}
+    //printf("]\n");
 }
 
 int main ()
@@ -161,4 +159,16 @@ int main ()
 
     pthread_join(p1, NULL);
     pthread_join(p2, NULL);
+
+    printf("pop_arr = [");
+    for (int j=0; j<TEST_NODE_NUM; j++) {
+        printf("%d, ", pop_arr[j]);       
+    }
+    printf("]\n");
+    
+    printf("pop_arr = [");
+    for (int j=0; j<TEST_NODE_NUM; j++) {
+        printf("%d, ", pop_arr[j]);       
+    }
+    printf("]\n");
 }
