@@ -5,7 +5,8 @@
 #include <unistd.h>
 
 #include "memd_queue.h"
-#include "../getRandNum.h"
+
+#define NODE_NUM 100
 
 struct node_t {
     int val;
@@ -13,14 +14,14 @@ struct node_t {
 
 __thread int id;
 int e_id = 1;
-int d_id = 11;
-int val = 0;
+int d_id = 1;
+int sum = 0;
 
 struct queue_t* queue;
 
 
-void* en_work(void *arg) {
-
+void* en_work(void *arg)
+{
     id = e_id ++;
 
     struct node_t* node;
@@ -28,7 +29,7 @@ void* en_work(void *arg) {
     while (1) {
         node = (struct node_t*) malloc(sizeof(struct node_t));
         while (1) {
-            sleep(getRandNum() % 3);
+            //sleep(rand() % 3);
             if ( en_queue((void*)node, queue) ) {
                 printf("\ten_queue fail, thr %d\n", id);
                 continue;
@@ -44,12 +45,13 @@ void* en_work(void *arg) {
     return NULL;
 }
 
-void* de_work(void *arg) {
+void* de_work(void *arg)
+{
     id = d_id ++;
 
     struct node_t* node;
     while (1) {
-        sleep(getRandNum() % 3);
+        sleep(rand() % 3);
         node = (struct node_t*) de_queue(queue);
         if (NULL == node) {
             //printf("\tde_queue fail, thr %d\n", id);
@@ -63,8 +65,10 @@ void* de_work(void *arg) {
     return NULL;
 }
 
-int main (int argc, char *argv[]) {
-    
+int main (int argc, char *argv[])
+{
+    rand(time(NULL));
+
     int en_thr_num = 3;
     int de_thr_num = 3;
 

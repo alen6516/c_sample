@@ -3,23 +3,10 @@
 #include <time.h>
 #include "arr.h"
 
-int partition(int[], int, int);
-void quick_sort(int[], int, int);
+// still broken
 
-
-int main () {
-    
-    clock_t start_t, end_t;
-    double total_t;
-    start_t = clock();
-    quick_sort(arr, 0, sizeof(arr)/sizeof(arr[0])-1);
-    end_t = clock();
-    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
-    show();
-    printf("total: %f sec\n", total_t);
-}
-
-int partition (int arr[], int left, int right)
+static int
+partition (int arr[], int left, int right)
 {
 
     //printf("in this partition, left = %d, right = %d\n", left, right);
@@ -58,7 +45,8 @@ int partition (int arr[], int left, int right)
     }
 }
 
-void quick_sort(int arr[], int left, int right)
+static void
+quick_sort(int arr[], int left, int right)
 {
 
     if (right == left+1) {
@@ -78,3 +66,21 @@ void quick_sort(int arr[], int left, int right)
         quick_sort(arr, q, right);
 }
 
+void
+show_my_quick_sort(int *_arr, int len)
+{
+    int *arr = (int*) malloc(sizeof(int)*len);
+    memcpy(arr, _arr, sizeof(int)*len);
+
+    clock_t start_t, end_t;
+    double total_t;
+    printf("my_quick_sort: ============================\n");
+
+    start_t = clock();
+    quick_sort(arr, 0, sizeof(arr)/sizeof(arr[0])-1);
+    end_t = clock();
+
+    show_arr(arr, len);
+    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
+    printf("total: %f sec\n", total_t);
+}

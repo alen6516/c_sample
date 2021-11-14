@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include "mesd_queue.h"
-#include "../getRandNum.h"
 
 struct node_t {
     int val;
@@ -16,7 +15,8 @@ __thread int id;
 struct queue_t* queue;
 
 
-void* en_work(void *arg) {
+void* en_work(void *arg)
+{
     static int _id = 1;
     id = _id++;
     struct node_t* node;
@@ -25,7 +25,7 @@ void* en_work(void *arg) {
     while (1) {
         node = (struct node_t*) malloc(sizeof(struct node_t));
         while (1) {
-            sleep(getRandNum() % 4);
+            sleep(rand() % 4);
             if ( en_queue((void*)node, queue) ) {
                 printf("\ten_queue fail, thr %d\n", id);
                 continue;
@@ -40,11 +40,12 @@ void* en_work(void *arg) {
     return NULL;
 }
 
-void* de_work(void *arg) {
+void* de_work(void *arg)
+{
     id = 0; 
     struct node_t* node;
     while (1) {
-        sleep(getRandNum() % 2);
+        sleep(rand() % 2);
         node = (struct node_t*) de_queue(queue);
         if (NULL == node) {
             printf("\tde_queue fail, thr %d\n", id);
@@ -58,8 +59,10 @@ void* de_work(void *arg) {
     return NULL;
 }
 
-int main (int argc, char *argv[]) {
-    
+int main (int argc, char *argv[])
+{
+    rand(time(NULL));
+
     int thr_num = 3;
 
     if (argc == 2) {
@@ -80,6 +83,5 @@ int main (int argc, char *argv[]) {
     }
     pthread_create(&de_t, NULL, de_work, NULL);
    
-
-    sleep(100);
+    pthread_join(de_t);
 }
