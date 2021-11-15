@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define SIZE 10
+#define QUEUE_SIZE 10
 
 /*
  * 1. use de_head, en_head flag
@@ -13,14 +13,14 @@
  */
 
 struct queue_t {
-
-    void* queue_arr[SIZE];
+    void* queue_arr[QUEUE_SIZE];
     int de_head;
     int en_head;
 };
 
 
-struct queue_t* init_queue() {
+struct queue_t* init_queue()
+{
     struct queue_t* ret;
     ret = (struct queue_t*) malloc(sizeof(struct queue_t));
     if (NULL != ret) {
@@ -30,7 +30,8 @@ struct queue_t* init_queue() {
 }
 
 //multiple enqueue
-int en_queue(void* node, struct queue_t* queue) {
+int en_queue(void* node, struct queue_t* queue)
+{
     int curr_en_head;
     int next_en_head;
 
@@ -49,8 +50,8 @@ int en_queue(void* node, struct queue_t* queue) {
 
 
 // multiple dequeue
-void* de_queue(struct queue_t* queue) {
-    
+void* de_queue(struct queue_t* queue)
+{
     // contest, take and move de_head
     int curr_de_head;
     int next_de_head;

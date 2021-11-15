@@ -3,9 +3,9 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "sesd_queue.h"
-#include "../getRandNum.h"
 
 struct node_t {
     int val;
@@ -22,7 +22,7 @@ void* en_work(void *arg) {
 
     int val=0;
     while (1) {
-        sleep(getRandNum() % 3);
+        sleep(rand() % 3);
         node = (struct node_t*) malloc(sizeof(struct node_t));
         node->val = val;
         if ( en_queue((void*)node, queue) ) {
@@ -41,7 +41,7 @@ void* de_work(void *arg) {
     id = 2;
     struct node_t* node;
     while (1) {
-        sleep(getRandNum() % 3);
+        sleep(rand() % 3);
         node = (struct node_t*) de_queue(queue);
         if (NULL == node) {
             printf("\tde_queue fail, thr %d\n", id);
@@ -54,9 +54,10 @@ void* de_work(void *arg) {
     return NULL;
 }
 
-int main (int argc, char *argv[]) {
+int main (int argc, char *argv[])
+{
+    rand(time(NULL));   
     
-
     if ( !(queue = init_queue()) ) {
         printf("malloc fail\n");
     }
