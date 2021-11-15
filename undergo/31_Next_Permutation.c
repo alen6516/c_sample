@@ -12,10 +12,16 @@
 
 void nextPermutation(int* nums, int numsSize)
 {
-    int this, cmp, try;
-    this = numsSize-1;
-    cmp = this-1;
-    
+    if (numsSize == 1) {
+        return;
+    } else if (numsSize == 2) {
+        SWAP(nums[0], nums[1]);
+        return;
+    }
+
+    unsigned int this, cmp;
+    // 3,2,1
+
     for (cmp = numsSize-2; cmp >= 0; cmp --) {
         this = numsSize-1;
         while (cmp < this) {
