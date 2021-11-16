@@ -53,7 +53,7 @@ void nextPermutation(int* nums, int numsSize)
         return;
     }
 
-    unsigned int this, cmp;
+    int this, cmp;
     // 3,2,1
 
     for (cmp = numsSize-2; cmp >= 0; cmp --) {
