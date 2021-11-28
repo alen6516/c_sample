@@ -3,7 +3,7 @@
 #include <time.h>
 
 #define SIZE 10
-#define NUM  20
+#define NUM  10
 
 #define SWAP(a,b) ({        \
     if ((a) != (b)) {       \
@@ -26,11 +26,11 @@ quick_sort(int *arr, int start, int end)
     int key = arr[start];
 
     while(left != right) {
-        while(key <= arr[right] && left < right) {
+        while(key < arr[right] && left < right) {
             right --;
         }
 
-        while(arr[left] < key && left < right) {
+        while(arr[left] <= key && left < right) {
             left ++;
         }
 

@@ -3,6 +3,38 @@
 #include <time.h>
 #include "arr.h"
 
+
+static void
+quick_sort2(int *arr, int start, int end)
+{
+    if (start >= end || start < 0 || end < 0) {
+        return;
+    }
+
+    int left, right;
+    left = start;
+    right = end;
+    int key = arr[start];
+
+    while(left != right) {
+        while(key < arr[right] && left < right) {
+            right --;
+        }
+
+        while(arr[left] <= key && left < right) {
+            left ++;
+        }
+
+        if (left < right) {
+            SWAP(arr[left], arr[right]);
+        }
+    }
+    SWAP(arr[start], arr[left]);
+
+    quick_sort2(arr, left+1, end);
+    quick_sort2(arr, start, left-1);
+}
+
 static void
 quick_sort(int *arr, int start, int end)
 {
@@ -14,6 +46,8 @@ quick_sort(int *arr, int start, int end)
     left = start;
     right = end;
     int key = arr[start];
+
+    // 1 2 3 4
 
     while(left != right) {
         while(key > arr[right] && left < right) {
@@ -46,6 +80,19 @@ show_quick_sort(int *_arr, int len)
 
     start_t = clock();
     quick_sort(arr, 0, len-1);
+    end_t = clock();
+
+    show_arr(arr, len);
+    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
+    printf("total: %f sec\n", total_t);
+
+
+    arr = (int*) malloc(sizeof(int)*len);
+    memcpy(arr, _arr, sizeof(int)*len);
+    printf("quick_sort2: ============================\n");
+
+    start_t = clock();
+    quick_sort2(arr, 0, len-1);
     end_t = clock();
 
     show_arr(arr, len);
