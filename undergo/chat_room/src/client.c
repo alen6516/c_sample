@@ -28,12 +28,19 @@
 char client_ip[12];
 unsigned short client_port;
 
-void sig_handler(int sig)
+
+/**
+ * Catch ctrl-z and print status.
+ */
+void
+sig_handler(int sig)
 {
 }
 
-void *sender_thread(void* fd)
+void *
+sender_thread(void *fd)
 {
+    INFO("sender_thread start\n");
     int rc = 0;
     char send_buff[BUFF_SIZE];
     while (1) {
@@ -44,19 +51,21 @@ void *sender_thread(void* fd)
     }
 }
 
-int main (int argc, char **argv)
+int
+main (int argc, char **argv)
 {
     int rc;
     int client_fd = -1;
-    int is_end_client = 0;
+    int is_end_client = 0;  // global toggle to end the client
     struct sockaddr_in client_addr;
 
+    /* create a socket */
     client_fd = socket(AF_INET, SOCK_STREAM, 0);
-
     if (client_fd == -1) {
-        perror("fail to create client fd");
+        ERROR("fail to create client fd");
         exit(-1);
     }
+    INFO("create socket\n");
 
     /* config socket */
     memset(&client_addr, 0, sizeof(client_addr));
@@ -64,32 +73,26 @@ int main (int argc, char **argv)
     inet_pton(AF_INET, SERVER_IP, &(client_addr.sin_addr.s_addr));
     client_addr.sin_port = htons(SERVER_PORT);
 
+    /* connect */
     rc = connect(client_fd, (struct sockaddr*) &client_addr, sizeof(client_addr));
     if (rc < 0) {
-        perror("fail to connect");
+        ERROR("fail to connect");
         exit(-1);
     }
-    printf("connect\n");
+    INFO("connect\n");
 
     pthread_t sender;
     pthread_create(&sender, NULL, sender_thread, (void*)&client_fd);
     
     char recv_buff[BUFF_SIZE];
-
     do {
         rc = recv(client_fd, recv_buff, BUFF_SIZE, 0);
         if (rc < 0 ) {
-            perror("fail to receive");
+            ERROR("fail to receive");
         }
         printf("%s\n", recv_buff);
     } while (!is_end_client);
 
-    /*
-    char send_buff[BUFF_SIZE] = {0};
-    scanf(" %[^\n]", send_buff);
-    send(client_fd, send_buff, BUFF_SIZE, 0);
-    */
-    
 done:
     close(client_fd);
 }

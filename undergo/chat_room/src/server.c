@@ -37,7 +37,7 @@ broadcast(int fd, char *recv_buff, u32 recv_len)
     if (!cli_conn) {
         cli_conn = (cli_conn_t*) malloc(sizeof(cli_conn_t));
         if (!cli_conn) {
-            perror("out of memory\n");
+            ERROR("out of memory\n");
             exit(-1);
         }
         memset(cli_conn, 0, sizeof(cli_conn));
@@ -67,7 +67,8 @@ broadcast(int fd, char *recv_buff, u32 recv_len)
     }
 }
 
-int main()
+int
+main(int argc, char *argv[])
 {
     int ret;
     int listen_fd = -1;
@@ -76,15 +77,19 @@ int main()
     /* create server socket */
     listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (listen_fd < 0) {
+        ERROR("servr create socket fail\n");
         exit(-1);
     }
+    INFO("server create socket\n");
 
     /* set server socket reuse */
     int socket_flag = 1;
     ret = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&socket_flag, sizeof(socket_flag));
     if (ret < 0) {
+        ERROR("server set socekt fail\n");
         exit(-1);
     }
+    INFO("server set socket\n");
 
     /* config & bind the socket */
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -93,15 +98,19 @@ int main()
     serv_addr.sin_port = htons(SERVER_PORT);
     ret = bind(listen_fd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
     if (ret < 0) {
+        ERROR("server bind socket fail\n");
         exit(-1);
     }
+    INFO("server bind socket\n");
 
     /* listen */
     ret = listen(listen_fd, BACKLOG);
     if (ret < 0) {
+        ERROR("server listen fail\n");
         close(listen_fd);
         exit(-1);
     }
+    INFO("server listen\n");
 
     /* init the set of active socket */
     fd_set active_fd_set, read_fd_set;
@@ -117,17 +126,18 @@ int main()
     struct sockaddr_in cli_addr;
     socklen_t *addr_len;
     int new_fd;
-    char recv_buff[BUFF_SIZE] = {};
-    char send_buff[BUFF_SIZE] = {};
+    char recv_buff[BUFF_SIZE] = {0};
+    char send_buff[BUFF_SIZE] = {0};
     int recv_len, send_len;
     u8 is_client_close = 0;
     cli_conn_t* cli_conn;
 
     while (1) {
-        /* bock until input arrives on one or more active sockets. */
+
+        // block until input arrives on one or more active sockets
         read_fd_set = active_fd_set;
         if (select(FD_SETSIZE, &read_fd_set, NULL, NULL, NULL) < 0) {
-            perror("fail to select");
+            ERROR("server select fail\n");
             exit(-1);
         }
 
@@ -138,7 +148,7 @@ int main()
                     /* new client */
                     new_fd = accept(listen_fd, (struct sockaddr*) &cli_addr, &recv_len);
                     if (new_fd < 0) {
-                        perror("fail to accept");
+                        ERROR("fail to accept\n");
                     }
 
                     printf("Accept client come from [%s:%u] by fd [%d]\n",

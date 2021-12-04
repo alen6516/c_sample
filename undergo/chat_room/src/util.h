@@ -22,11 +22,33 @@ typedef uint64_t u64;
 
 
 #ifdef DEBUG
-#define LOG(...) ({             \
+#define DEBUG(...) ({           \
         printf(__VA_ARGS__);    \
+})                              \
+#define INFO(...) ({            \
+        printf(__VA_ARGS__);    \
+})                              \
+#define ERROR(...) ({           \
+        perror(__VA_ARGS__);    \
 })
+
+#elif defined(INFO)
+
+#define DEBUG(...)
+#define INFO(...) ({            \
+        printf(__VA_ARGS__);    \
+})                              \
+#define ERROR(...) ({           \
+        perror(__VA_ARGS__);    \
+})
+
 #else
-#define LOG(...)
+
+#define DEBUG(...)
+#define INFO(...)
+#define ERROR(...) ({           \
+        perror(__VA_ARGS__);    \
+})
 #endif
 
 #endif
