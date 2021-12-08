@@ -5,16 +5,24 @@
 
 extern LOGGER logger;
 
-int init_logger(LOGGER* logger, const char *log_file) {
-    if (NULL == logger) {
-        return -1;
+Logger *
+logger_new(const char *file)
+{
+    Logger *logger = (Logger *)maloc(sizeof(Logger));
+    if (!logger) {
+        perror("Fail to malloc logger.\n");
+        return NULL;
     }
-    logger->mode = CHECK_MODE;
-    if (log_file) {
-        logger->log_file = fopen(log_file, "w+");
+    memset(logger, 0, sizeof(Logger));
+
+    memcpy(logger->file, file, sizeof(logger->file));
+    logger->fp = fopen(logger->file, "w");
+    if (!logger->fp) {
+        perror("Fail to open file %s.\n", logger->file);
+        return NULL;
     }
-    logger->is_file_line_on = 1;
-    return 0;
+
+    return logger;
 }
 
 void _log(const char* __file__, unsigned long __line__, LOG_MODE mode, const char *format, ...) {
@@ -59,6 +67,34 @@ void _log(const char* __file__, unsigned long __line__, LOG_MODE mode, const cha
         printf("%s", buf);
     }
 }
+
+Log_module *
+log_module_new(Logger *logger, const u32 id, const char *name, const char *file)
+{
+    Log_module *module = logger->head;
+    while (module) {
+        if (0 == memcmp(module->name, name, sizeof(module->name))) {
+            perror("Fail to create log module: already exist.\n");
+            return NULL;
+        }
+        module = module->next;
+    }
+
+    module = (Log_module *) malloc(sizeof(Log_module));
+    if (!module) {
+        perror("Fail to malloc log_module: %s\n", name);
+        return NULL;
+    }
+    memcpy(module, 0, sizeof(Log_module));
+
+    module->id = id;
+    memcpy(module->name, name, sizeof(module->name));
+    memcpy(module->file, file, sizeof(module->file));
+    module->fp = fopen(module->file, "w");
+
+    return module;
+}
+
 /*
 void INFO(const char *format, ...) {
     va_list arg;

@@ -20,25 +20,32 @@ typedef enum {
     ERROR_MODE
 } LOG_MODE;
 
+typedef struct __log_module {
+    u32  id;
+    char name[10];
+    char file[10]
+    FILE *fp;
+    LOG_MODE mode;
+    struct __log_module *next;
+} Log_module
 
 typedef struct __logger {
     LOG_MODE mode;
-    FILE* log_file;
+    char file[10];
+    FILE* fp;
     unsigned char is_file_line_on :1,
                   spare:       7;
-} LOGGER;
+    Log_module *head_module;
+} Logger;
 
-#define LOGGER_CALLOC() (logger_t*)calloc(1, sizeof(logger_t))
 
 extern LOGGER logger;
 
-int init_logger(LOGGER *, const char*);
-
+int init_logger(LOGGER *logger, const char* file);
 void _log(const char*, unsigned long, LOG_MODE, const char *, ...);
 
-#define INFO(format, ...)  _log(__FILE__, __LINE__, INFO_MODE, format, ##__VA_ARGS__)
 #define DEBUG(format, ...) _log(__FILE__, __LINE__, DEBUG_MODE, format, ##__VA_ARGS__)
-#define CHECK(format, ...) _log(__FILE__, __LINE__, CHECK_MODE, format, ##__VA_ARGS__)
+#define INFO(format, ...)  _log(__FILE__, __LINE__, INFO_MODE, format, ##__VA_ARGS__)
 #define WARN(format, ...)  _log(__FILE__, __LINE__, WARN_MODE, format, ##__VA_ARGS__)
 #define ERROR(format, ...) _log(__FILE__, __LINE__, ERROR_MODE, format, ##__VA_ARGS__)
 
