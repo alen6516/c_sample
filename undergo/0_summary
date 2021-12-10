@@ -65,6 +65,9 @@ Meomory Usage: 6.1 MB, less than 50.19% of C online submissions for Remove Eleme
 29_Divide_Two_Integers.c
 Fail in case [-2147483648, 2]
 ----------------------------------
+31_Next_Permutation.c
+Runtime: 4 ms, faster than 97.45% of C online submissions for Next Permutation.
+Memory Usage: 6.1 MB, less than 82.17% of C online submissions for Next Permutation.
 ----------------------------------
 ----------------------------------
 ----------------------------------

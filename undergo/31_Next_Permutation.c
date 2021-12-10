@@ -1,3 +1,8 @@
+/*
+Runtime: 4 ms, faster than 97.45% of C online submissions for Next Permutation.
+Memory Usage: 6.1 MB, less than 82.17% of C online submissions for Next Permutation.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
