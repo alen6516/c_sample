@@ -3,6 +3,12 @@
 #include <unistd.h>
 #include <time.h>
 
+#define IS_ROTATE(arr, start, end)  (arr[start] > arr[end])
+#define IS_TARGET_IN_ARR(arr, target, start, end) (     \
+    (IS_ROTATE(arr, start, end) && (target > arr[start] || target < arr[end])) ||   \
+    (!IS_ROTATE(arr, start, end))
+)
+
 int search(int* nums, int numsSize, int target)
 {
     int start1, start2;
@@ -19,10 +25,18 @@ int search(int* nums, int numsSize, int target)
         return numsSize-1;    
     }
 
-    if (nums[start2-1] > target && target > nums[start1]) {
+    //   0   1   2  3  4  5  6  7  8  9  10 11 12 13  14
+    // [12, 13, 14, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, ]
+    // target 9
+
+    if (IS_ROTATE(nums, start1, (start2-1)) &&
+        )
+
+
+    if (!(target > nums[start2-1] && target > nums[start1])) {
         return search(&nums[start1], start2-start1, target);
 
-    } else if (nums[numsSize-1] > target && target > nums[start2]) {
+    } else if (!(target > nums[start2] && target > nums[numsSize-1])) {
         return (start2-start1) + search(&nums[start2], numsSize-start2, target);
 
     } else {
