@@ -69,6 +69,9 @@ Fail in case [-2147483648, 2]
 Runtime: 4 ms, faster than 97.45% of C online submissions for Next Permutation.
 Memory Usage: 6.1 MB, less than 82.17% of C online submissions for Next Permutation.
 ----------------------------------
+33_Search_in_Rotated_Sorted_Array.c
+Runtime: 4 ms, faster than 70.82% of C online submissions for Search in Rotated Sorted Array.
+Memory Usage: 6.2 MB, less than 15.66% of C online submissions for Search in Rotated Sorted Array.
 ----------------------------------
 ----------------------------------
 ----------------------------------

@@ -59,6 +59,9 @@ int _search(int* nums, int numsSize, int target)
     }
 }
 
+/**
+ * do in recursive way
+ */
 int search(int* nums, int numsSize, int target)
 {
     int start1, start2;
