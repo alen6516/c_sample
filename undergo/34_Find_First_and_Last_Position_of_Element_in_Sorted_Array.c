@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     }
     target_idx = rand() % len;
 
-    int arr* = (int*) malloc(sizeof(int)*len);
+    int *arr = (int*) malloc(sizeof(int)*len);
     for (int i=0; i<len; i++) {
         if (i == 0) {
             arr[i] = rand() % 10;
@@ -38,5 +38,6 @@ int main(int argc, char *argv[])
         }
     }
 
+    printf("target = %d\n", target);
     arr_show(arr, len);
 }
