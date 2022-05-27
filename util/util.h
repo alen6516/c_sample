@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 
 //typedef uint8_t bool_t;     // just use bool, true, false from stdbool.h
 typedef uint8_t  u8;
@@ -46,4 +47,9 @@ typedef uint64_t u64;
     }                                                   \
 } while(0)
 
+
+clock_t __start, __end;
+#define CLOCK_START() ({ __start = clock(); })
+#define CLOCK_END()   ({ __end = clock(); })
+#define CLOCK_DIFF()  (__end - __start)
 #endif
