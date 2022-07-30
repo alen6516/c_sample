@@ -5,6 +5,12 @@
 
 * hash_table.h
 
+* hash_table_mutex.c
+    * with pthread_mutex for thread-safe
+
+* hash_table_mutex.h
+    * with pthread_mutex for thread-safe
+
 * unit_test.c
     * unit test each API of the node and the hash table
 
@@ -36,10 +42,11 @@
  *  3. (Done) write unit_test.c
  *  3. (Done) isolate table.h and make unit_test.c
  *  4. (Done) write Makefile
- *  5. (Ongo) write test.c
+ *  5. (Done) write test.c
  *
  *  Phase 2: thread-safe
- *  1. make it thread-safe
+ *  1. (Ongo) make it thread-safe
+ *      * make hash_table_mutex.[ch]
  *  2. write user thread to test
  *
  *  Phase 3: performance tune
