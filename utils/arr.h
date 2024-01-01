@@ -42,9 +42,11 @@ arr_create(int *size)
 static inline void
 arr_show(int *arr, int size)
 {
-    printf("[");
     for (int i=0; i<size; i++) {
-        printf("%d, ", arr[i]);
+        if (i == 0)
+            printf("[%d", arr[i]);
+        else
+            printf(", %d", arr[i]);
     }
     printf("]\n");
     printf("array size = %d\n", size);

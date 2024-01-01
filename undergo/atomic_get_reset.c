@@ -8,7 +8,8 @@
 #include <unistd.h>
 #include <time.h>
 
-#define ADDER_NUM 10
+#define ADDER_NUM  5
+#define GETTER_NUM 5
 #define ADDER_COUNT 100000
 
 _Atomic int _adder_id;
@@ -22,6 +23,7 @@ void* adder(void* arg)
     adder_id = ++ _adder_id;
     for (int i=0; i < ADDER_COUNT; i++) {
         __sync_fetch_and_add(&count, 1);
+        sleep(0);
     }
     __sync_fetch_and_add(&adder_finish, 1);
     return NULL;
@@ -54,13 +56,14 @@ void* get_and_reset(void *arg)
             break;
         }
     }
+
     printf("sum = %d\n", sum);
     printf("tot = %d\n", ADDER_NUM*ADDER_COUNT);
     return NULL;
 }
 
 int main()
-{   
+{
     srand(time(NULL));
 
     pthread_t adder_arr[ADDER_NUM];
@@ -69,6 +72,9 @@ int main()
     }
 
     pthread_t getter;
-    pthread_create(&getter, NULL, get_and_reset, NULL);
+
+    for (int i=0; i<ADDER_NUM; i++) {
+        pthread_create(&getter, NULL, get_and_reset, NULL);
+
     pthread_join(getter, NULL);
 }
