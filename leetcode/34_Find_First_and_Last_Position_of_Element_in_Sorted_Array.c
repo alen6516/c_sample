@@ -12,22 +12,27 @@ int* searchRange(int* nums, int numsSize, int target, int* returnSize)
     *returnSize = 2;
     int *ret = (int *)malloc(sizeof(int)*2);
 
+    if (target < 0) {
+        ret[0] = ret[1] = -1;
+        return ret;
+    }
+
     int mid;
     mid = numsSize/2;
 
-    while (numsSize != 2) {
-        // if mid is the first target
-        if (nums[mid] == target && nums[mid-1] < target)
-            break;
+    while (!(nums[mid] == target && nums[mid-1] < target)) {
 
-        if (target <= nums[mid]) {
+        if (target <= nums[mid]) {  // target is in the left side
+
+            // decide next mid idx
             numsSize = numsSize/2;
             if (numsSize % 2)
                 mid = mid - numsSize/2 -1;
             else
                 mid = mid - numsSize/2;
-        } else {
-            nums = &nums[mid];
+        } else {                    // target is in the right side
+
+            // decide next mid idx
             numsSize = (numsSize % 2) ? (numsSize/2)+1 : numsSize/2;
             if (numsSize % 2)
                 mid = mid + numsSize/2;

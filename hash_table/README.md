@@ -1,3 +1,4 @@
+```
 * gen_rand_str.sh
     * script to generate random strings to file "text"
 
@@ -20,9 +21,9 @@
 * test.c
     * user program to simulate multiple insertion and deletion
 
-* string hash comed from this page: https://stackoverflow.com/questions/7666509/hash-function-for-string
+* string hash came from this page: https://stackoverflow.com/questions/7666509/hash-function-for-string
 
- 
+
 /*
  * implement a hash table to store strings
  * struct:
@@ -51,4 +52,5 @@
  *
  *  Phase 3: performance tune
  *  1. use perf to test performance
- */  
+ */
+ ```
