@@ -1,3 +1,11 @@
+## way to program
+* program main function which aims to generate test case
+* program target function
+    * add comment while writing
+    * program key logic first, program quick return later
+    * try to think of corner case and improve key logic or add quick return
+* Runtime and memory better beats at least 50% people
+
 5_Longest_Palindromic_Substring.c
 Runtime: 20 ms, faster than 64.85% of C online submissions for Longest Palindromic Substring.
 Memory Usage: 6.1 MB, less than 72.47% of C online submissions for Longest Palindromic Substring.
@@ -73,5 +81,8 @@ Memory Usage: 6.1 MB, less than 82.17% of C online submissions for Next Permutat
 Runtime: 4 ms, faster than 70.82% of C online submissions for Search in Rotated Sorted Array.
 Memory Usage: 6.2 MB, less than 15.66% of C online submissions for Search in Rotated Sorted Array.
 ----------------------------------
+34_Find_First_and_Last_Position_of_Element_in_Sorted_Array.c
+Runtime: 8ms Beats 54.37% of users with C
+Memory: 8.17MB Beats 40.54% of users with C
 ----------------------------------
 ----------------------------------

@@ -4,52 +4,111 @@
 #include <time.h>
 #include "utils/arr.h"
 
-/**
- * Note: The returned array must be malloced, assume caller calls free().
- */
+void move_mid(int *mid, int *size, char move_left)
+{
+    if (move_left) {
+        *size = (*size)/2;
+        *mid = ((*size) % 2) ? (*mid)-(*size)/2-1: (*mid)-(*size)/2;
+    } else {
+        *size = ((*size) % 2) ? (*size)/2+1 : (*size)/2;
+        *mid = (*mid) + (*size)/2;
+    }
+}
+
+#define move_leftward(mid, size) ({ \
+    size = size/2;                  \
+    mid = (size % 2) ? (mid - size/2 -1) : (mid - size/2);  \
+})
+
+#define move_rightward(mid, size) ({    \
+    size = (size % 2) ? (size/2)+1 : size/2;    \
+    mid = mid + size/2;                 \
+})
+
 int* searchRange(int* nums, int numsSize, int target, int* returnSize)
 {
     *returnSize = 2;
     int *ret = (int *)malloc(sizeof(int)*2);
+    ret[0] = ret[1] = -1;
 
-    if (target < 0) {
-        ret[0] = ret[1] = -1;
+    // quick return
+    if (!numsSize) {
+        return ret;
+    } else if (nums[0] > target || nums[numsSize-1] < target) {
         return ret;
     }
 
-    int mid;
-    mid = numsSize/2;
+    int mid = numsSize/2;
+    int last_idx = numsSize-1;
+    int left_mid, right_mid;    // mid_idx for finding start idx and end_idx
+    int left_size, right_size;  // arr size for finding start idx and end idx
 
-    while (!(nums[mid] == target && nums[mid-1] < target)) {
+    left_mid = right_mid = -1;
 
-        if (target <= nums[mid]) {  // target is in the left side
+    while (ret[0] == -1 || ret[1] == -1) {
 
-            // decide next mid idx
-            numsSize = numsSize/2;
-            if (numsSize % 2)
-                mid = mid - numsSize/2 -1;
-            else
-                mid = mid - numsSize/2;
-        } else {                    // target is in the right side
+        // find common mid such that nums[mid] = target
+        if (left_mid == -1) {
+            if (target < nums[mid]) {
+                move_leftward(mid, numsSize);
+            } else if (target > nums[mid]) {
+                move_rightward(mid, numsSize);
+            }
 
-            // decide next mid idx
-            numsSize = (numsSize % 2) ? (numsSize/2)+1 : numsSize/2;
-            if (numsSize % 2)
-                mid = mid + numsSize/2;
-            else
-                mid = mid + numsSize/2;
+            if (target == nums[mid]) {  // found common mid
+                left_mid = right_mid = mid;
+                left_size = right_size = numsSize;
+                printf("right_mid = %d, right_size = %d\n", right_mid, right_size);
+            }
+
+            if (numsSize == 1) {        // divided arr size is 1, record start/end idx and return
+                ret[0] = left_mid;
+                ret[1] = right_mid;
+                return ret;
+            } else {
+                continue;   // continue to find common mid first
+            }
+        }
+
+        // find start idx
+        if (ret[0] == -1) {
+            if (target == nums[left_mid] && (left_mid == 0 || nums[left_mid-1] < target)) { // found
+                ret[0] = left_mid;
+            } else {
+                if (target <= nums[left_mid]) {
+                    move_leftward(left_mid, left_size);
+                } else if (target > nums[left_mid]) {
+                    move_rightward(left_mid, left_size);
+                }
+            }
+        }
+
+        // find end idx
+        if (ret[1] == -1) {
+            if (target == nums[right_mid] && (right_mid == last_idx || nums[right_mid+1] > target)) { // found
+                ret[1] = right_mid;
+            } else {
+                if (target >= nums[right_mid]) {
+                    move_rightward(right_mid, right_size);
+                } else if (target < nums[right_mid]) {
+                    move_leftward(right_mid, right_size);
+                }
+            }
         }
     }
-    printf("%d, %d\n", nums[mid-1], nums[mid]);
-    return &nums[mid-1];
+
+    return ret;
 }
 
 #define MIN(a, b) (((a)<=(b)) ? (a) : (b))
 
 int main(int argc, char *argv[])    // arg: len, target_idx, returnSize
 {
-    srand(time(NULL)) ;
-    int len, target, target_idx, returnSize;
+#if 1
+    srand(time(NULL));
+    int len, target;
+    int target_idx;     // target starts from which idx
+    int returnSize;     // how many targets in the arr
 
     if (argc >= 4) {
         len = strtol(argv[1], NULL, 10);
@@ -74,6 +133,8 @@ int main(int argc, char *argv[])    // arg: len, target_idx, returnSize
 
     int *arr = (int*) malloc(sizeof(int)*len);
     arr[0] = rand() % 10;
+    if (arr[0] % 2)
+        arr[0] = -arr[0];
     for (int i=1; i<len; i++) {
         if (target_idx < i && i < target_idx+returnSize) {
             arr[i] = arr[i-1];
@@ -82,6 +143,13 @@ int main(int argc, char *argv[])    // arg: len, target_idx, returnSize
         }
     }
     target = (returnSize == 0) ? -1 : arr[target_idx];
+#else
+    int arr[] = {6,8,9,12};
+    int len = 4;
+    int target = 12;
+    int target_idx = 3;
+    int returnSize = 1;
+#endif
 
     arr_show(arr, len);
     printf("target = %d\n", target);
@@ -89,8 +157,8 @@ int main(int argc, char *argv[])    // arg: len, target_idx, returnSize
     printf("returnSize = %d\n", returnSize);
 
     int ret_size;
-    int *ret_idx = searchRange(arr, len, target, &ret_size);
+    int *ret = searchRange(arr, len, target, &ret_size);
 
     printf("-------------\n");
-    printf("ret_idx  = [%d, %d]\n", ret_idx[0], ret_idx[1]);
+    printf("ret  = [%d, %d]\n", ret[0], ret[1]);
 }
