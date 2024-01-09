@@ -52,4 +52,5 @@ clock_t __start, __end;
 #define CLOCK_START() ({ __start = clock(); })
 #define CLOCK_END()   ({ __end = clock(); })
 #define CLOCK_DIFF()  (__end - __start)
+#define CLOCK_DIFF_SEC() ((float)(__end - __start)/CLOCKS_PER_SEC)
 #endif

@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <time.h>
 #include "utils/arr.h"
+#include "utils/utils.h"
 
 #define move_leftward(mid, size) ({ \
     size = size/2;                  \
@@ -14,7 +15,7 @@
     mid = mid + size/2;                 \
 })
 
-int searchInsert(int* nums, int numsSize, int target) {
+int _searchInsert(int* nums, int numsSize, int target) {
 
     // quick return
     if (numsSize == 1) {
@@ -44,7 +45,8 @@ int searchInsert(int* nums, int numsSize, int target) {
 }
 
 
-// not finished, use low and high idx should be faster
+// use low and high idx should be faster
+// Runtime Details 3ms Beats 69.31%of users with C; Memory Details 6.82MB Beats 17.96%of users with C
 int searchInsert(int* nums, int numsSize, int target) {
 
     // quick return
@@ -58,16 +60,16 @@ int searchInsert(int* nums, int numsSize, int target) {
         return numsSize;
     }
 
-    int low; high;
+    int low, high;
     low = 0, high = numsSize-1;
 
-    while (low != high) {
+    while (high - low > 1) {
         if (target < nums[(low+high)/2]) {
             high = (low+high)/2;
         } else if (target > nums[(low+high)/2]) {
             low = (low+high)/2;
         } else {
-            return (low+high);
+            return (low+high)/2;
         }
     }
 
@@ -125,8 +127,17 @@ int main(int argc, char *argv[])    // arg: len, target_idx
     printf("target idx = %d\n", target_idx);
 
     int ret_size;
-    int ret = searchInsert(arr, len, target);
+    int ret;
 
+    CLOCK_START();
+    ret = _searchInsert(arr, len, target);
+    CLOCK_END();
     printf("-------------\n");
-    printf("ret_idx = %d\n", ret);
+    printf("ret_idx = %d, use %f sec\n", ret, CLOCK_DIFF_SEC());
+
+    CLOCK_START();
+    ret = searchInsert(arr, len, target);
+    CLOCK_END();
+    printf("-------------\n");
+    printf("ret_idx = %d, use %f sec\n", ret, CLOCK_DIFF_SEC());
 }
