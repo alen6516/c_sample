@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
             printf("\n---+---+---+---+---+---+---+---+---+\n");
     }
 
-    char **_input = &input[0];
+    char *p = &input[0];
 
     //isValidSudoku(_input, 9, NULL);
 }
