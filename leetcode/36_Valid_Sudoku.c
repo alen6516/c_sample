@@ -7,14 +7,51 @@
 #include "utils/utils.h"
 
 
-bool check_same_row(char **input, int raw, int col)
+bool check_same_row(char **p, int raw, int col)
 {
-    int val = input[raw][col];
+    char *input = (char *)p;
+    char val = *(input + 9*raw + col);
+    //printf("(%d, %d) = %c\n", raw, col, val);
 
     for (int j=0; j<9; j++) {
-        if (j > col && val == input[raw][j]) {
+        if (j > col && val != ' ' && val == *(input + 9*raw + j)) {
             printf(" (%d, %d), is conflict with (%d, %d)\n", raw, col, raw, j);
             return false;
+        }
+    }
+
+    return true;
+}
+
+bool check_same_col(char **p, int raw, int col)
+{
+    char *input = (char *)p;
+    char val = *(input + 9*raw + col);
+    //printf("(%d, %d) = %c\n", raw, col, val);
+
+    for (int i=0; i<9; i++) {
+        if (i > raw && val != ' ' && val == *(input + 9*i + col)) {
+            printf(" (%d, %d), is conflict with (%d, %d)\n", raw, col, i, col);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool check_same_zone(char **p, int raw, int col)
+{
+    char *input = (char *)p;
+    char val = *(input + 9*raw + col);
+    printf("(%d, %d) = %c\n", raw, col, val);
+
+    for (int i=(raw/3)*3; i<(raw/3)*3+3; i++) {
+        for (int j=(col/3)*3; j<(col/3)*3+3; j++) {
+            if ((input+9*raw+col) < (input+9*i+j) &&
+                val != ' ' && val == *(input + 9*i + j)) {
+                printf(" (%d, %d), is conflict with (%d, %d)\n", raw, col, i, j);
+                //return false;
+            }
         }
     }
 
@@ -31,9 +68,11 @@ bool isValidSudoku(char** board, int boardSize, int* boardColSize) {
     // else return false
     
 
-    for (int i=0; i<9; i++) {
-        for (int j=0; j<9; j++) {
-            check_same_row(board, i, j);
+    for (int i=0; i<3; i++) {
+        for (int j=0; j<3; j++) {
+            //check_same_row(board, i, j);
+            //check_same_col(board, i, j);
+            check_same_zone(board, i, j);
         }
     }
 }
@@ -54,7 +93,7 @@ int main(int argc, char *argv[])
 
     char input[9][9] = {
          {'5','3',' ',' ','7',' ',' ',' ',' '}
-        ,{'6',' ',' ','1','9','5',' ',' ',' '}
+        ,{' ',' ',' ','1','9','5',' ',' ',' '}
         ,{' ','9','8',' ',' ',' ',' ','6',' '}
         ,{'8',' ',' ',' ','6',' ',' ',' ','3'}
         ,{'4',' ',' ','8',' ','3',' ',' ','1'}
@@ -78,7 +117,7 @@ int main(int argc, char *argv[])
             printf("\n---+---+---+---+---+---+---+---+---+\n");
     }
 
-    char *p = &input[0];
+    char *p = &input[0][0];
 
-    //isValidSudoku(_input, 9, NULL);
+    isValidSudoku((char **)p, 9, NULL);
 }
