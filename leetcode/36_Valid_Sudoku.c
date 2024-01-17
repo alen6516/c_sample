@@ -41,16 +41,16 @@ bool check_same_col(char **p, int raw, int col)
 
 bool check_same_zone(char **p, int raw, int col)
 {
-    char *input = (char *)p;
-    char val = *(input + 9*raw + col);
+    char val = *(*(p+raw)+col);
     printf("(%d, %d) = %c\n", raw, col, val);
+    return true;
 
     for (int i=(raw/3)*3; i<(raw/3)*3+3; i++) {
         for (int j=(col/3)*3; j<(col/3)*3+3; j++) {
-            if ((input+9*raw+col) < (input+9*i+j) &&
-                val != ' ' && val == *(input + 9*i + j)) {
+            if ((9*raw+col) < (9*i+j) &&
+                val != ' ' && val == *(*(p+i)+j)) {
                 printf(" (%d, %d), is conflict with (%d, %d)\n", raw, col, i, j);
-                //return false;
+                return false;
             }
         }
     }
@@ -102,14 +102,19 @@ int main(int argc, char *argv[])
         ,{' ',' ',' ','4','1','9',' ',' ','5'}
         ,{' ',' ',' ',' ','8',' ',' ','7','9'}};
 
+    char *p[9];
+    for (int i=0; i<9; i++)
+        p[i] = input[i];
+
+    char **pp = p;
 #endif
 
     for (int i=0; i<9; i++) {
         for (int j=0; j<9; j++) {
             if (j % 3 == 2)
-                printf(" %c |", input[i][j]);
+                printf(" %c |", *(*(pp+i)+j));
             else
-                printf(" %c :", input[i][j]);
+                printf(" %c :", *(*(pp+i)+j));
         }
         if ( i % 3 == 2)
             printf("\n===+===+===+===+===+===+===+===+===+\n");
@@ -117,7 +122,5 @@ int main(int argc, char *argv[])
             printf("\n---+---+---+---+---+---+---+---+---+\n");
     }
 
-    char *p = &input[0][0];
-
-    isValidSudoku((char **)p, 9, NULL);
+    isValidSudoku(pp, 9, NULL);
 }
