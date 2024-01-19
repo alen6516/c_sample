@@ -7,74 +7,54 @@
 #include "utils/utils.h"
 
 
-bool check_same_row(char **p, int raw, int col)
-{
-    char *input = (char *)p;
-    char val = *(input + 9*raw + col);
-    //printf("(%d, %d) = %c\n", raw, col, val);
-
-    for (int j=0; j<9; j++) {
-        if (j > col && val != ' ' && val == *(input + 9*raw + j)) {
-            printf(" (%d, %d), is conflict with (%d, %d)\n", raw, col, raw, j);
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool check_same_col(char **p, int raw, int col)
-{
-    char *input = (char *)p;
-    char val = *(input + 9*raw + col);
-    //printf("(%d, %d) = %c\n", raw, col, val);
-
-    for (int i=0; i<9; i++) {
-        if (i > raw && val != ' ' && val == *(input + 9*i + col)) {
-            printf(" (%d, %d), is conflict with (%d, %d)\n", raw, col, i, col);
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool check_same_zone(char **p, int raw, int col)
-{
-    char val = *(*(p+raw)+col);
-    printf("(%d, %d) = %c\n", raw, col, val);
-    return true;
-
-    for (int i=(raw/3)*3; i<(raw/3)*3+3; i++) {
-        for (int j=(col/3)*3; j<(col/3)*3+3; j++) {
-            if ((9*raw+col) < (9*i+j) &&
-                val != ' ' && val == *(*(p+i)+j)) {
-                printf(" (%d, %d), is conflict with (%d, %d)\n", raw, col, i, j);
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
+// Todo: use a bool arr[9] to store the number that is appeared during check_raw/col/zone
 bool isValidSudoku(char** board, int boardSize, int* boardColSize) {
-    
+
     // every number needs to check with 3 array:
     // 1. arr of its column
     // 2. arr of its row
     // 3. arr of its 3x3 block
     // if no such number in that array, fit in this number
     // else return false
-    
 
-    for (int i=0; i<3; i++) {
-        for (int j=0; j<3; j++) {
-            //check_same_row(board, i, j);
-            //check_same_col(board, i, j);
-            check_same_zone(board, i, j);
+    char val;
+
+    for (int raw=0; raw<9; raw++) {
+        for (int col=0; col<9; col++) {
+            val = *(*(board+raw)+col);
+
+            //printf("(%d, %d) = %c\n", raw, col, val);
+            if (val == '.') continue;
+
+            // check the same raw
+            for (int j=0; j<9; j++) {
+                if (j > col && val == *(*(board+raw)+j)) {
+                    printf("    raw: (%d, %d), is conflict with (%d, %d)\n", raw, col, raw, j);
+                    return false;
+                }
+            }
+
+            // check the same col
+            for (int i=0; i<9; i++) {
+                if (i > raw && val == *(*(board+i)+col)) {
+                    printf("    col: (%d, %d), is conflict with (%d, %d)\n", raw, col, i, col);
+                    return false;
+                }
+            }
+
+            // check the same zone
+            for (int i=(raw/3)*3; i<(raw/3)*3+3; i++) {
+                for (int j=(col/3)*3; j<(col/3)*3+3; j++) {
+                    if ((9*raw+col) < (9*i+j) && val == *(*(board+i)+j)) {
+                        printf("    zone: (%d, %d), is conflict with (%d, %d)\n", raw, col, i, j);
+                        return false;
+                    }
+                }
+            }
         }
     }
+
+    return true;
 }
 
 int main(int argc, char *argv[])
@@ -93,7 +73,7 @@ int main(int argc, char *argv[])
 
     char input[9][9] = {
          {'5','3',' ',' ','7',' ',' ',' ',' '}
-        ,{' ',' ',' ','1','9','5',' ',' ',' '}
+        ,{'5',' ',' ','1','9','5',' ',' ',' '}
         ,{' ','9','8',' ',' ',' ',' ','6',' '}
         ,{'8',' ',' ',' ','6',' ',' ',' ','3'}
         ,{'4',' ',' ','8',' ','3',' ',' ','1'}
