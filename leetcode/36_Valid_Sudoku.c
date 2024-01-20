@@ -1,3 +1,6 @@
+// Runtime 11 ms Beats 40.92% of users with C
+// Memory 6.23 MB Beats 97.93% of users with C
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

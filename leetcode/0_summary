@@ -89,6 +89,9 @@ Memory: 8.17MB Beats 40.54% of users with C
 Runtime: Details 3ms Beats 69.31%of users with C
 Memory: Details 6.82MB Beats 17.96%of users with C
 ----------------------------------
+36_Valid_Sudoku.c
+Runtime 11 ms Beats 40.92% of users with C
+Memory 6.23 MB Beats 97.93% of users with C
 ----------------------------------
 ----------------------------------
 ----------------------------------
