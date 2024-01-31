@@ -10,7 +10,11 @@
 // 2. get the nth data in nums1 and nums2 to compare and put to the correct position in nums1
 void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
     
-    memmove(nums1+n, nums1, m*sizeof(int));
+    // move data in nums1 to right
+    for (int i=0; i < m; i++) {
+        nums1[nums1Size-i-1] = nums1[m-i-1];
+        nums1[m-i-1] = 0;
+    }
     arr_show(nums1, m+n);
 
     int to_copy = 0;
@@ -18,35 +22,42 @@ void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
     int i = n;
     int j = 0;
     while (finished < nums1Size) {
+        // find datas in nums2 and copy to nums1
         while (j < n && nums1[i] >= nums2[j]) {
             to_copy++;
             j++;
         }
-        if (to_copy) {
-            memcpy(&nums1[finished], &nums2[j-to_copy], to_copy*sizeof(int));
-            finished += to_copy;
-            printf("copy idx %d number %d from 2 to 1\n", j-to_copy, to_copy);
-            to_copy = 0;
+        while (to_copy > 0) {
+            nums1[finished] = nums2[j-to_copy];
+            //printf("copy idx %d number %d from 2 to 1\n", j-to_copy, to_copy);
+            to_copy--;
+            finished++;
         }
+
         if (j == n) {
             // nums2 are all moved, moving the remaining data in nums1
             //memcpy(&nums1[finished], nums1[])
             break;
         }
 
+        // find datas in nums1 and copy to nums1
         while (i < nums1Size && nums1[i] < nums2[j]) {
             to_copy++;
             i++;
         }
-        if (to_copy) {
-            memcpy(&nums1[finished], &nums1[i-to_copy], to_copy*sizeof(int));
-            finished += to_copy;
-            printf("copy idx %d number %d from 1 to 1\n", i-to_copy, to_copy);
-            to_copy = 0;
+        while (to_copy > 0) {
+            nums1[finished] = nums1[i-to_copy];
+            //printf("copy idx %d number %d from 2 to 1\n", j-to_copy, to_copy);
+            to_copy--;
+            finished++;
         }
         if (i == m+n) {
             // nums1 are all moved, moving the remaining data in nums2
-            memcpy(&nums1[finished], &nums2[j], (n-j)*sizeof(int));
+            while (j < n) {
+                nums1[finished] = nums2[j];
+                j++;
+                finished++;
+            }
             break;
         }
     }
