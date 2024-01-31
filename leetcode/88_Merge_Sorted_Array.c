@@ -1,3 +1,6 @@
+// Runtime 3 ms Beats 62.43% of users with C
+// Memory 5.74 MB Beats 97.77% of users with C
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +12,15 @@
 // 1. move data in nums1 to the right
 // 2. get the nth data in nums1 and nums2 to compare and put to the correct position in nums1
 void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
+
+    if (!n) return;
+    else if (!m) {
+        for (int i = 0; i<n; i++) {
+            nums1[i] = nums2[i];
+        }
+        return;
+    }
+
     
     // move data in nums1 to right
     for (int i=0; i < m; i++) {
@@ -36,7 +48,6 @@ void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
 
         if (j == n) {
             // nums2 are all moved, moving the remaining data in nums1
-            //memcpy(&nums1[finished], nums1[])
             break;
         }
 
@@ -47,7 +58,6 @@ void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
         }
         while (to_copy > 0) {
             nums1[finished] = nums1[i-to_copy];
-            //printf("copy idx %d number %d from 2 to 1\n", j-to_copy, to_copy);
             to_copy--;
             finished++;
         }
