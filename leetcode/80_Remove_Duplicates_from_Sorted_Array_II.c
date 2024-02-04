@@ -1,3 +1,6 @@
+// Runtime 7 ms Beats 85.57% of users with C
+// Memory 6.24 MB Beats 94.64% of users with C
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,32 +11,36 @@
 
 int removeDuplicates(int* nums, int numsSize) {
 
-    int rep = 0;        // how many repeats now
-    int i = 0;          // current processed idx
-    int prev;
+    if (numsSize < 3) return numsSize;
 
-    while (i < numsSize) {
-        if (i > 0 && numsSize[i-1] == numsSize[i]) {
-            prev =  numsSize[i];
-        }
+    int curr = 2;   // idx of current
+    int find;       // idx to find a proper element
+    int done = 1;   // idx that we've finished processing
 
-        if (rep == 2) {
-            if (!find_idx)
-                find_idx = i+1;
-            while (numsSize[i] == numsSize[find_idx]) {
-                find_idx++;
-                if (find_idx == numsSize)
-                    return i-1;
+    while (curr < numsSize) {
+        if (nums[done-1] == nums[done] && nums[done] == nums[curr]) {
+            // if 3 consecutive same elements, find a proper element and copy it to done's next
+            find = curr;
+            while (find < numsSize && nums[curr] == nums[find]) {
+                find++;
+
+                if (find == numsSize) return done+1;
             }
-            numsSize[i] = numsSize[find_idx];
-            rep = 0;
+            done++;
+            nums[done] = nums[find];
+            curr = find+1;
+        } else if (curr != done+1) {
+            // no 3 consecutive elements but curr is far from done, copy curr to done's next
+            done++;
+            nums[done] = nums[curr];
+            curr++;
+        } else {
+            done++;
+            curr++;
         }
-
-        i++;
     }
 
-    return i;
-
+    return done+1;
 }
 
 #define MAX_CONSECUTIVE_NUM 3
