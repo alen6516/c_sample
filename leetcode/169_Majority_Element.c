@@ -6,8 +6,40 @@
 #include "utils/arr.h"
 #include "utils/utils.h"
 
+// Runtime 13 ms Beats 76.51% of users with C
+// Memory 7.52 MB Beats 83.02% of users with C
+// This solution has O(n^2) computation and O(1) space,
+// think of a solution with linear computation and O(n) space.
 int majorityElement(int* nums, int numsSize) {
 
+    if (numsSize == 1) return nums[0];
+
+    int curr, curr_num;
+    int record, record_num = 0;
+
+    // check every number and mark it done
+    for (int i = 0; i < numsSize; i++) {
+        if (nums[i] != '_') {
+            curr = nums[i];
+            curr_num = 0;
+
+            // find the same number in the remaining arr
+            for (int j = i; j < numsSize; j++) {
+                if (nums[j] == curr) {
+                    curr_num++;
+                    nums[j] = '_';
+                }
+            }
+            printf("curr = %d, curr_num = %d\n", curr, curr_num);
+            if (curr_num > record_num) {
+                record_num = curr_num;
+                record = curr;
+                printf("new record\n");
+            }
+        }
+    }
+
+    return record;
 }
 
 int main(int argc, char *argv[])
@@ -21,41 +53,36 @@ int main(int argc, char *argv[])
         len = rand() % 5 + 5;
     }
 
-    int *arr1, *arr2;
-    arr1 = (int*) malloc(sizeof(int)*len);
-    arr2 = (int*) malloc(sizeof(int)*len*MAX_CONSECUTIVE_NUM);
+    int *arr;
+    arr = (int*) malloc(sizeof(int)*len);
+    memset(arr, 0, sizeof(int)*len);
 
-    int inc;
-    for (int i=0; i<len; i++) {
-        inc = rand() % 3;
-        if (i == 0) {
-            arr1[i] = inc;
-        } else if (i > 1 && arr1[i-2] == arr1[i-1]) {
-            arr1[i] = arr1[i-1] + inc + 1;
-        } else {
-            arr1[i] = arr1[i-1] + inc;
+    int num = len/2+1;
+    int majority = rand() % 10 + 1;
+
+    int i = 0;
+    int idx;
+    while (i < num) {
+        idx = rand() % len;
+        if (arr[idx] != majority) {
+            arr[idx] = majority;
+            i++;
         }
     }
-    arr_show(arr1, len);
 
-    int rep;
-    int len2 = 0;
-    for (int i=0; i<len; i++) {
-        if (i > 0 && arr1[i-1] == arr1[i]) {
-            rep = (rand() % MAX_CONSECUTIVE_NUM) + 1;
-        } else {
-            rep = 1;
+    int j = 0;
+    while (j < len) {
+        if (arr[j] != majority) {
+            arr[j] = majority + (rand() % 20);
         }
-        while (rep) {
-            arr2[len2] = arr1[i];
-            len2++;
-            rep--;
-        }
+        j++;
     }
-    arr_show(arr2, len2);
 
-    int ret = removeDuplicates(arr2, len2);
+    arr_show(arr, len);
+    printf("majority = %d, num = %d\n", majority, num);
+
+    int ret = majorityElement(arr, len);
     printf("-------------\n");
     printf("ret = %d\n", ret);
-    arr_show(arr2, ret);
+    //arr_show(arr, ret);
 }
