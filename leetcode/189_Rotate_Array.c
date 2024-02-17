@@ -6,45 +6,76 @@
 #include "utils/arr.h"
 #include "utils/utils.h"
 
-void replace_next(int *nums, int size, int k, int i) {
+#ifdef alan
 
-    int tmp;
-    int j;
-    tmp = nums[i];
-    j = (i+k) % size;
-    if (j != 0)
-        replace_next(nums, size, k, j);
-    nums[j] = tmp;
-}
+#define SWAP(a, b)  \
+    a = a^b;        \
+    b = a^b;        \
+    a = a^b;
 
 void rotate(int* nums, int numsSize, int k) {
 
     if (numsSize == 1)
         return;
 
-    replace_next(nums, numsSize, k, 0);
-}
+    if (!k) return;
 
-#if 0
-void rotate(int* nums, int numsSize, int k) {
-
-    if (numsSize == 1)
-        return;
-
-     k = k % numsSize;
-     if (!k) return;
-
-
-    int last = numsSize-1;
-    int tmp;
-    while (last != k-1) {
-        for (int i=0; i<k; i++) {
-            tmp = nums[last-i];
-            nums[last-i] = nums[last-i-k];
-            nums[last-i-k] = tmp;
+    int done = k;
+    int start_idx = 0;
+    int start_val = nums[0];
+    int tmp = nums[0];
+    int i = 0;
+    while (done != 0) {
+        i += k;
+        if (i < numsSize) {
+            SWAP(tmp, nums[i]);
+        } else {
+            i -= numsSize;
+            SWAP(tmp, nums[i]);
+            done --;
+            if (start_idx == i) {
+                i++;
+            }
         }
-        last -= k;
     }
+}
+#else
+
+void rotate(int* nums, int numsSize, int k) {
+
+    if (numsSize == 1)
+        return;
+
+    k = k % numsSize;
+    if (!k) return;
+
+    int *tmp;
+
+    if (k <= numsSize/2) {
+        tmp = malloc(sizeof(int)*k);
+        for (int i=0; i<k; i++) {
+            tmp[i] = nums[numsSize-k+i];
+        }
+        for (int i=0; i<numsSize-k; i++) {
+            nums[numsSize-1-i] = nums[numsSize-1-k-i];
+        }
+        for (int i=0; i<k; i++) {
+            nums[i] = tmp[i];
+        }
+    } else {
+         k = numsSize-k;
+         tmp = malloc(sizeof(int)*k);
+         for (int i=0; i<k; i++) {
+            tmp[i] = nums[i];
+         }
+         for (int i=0; i<numsSize-k; i++)
+            nums[i] = nums[i+k];
+
+         for (int i=0; i<k; i++)
+            nums[numsSize-k+i] = tmp[i];
+    }
+
+    free(tmp);
 }
 #endif
 
@@ -55,16 +86,20 @@ int main(int argc, char *argv[])
     int len;
     int k;
 
-    if (argc >= 2) {
+    if (argc >= 3) {
         len = strtol(argv[1], NULL, 10);
+        k = strtol(argv[2], NULL, 10);
+    } else if (argc >= 2) {
+        len = strtol(argv[1], NULL, 10);
+        k = rand() % (len+1);
     } else {
         len = rand() % 5 + 5;
+        k = rand() % (len+1);
     }
 
     arr = arr_create(&len);
     arr_show(arr, len);
 
-    k = rand() % (len+1);
     printf("k = %d\n", k);
     rotate(arr, len, k);
     printf("-------------\n");
