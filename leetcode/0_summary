@@ -106,4 +106,7 @@ Memory 5.74 MB Beats 97.77% of users with C
 Runtime 13 ms Beats 76.51% of users with C
 Memory 7.52 MB Beats 83.02% of users with C
 ----------------------------------
+189_Rotate_Array.c
+Runtime 93 ms Beats 89.55% of users with C
+Memory 21.67 MB Beats 99.64% of users with C
 ----------------------------------

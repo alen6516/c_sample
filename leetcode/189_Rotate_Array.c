@@ -8,39 +8,54 @@
 
 #ifdef alan
 
+/*
 #define SWAP(a, b)  \
     a = a^b;        \
     b = a^b;        \
     a = a^b;
+*/
 
+/* rotate from the 1st number
+ * 1 -> 1+k
+ * 1+k -> 1+2k
+ * ...
+ * When wrap around, if wrap around to original start idx, then start from the next idx
+ * In this way we can process all number in array when we process all first k numbers
+ * In most case, we don't need to change start idx, but in case like below we need:
+ * (arr_size, k) = (6, 4), (6, 3)
+ */
+// Runtime 93 ms Beats 89.55% of users with C
+// Memory 21.67 MB Beats 99.64% of users with C
 void rotate(int* nums, int numsSize, int k) {
 
-    if (numsSize == 1)
-        return;
-
+    if (numsSize == 1) return;
+    k = k % numsSize;
     if (!k) return;
 
-    int done = k;
-    int start_idx = 0;
-    int start_val = nums[0];
-    int tmp = nums[0];
+    int done = 0;       // in first k numbers, how many are rotated
+    int start_idx = 0;  // now start from this idx in the first k number
+    int tmp = nums[0];  // value to be rotated
     int i = 0;
-    while (done != 0) {
+    while (done != k) {             // while not all first k numbers are done
         i += k;
         if (i < numsSize) {
             SWAP(tmp, nums[i]);
-        } else {
+        } else {                    // if wrap around
             i -= numsSize;
             SWAP(tmp, nums[i]);
-            done --;
-            if (start_idx == i) {
+            done ++;
+            if (start_idx == i) {   // if wrap around to the original start idx, start from the next idx
                 i++;
+                tmp = nums[i];
+                start_idx = i;
             }
         }
     }
 }
 #else
 
+// Runtime 94 ms Beats 87.70% of users with C
+// Memory 22.11 MB Beats 65.31% of users with C
 void rotate(int* nums, int numsSize, int k) {
 
     if (numsSize == 1)
