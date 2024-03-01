@@ -6,25 +6,22 @@
 #include "utils/arr.h"
 #include "utils/utils.h"
 
+// Runtime 89 ms Beats 91.34% of users with C
+// Memory 12.94 MB Beats 41.95% of users with C
 int maxProfit(int* prices, int pricesSize) {
-    int min_id, max_id;
-    min_id = max_id = 0;
+
+    int min, max;
+    min = max = prices[0];
     int ret = 0;
 
     for (int i = 1; i< pricesSize; i++) {
-        if (prices[i] > prices[min_id]) {
-            // find a valid max
-            if (prices[i] > prices[max_id]) {
-                max_id = i;
-                if (prices[max_id] - prices[min_id] > ret) {
-                    ret = prices[max_id] - prices[min_id];
-                    printf("find new (%d, %d) = %d\n", min_id, max_id, ret);
-                }
-            }
-        } else if (prices[i] < prices[min_id]) {
-            
+        if (prices[i] > max && (prices[i] - min) > ret) {
+            ret = prices[i] - min;
+        } else if (prices[i] < min) {
+            min = max = prices[i];
         }
     }
+    return ret;
 }
 
 int main(int argc, char *argv[])
@@ -43,7 +40,6 @@ int main(int argc, char *argv[])
     arr = arr_create(&len);
     arr_show(arr, len);
 
-    return 0;
     ret = maxProfit(arr, len);
     printf("-------------\n");
     printf("max profit = %d\n", ret);
