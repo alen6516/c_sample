@@ -106,6 +106,10 @@ Memory 5.74 MB Beats 97.77% of users with C
 Runtime 89 ms Beats 91.34% of users with C
 Memory 12.94 MB Beats 41.95% of users with C
 ----------------------------------
+122_Best_Time_to_Buy_and_Sell_Stock_II.c
+Runtime 3 ms Beats 85.66% of users with C
+Memory 6.73 MB Beats 40.95% of users with C
+----------------------------------
 169_Majority_Element.c
 Runtime 13 ms Beats 76.51% of users with C
 Memory 7.52 MB Beats 83.02% of users with C
