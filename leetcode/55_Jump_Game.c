@@ -6,6 +6,8 @@
 #include "utils/arr.h"
 #include "utils/utils.h"
 
+// Runtime 46 ms Beats 75.87% of users with C
+// Memory 7.91 MB Beats 93.57% of users with C
 bool canJump(int* nums, int numsSize) {
 
     int max = 0;
@@ -20,7 +22,7 @@ bool canJump(int* nums, int numsSize) {
         else if (i == max)      // break if can't continue
             return false;
     }
-    //return false;
+    return false;
 }
 
 int main(int argc, char *argv[])

@@ -93,6 +93,9 @@ Memory: Details 6.82MB Beats 17.96%of users with C
 Runtime 11 ms Beats 40.92% of users with C
 Memory 6.23 MB Beats 97.93% of users with C
 ----------------------------------
+55_Jump_Game.c
+Runtime 46 ms Beats 75.87% of users with C
+Memory 7.91 MB Beats 93.57% of users with C
 ----------------------------------
 80_Remove_Duplicates_from_Sorted_Array_II.c
 Runtime 7 ms Beats 85.57% of users with C
