@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "utils.h"
 
 #define ARR_MAX_SIZE    20
 #define MAX_RAND_NUM    50
@@ -63,6 +64,13 @@ arr_create_max(int *size, int max_size, int max_value)
 }
 
 static inline void
+arr_reverse(int *arr, int size)
+{
+    for (int i=0; i<size/2; i++)
+        SWAP(arr[i], arr[size-i-1]);
+}
+
+static inline void
 arr_show(int *arr, int size)
 {
     for (int i=0; i<size; i++) {
@@ -70,6 +78,19 @@ arr_show(int *arr, int size)
             printf("[%d", arr[i]);
         else
             printf(", %d", arr[i]);
+    }
+    printf("]\n");
+    printf("array size = %d\n", size);
+}
+
+static inline void
+arr_show_reverse(int *arr, int size)
+{
+    for (int i=0; i<size; i++) {
+        if (i == 0)
+            printf("[%d", arr[size-i-1]);
+        else
+            printf(", %d", arr[size-i-1]);
     }
     printf("]\n");
     printf("array size = %d\n", size);

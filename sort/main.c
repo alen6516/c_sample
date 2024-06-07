@@ -10,7 +10,7 @@ extern void show_bubble_sort(int *, int);
 extern void show_insert_sort(int *, int);
 
 int main ()
-{    
+{
     int *arr;
     int len;
 
