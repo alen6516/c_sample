@@ -6,16 +6,14 @@
 void selection_sort(int *arr, int len)
 {
     int min;
-    int idx;
-    for (int i=0; i<len; i++) {
-        min = arr[i];
+    for (int i=0; i<len-1; i++) {
+        min = i;
         for (int j=i+1; j<len; j++) {
-            if (arr[j] < min) {
-                idx = j;
-                min = arr[j];
+            if (arr[j] < arr[min]) {
+                min = j;
             }
         }
-        SWAP(arr[i], arr[idx]);
+        SWAP(arr[i], arr[min]);
     }
 }
 
@@ -36,4 +34,6 @@ show_selection_sort(int *_arr, int len)
     show_arr(arr, len);
     total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
     printf("total: %f sec\n", total_t);
+ 
+    free(arr);
 }
