@@ -3,8 +3,6 @@
 #include <time.h>
 #include "arr.h"
 
-// still broken
-
 static int
 partition (int arr[], int left, int right)
 {

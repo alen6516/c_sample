@@ -1,0 +1,26 @@
+ref: https://cs.pynote.net/ag/202110053/
+
+* "left shift 1 bit" equals to "multiply 2"
+    * 12345*9 == (12345<<3) + (12345<<0)
+    * 12345*14 == (12345<<4) - (12345<<1)
+
+* "right shift 1 bit" doesn't equal to "divide by 2"
+    * -9>>1 = -5
+    * int(-9/2) = -4
+
+* Biseides, right shift in C and Python are arithmetic right shift
+    * 即左边空出来的bit位不是补0，而是补MSB。因此，正数右移到最后得0，而负数右移到最后，就是-1
+
+* priority of shift operation is lower
+    * 0<<1 + 1 = 0
+    * (0<<1) + 1 = 1
+
+* check if 2 int are equal
+    * (a^b) == 0 is faster than (a-b) == 0
+
+* swap by XOR
+    void swap(int *a, int *b) {
+        if (a != b) {
+            *a ^= *b ^= *a ^= *b;
+        }
+    }

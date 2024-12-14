@@ -10,3 +10,5 @@ Some practices of C language.
 
 * trace_code_test
     * put some simple test code
+
+* bitwise
