@@ -3,8 +3,6 @@
 #include <time.h>
 #include "arr.h"
 
-// still broken
-
 static int
 partition (int arr[], int left, int right)
 {
@@ -77,7 +75,7 @@ show_my_quick_sort(int *_arr, int len)
     printf("my_quick_sort: ============================\n");
 
     start_t = clock();
-    quick_sort(arr, 0, sizeof(arr)/sizeof(arr[0])-1);
+    quick_sort(arr, 0, len-1);
     end_t = clock();
 
     show_arr(arr, len);

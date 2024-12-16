@@ -5,7 +5,7 @@
 
 
 static void
-quick_sort2(int *arr, int start, int end)
+quick_sort(int *arr, int start, int end)
 {
     if (start >= end || start < 0 || end < 0) {
         return;
@@ -31,12 +31,12 @@ quick_sort2(int *arr, int start, int end)
     }
     SWAP(arr[start], arr[left]);
 
-    quick_sort2(arr, left+1, end);
-    quick_sort2(arr, start, left-1);
+    quick_sort(arr, left+1, end);
+    quick_sort(arr, start, left-1);
 }
 
 static void
-quick_sort(int *arr, int start, int end)
+quick_sort_reverse(int *arr, int start, int end)
 {
     if (start >= end || start < 0 || end < 0) {
         return;
@@ -47,8 +47,7 @@ quick_sort(int *arr, int start, int end)
     right = end;
     int key = arr[start];
 
-    // 1 2 3 4
-
+    // [ 1 3 1 0 4]
     while(left != right) {
         while(key > arr[right] && left < right) {
             right --;
@@ -64,8 +63,8 @@ quick_sort(int *arr, int start, int end)
     }
     SWAP(arr[start], arr[left]);
 
-    quick_sort(arr, left+1, end);
-    quick_sort(arr, start, left-1);
+    quick_sort_reverse(arr, left+1, end);
+    quick_sort_reverse(arr, start, left-1);
 }
 
 void
@@ -89,10 +88,10 @@ show_quick_sort(int *_arr, int len)
 
     arr = (int*) malloc(sizeof(int)*len);
     memcpy(arr, _arr, sizeof(int)*len);
-    printf("quick_sort2: ============================\n");
+    printf("quick_sort_reverse: =====================\n");
 
     start_t = clock();
-    quick_sort2(arr, 0, len-1);
+    quick_sort_reverse(arr, 0, len-1);
     end_t = clock();
 
     show_arr(arr, len);

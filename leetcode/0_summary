@@ -1,3 +1,11 @@
+## way to program
+* program main function which aims to generate test case
+* program target function
+    * add comment while writing
+    * program key logic first, program quick return later
+    * try to think of corner case and improve key logic or add quick return
+* Runtime and memory better beats at least 50% people
+
 5_Longest_Palindromic_Substring.c
 Runtime: 20 ms, faster than 64.85% of C online submissions for Longest Palindromic Substring.
 Memory Usage: 6.1 MB, less than 72.47% of C online submissions for Longest Palindromic Substring.
@@ -73,5 +81,51 @@ Memory Usage: 6.1 MB, less than 82.17% of C online submissions for Next Permutat
 Runtime: 4 ms, faster than 70.82% of C online submissions for Search in Rotated Sorted Array.
 Memory Usage: 6.2 MB, less than 15.66% of C online submissions for Search in Rotated Sorted Array.
 ----------------------------------
+34_Find_First_and_Last_Position_of_Element_in_Sorted_Array.c
+Runtime: 8ms Beats 54.37% of users with C
+Memory: 8.17MB Beats 40.54% of users with C
 ----------------------------------
+35_Search_Insert_Position.c
+Runtime: Details 3ms Beats 69.31%of users with C
+Memory: Details 6.82MB Beats 17.96%of users with C
+----------------------------------
+36_Valid_Sudoku.c
+Runtime 11 ms Beats 40.92% of users with C
+Memory 6.23 MB Beats 97.93% of users with C
+----------------------------------
+45_Jump_Games_II.c
+Runtime 6 ms Beats 98.70% of users with C
+Memory 6.54 MB Beats 54.93% of users with C
+----------------------------------
+55_Jump_Game.c
+Runtime 46 ms Beats 75.87% of users with C
+Memory 7.91 MB Beats 93.57% of users with C
+----------------------------------
+80_Remove_Duplicates_from_Sorted_Array_II.c
+Runtime 7 ms Beats 85.57% of users with C
+Memory 6.24 MB Beats 94.64% of users with C
+----------------------------------
+88_Merge_Sorted_Array.c
+Runtime 3 ms Beats 62.43% of users with C
+Memory 5.74 MB Beats 97.77% of users with C
+----------------------------------
+121_Best_Time_to_Buy_and_Sell_Stock.c
+Runtime 89 ms Beats 91.34% of users with C
+Memory 12.94 MB Beats 41.95% of users with C
+----------------------------------
+122_Best_Time_to_Buy_and_Sell_Stock_II.c
+Runtime 3 ms Beats 85.66% of users with C
+Memory 6.73 MB Beats 40.95% of users with C
+----------------------------------
+169_Majority_Element.c
+Runtime 13 ms Beats 76.51% of users with C
+Memory 7.52 MB Beats 83.02% of users with C
+----------------------------------
+189_Rotate_Array.c
+Runtime 93 ms Beats 89.55% of users with C
+Memory 21.67 MB Beats 99.64% of users with C
+----------------------------------
+274_H-index.c
+Runtime 0 ms Beats 100.00% of users with C
+Memory 5.70 MB Beats 100.00% of users with C
 ----------------------------------

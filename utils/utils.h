@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 
-typedef uint8_t bool_t;     // should just use bool from stdbool.h
+//typedef uint8_t bool_t;     // just use bool, true, false from stdbool.h
 typedef uint8_t  u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
@@ -20,11 +21,12 @@ typedef uint64_t u64;
 })
 
 #ifdef DEBUG
-#define debug_printf(...) ((    \
-        printf(__VA_ARGS__);    \
+#define DEBUG(...) ({                                   \
+        printf("[DEBUG] %s: ", __func__);               \
+        printf(__VA_ARGS__);                            \
 })
 #else
-#define debug_printf(...)
+#define DEBUG(...)
 #endif
 
 /* throw an error at compile time */
@@ -45,4 +47,10 @@ typedef uint64_t u64;
     }                                                   \
 } while(0)
 
+
+clock_t __start, __end;
+#define CLOCK_START() ({ __start = clock(); })
+#define CLOCK_END()   ({ __end = clock(); })
+#define CLOCK_DIFF()  (__end - __start)
+#define CLOCK_DIFF_SEC() ((float)(__end - __start)/CLOCKS_PER_SEC)
 #endif
