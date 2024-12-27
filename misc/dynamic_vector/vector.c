@@ -47,13 +47,13 @@ void vector_add(vector *v, void *item) {
 
 
 void vector_set(vector *v, int index, void *item) {
-    if (index >= 0 && index < v->total) 
+    if (index >= 0 && index < v->total)
         v->items[index] = item;
 }
 
 
 void *vector_get(vector *v, int index) {
-    if (index >= 0 && index < v->total) 
+    if (index >= 0 && index < v->total)
         return v->items[index];
     return NULL;
 }

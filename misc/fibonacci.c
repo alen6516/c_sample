@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// https://blog.csdn.net/dangzhangjing97/article/details/78778536
+
 // return Nth fibo
 int fib(int n)
 {
@@ -20,7 +22,7 @@ int main(int argc, char *argv[])
 {
     int input;
 
-    if (argc > 1) 
+    if (argc > 1)
         input = (int) strtol(argv[1], NULL, 10);
     else
         input = 10;
