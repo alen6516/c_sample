@@ -17,7 +17,7 @@ struct queue_t* queue;
 
 
 void* en_work(void *arg) {
-    id = 1; 
+    id = 1;
     struct node_t* node;
 
     int val=0;
@@ -56,7 +56,7 @@ void* de_work(void *arg) {
 
 int main (int argc, char *argv[])
 {
-    rand(time(NULL));   
+    rand(time(NULL));
     
     if ( !(queue = init_queue()) ) {
         printf("malloc fail\n");
