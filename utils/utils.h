@@ -12,12 +12,13 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-#define SWAP(a, b) ({   \
-    if ((a) != (b)) {   \
-        a = a^b;        \
-        b = a^b;        \
-        a = a^b;        \
-    }                   \
+// swap for integer and ptr, not working for float
+#define SWAP(x, y) ({   \
+    if ((x) != (y)) {   \
+        x = (typeof(x)) ((uintptr_t)x ^ (uintptr_t)y);  \
+        y = (typeof(x)) ((uintptr_t)x ^ (uintptr_t)y);  \
+        x = (typeof(x)) ((uintptr_t)x ^ (uintptr_t)y);  \
+    }                                                   \
 })
 
 #ifdef DEBUG
