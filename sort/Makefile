@@ -15,7 +15,7 @@ CC = gcc
 CFLAGS = -g -Wall -Wextra
 
 # Source files
-SRC = main.c bubble_sort.c insert_sort.c quick_sort.c my_quick_sort.c selection_sort.c
+SRC = main.c bubble_sort.c insert_sort.c selection_sort.c quick_sort.c my_quick_sort.c oop_quick_sort.c
 
 # Object files
 OBJ = $(SRC:.c=.o)

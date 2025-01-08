@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include "arr.h"
 
 /* sort object { */
 struct __sort_class;
 struct __sort;
 
-#define SORT_CLASS_METHOD(type) void (*sort_it)(type*)
+#define SORT_CLASS_METHOD(type) \
+    void (*sort_it)(type*)
+
 typedef struct __sort_class {
     SORT_CLASS_METHOD(struct __sort);
     // no data member
@@ -31,7 +35,10 @@ SortClass sort_class = {
 struct __quick_sort_class;
 struct __quick_sort;
 
-#define QUICK_SORT_CLASS_METHOD(type) void (*sort_it)(type*, int, int); void (*sort_show)(type*)
+#define QUICK_SORT_CLASS_METHOD(type) \
+    void (*sort_it)(type*, int, int); \
+    void (*sort_show)(type*)
+
 typedef struct __quick_sort_class {
     QUICK_SORT_CLASS_METHOD(struct __quick_sort);
 } QuickSortClass;
