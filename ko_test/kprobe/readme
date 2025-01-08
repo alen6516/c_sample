@@ -1,0 +1,11 @@
+https://tinylab.org/linux-kprobes/
+
+# build
+directly run make under current folder
+
+# run
+sudo insmod alan_kprobe.ko
+
+# todo
+* how to unload module?
+* combine with debugfs to dynamic trigger this function
