@@ -5,6 +5,18 @@
     * program key logic first, program quick return later
     * try to think of corner case and improve key logic or add quick return
 * Runtime and memory better beats at least 50% people
+* categorize questions as array, linked_list, DP, ...
+
+## array
+
+## linked-list
+
+## Dynamic program
+72_Edit_Distance.c
+
+
+
+
 
 5_Longest_Palindromic_Substring.c
 Runtime: 20 ms, faster than 64.85% of C online submissions for Longest Palindromic Substring.
