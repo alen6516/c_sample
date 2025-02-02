@@ -1,0 +1,99 @@
+# Array
+- Two Sum (1) - Easy
+- Best Time to Buy and Sell Stock (121) - Easy
+- Product of Array Except Self (238) - Medium
+- Maximum Subarray (53) - Medium
+- Maximum Product Subarray (152) - Medium
+- Find Minimum in Rotated Sorted Array (153) - Medium
+- Search in Rotated Sorted Array (33) - Medium
+- 3Sum (15) - Medium
+- Container With Most Water (11) - Medium
+
+# String
+- Longest Substring Without Repeating Characters (3) - Medium
+- Longest Palindromic Substring (5) - Medium
+- Zigzag Conversion (6) - Medium
+- String to Integer (atoi) (8) - Medium
+- Palindrome Partitioning (131) - Medium
+- Valid Anagram (242) - Easy
+- Group Anagrams (49) - Medium
+- Word Pattern (290) - Easy
+- Valid Parentheses (20) - Easy
+
+# Linked List
+- Reverse Linked List (206) - Easy
+- Merge Two Sorted Lists (21) - Easy
+- Linked List Cycle (141) - Easy
+- Intersection of Two Linked Lists (160) - Medium
+- Add Two Numbers (2) - Medium
+- Remove Nth Node From End of List (19) - Medium
+
+# Binary Search
+- Binary Search (704) - Easy
+- Search Insert Position (35) - Easy
+- Find First and Last Position of Element in Sorted Array (34) - Medium
+- Median of Two Sorted Arrays (4) - Hard
+- Kth Smallest Element in a Sorted Matrix (378) - Medium
+- Find Minimum in Rotated Sorted Array (153) - Medium
+
+# Dynamic Programming
+- Climbing Stairs (70) - Easy
+- House Robber (198) - Medium
+- Longest Increasing Subsequence (300) - Medium
+- Coin Change (322) - Medium
+- Word Break (139) - Medium
+- Palindrome Partitioning II (132) - Hard
+- Unique Paths (62) - Medium
+- Jump Game (55) - Medium
+- Decode Ways (91) - Medium
+
+# Backtracking
+- Subsets (78) - Medium
+- Permutations (46) - Medium
+- Combination Sum (39) - Medium
+- Letter Combinations of a Phone Number (17) - Medium
+- N-Queens (51) - Hard
+- Word Search (79) - Medium
+
+# Greedy
+- Jump Game II (45) - Hard
+- Assign Cookies (455) - Medium
+- Candy (135) - Hard
+- Non-overlapping Intervals (435) - Medium
+- Interval List Intersections (986) - Medium
+
+# Stack
+- Valid Parentheses (20) - Easy
+- Implement Stack Using Queues (225) - Medium
+- Daily Temperature (739) - Medium
+- Evaluate Reverse Polish Notation (150) - Medium
+- Min Stack (155) - Easy
+
+# Queue
+- Implement Queue Using Stacks (232) - Easy
+- Sliding Window Maximum (239) - Hard
+- # Hash Table
+- Two Sum (1) - Easy
+- Valid Anagram (242) - Easy
+- Group Anagrams (49) - Medium
+- Top K Frequent Elements (347) - Medium
+- Contains Duplicate (217) - Easy
+- Happy Number (202) - Easy
+
+# Heap
+- Kth Largest Element in an Array (215) - Medium
+- Merge k Sorted Lists (23) - Hard
+
+# Graph
+- Number of Islands (200) - Medium
+- Clone Graph (133) - Medium
+- Course Schedule (207) - Medium
+- Course Schedule II (210) - Medium
+- Word Ladder (127) - Hard
+- Minimum Spanning Tree (Prim’s or Kruskal’s Algorithm) - Hard
+
+# Tree
+- Binary Tree Inorder Traversal (94) - Easy
+- Binary Tree Level Order Traversal (102) - Medium
+- Max Depth of Binary Tree (104) - Easy
+- Symmetric Tree (101) - Easy
