@@ -1,5 +1,8 @@
 
-
+// chatgpt solution
+// Runtime 0 ms Beats 100.00%
+// Memory 8.07 MB Beats 59.44%
+// TODO: change char[26] array to bitmap to save space
 bool wordPattern(char* pattern, char* s) {
     char *word_arr[300];
     char *word;
@@ -9,11 +12,37 @@ bool wordPattern(char* pattern, char* s) {
 
     while (word) {
         word_arr[word_count++] = word;
-        word = strtok(NULL, " ");
+        word = strtok(NULL, " ");   // extract tokens from s
     }
 
     if (word_count != strlen(pattern)) return false;
 
+    char p_map[26] = {0};
+    char *w_map[26] = {0};
+
+    int curr;
+    for (int i=0; i<word_count; i++) {
+        curr = pattern[i]-'a';
+
+        // if not mapped
+        if (p_map[curr] == 0) {
+
+            // same mapping shouldn't exist
+            for (int j=0; j<26; j++) {
+                if (w_map[j] != 0 &&
+                    0 == strcmp(word_arr[i], w_map[j]))
+                    return false;
+            }
+
+            w_map[curr] = word_arr[i];
+            p_map[curr] = 1;
+
+        } else if (0 != strcmp(w_map[curr], word_arr[i])) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 // my solution, not finished
