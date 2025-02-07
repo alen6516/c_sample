@@ -10,7 +10,9 @@ struct ListNode {
 };
 
 
-// my solution {
+#ifdef my_solution // {
+// Runtime 0 ms Beats 100.00%
+// Memory 10.73 MB Beats 30.97%
 struct ListNode* getNext(struct ListNode *node)
 {
     struct ListNode *root, *next;
@@ -29,8 +31,11 @@ struct ListNode* reverseList(struct ListNode* head) {
     head->next = NULL;
     return root;
 }
-// } my solution
+#endif // } my solution
 
+// chatgpt
+// Runtime 0 ms Beats 100.00%
+// Memory 10.58 MB Beats 92.80%
 struct ListNode* reverseList(struct ListNode* head) {
     if (!head || !head->next) return head;
 
@@ -38,10 +43,12 @@ struct ListNode* reverseList(struct ListNode* head) {
     prev = head;
     curr = head->next;
     next = curr->next;
+
+    head->next = NULL;
     while (1) {
         curr->next = prev;
-        prev = curr;
         if (next) {
+            prev = curr;
             curr = next;
             next = curr->next;
         } else
