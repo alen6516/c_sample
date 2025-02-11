@@ -6,30 +6,24 @@ struct ListNode {
     struct ListNode *next;
 };
 
-// Runtime 10 ms Beats 63.07%
-// Memory 11.52 MB Beats 9.15%
+// Runtime 6 ms Beats 95.41%
+// Memory 11.22 MB Beats 38.25%
+// less if-statement makes it faster
 bool hasCycle(struct ListNode *head) {
-    if (!head) return false;
+    if (!head || !head->next) return false;
 
     struct ListNode *slow, *fast;
     slow = head;
     fast = head->next;
 
-    while (fast != NULL) {
-        if (slow == fast) return true;
-
+    while (fast && fast != slow) {
         slow = slow->next;
-
-        fast = fast->next;
-        if (!fast) return false;
-        else if (fast == slow) return true;
-
-        fast = fast->next;
-        if (!fast) return false;
-        else if (fast == slow) return true;
+        if (fast->next)
+            fast = fast->next->next;
+        else return false;
     }
 
-    return false;
+    return !!fast;
 }
 
 int main() {
