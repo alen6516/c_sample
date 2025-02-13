@@ -131,6 +131,10 @@ Memory 12.94 MB Beats 41.95% of users with C
 Runtime 3 ms Beats 85.66% of users with C
 Memory 6.73 MB Beats 40.95% of users with C
 ----------------------------------
+141_Linked_List_Cycle.c
+Runtime 6 ms Beats 95.41%
+Memory 11.22 MB Beats 38.25%
+----------------------------------
 169_Majority_Element.c
 Runtime 13 ms Beats 76.51% of users with C
 Memory 7.52 MB Beats 83.02% of users with C
@@ -138,6 +142,10 @@ Memory 7.52 MB Beats 83.02% of users with C
 189_Rotate_Array.c
 Runtime 93 ms Beats 89.55% of users with C
 Memory 21.67 MB Beats 99.64% of users with C
+----------------------------------
+206_Revised_Linked_List.c
+Runtime 0 ms Beats 100.00%
+Memory 10.58 MB Beats 92.80%
 ----------------------------------
 242_Valid_Anagram.c (easy)
 solved by chatgpt
@@ -150,3 +158,6 @@ Memory 5.70 MB Beats 100.00% of users with C
 Runtime 0 ms Beats 100.00%
 Memory 8.07 MB Beats 59.44%
 ----------------------------------
+704_Binary_Search.c
+Runtime 0 ms Beats 100.00%
+Memory 9.20 MB Beats 68.20%
