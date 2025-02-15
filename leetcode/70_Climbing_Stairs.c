@@ -1,19 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int c_x_y(int x, int y)
+// permutation(x, y)
+int p_x_y(int x, int y)
 {
     if (x & y == 0) return 1;
     else if (x == 1 || y == 1) return x*y;
-    else if (y>x) {
-        x = x^y;
-        y = x^y;
-        x = x^y;
-    }
 
+    int i = (x < y) ? y : x;
     int r1, r2;
     r1 = r2 = 1;
-    int i = (x-y < y) ? (x-y) : y;
+
+    x = x+y;
+    y = i;
     for (; i>0; i--) {
         r1 = r1*(x--);
         r2 = r2*(y--);
@@ -28,7 +27,7 @@ int climbStairs(int n)
 
     int r = 0;
     while(x >= 0) {
-        r += c_x_y(x, y);
+        r += p_x_y(x, y);
         x = x-1;
         y = y+2;
     }

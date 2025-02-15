@@ -18,6 +18,14 @@
     a = a^b;                \
 } while (0)
 
+int min(int a, int b, int c)
+{
+    if (a>b)
+        return (b>c) ? c : b;
+    else
+        return (a>c) ? c : a;
+}
+
 // define dp[i][j] as the minimum number of operations required to convert the first i characters of string word1 to the first j characters of string word2
 int minDistance(char *word1, char *word2)
 {
