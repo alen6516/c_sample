@@ -1,7 +1,3 @@
-/*
-Runtime: 0 ms, faster than 100.00% of C online submissions for Valid Parentheses.
-Memory Usage: 5.5 MB, less than 84.13% of C online submissions for Valid Parentheses.
-*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,6 +5,10 @@ Memory Usage: 5.5 MB, less than 84.13% of C online submissions for Valid Parenth
 
 #ifdef RECURSIVE
 
+/*
+Runtime: 0 ms, faster than 100.00% of C online submissions for Valid Parentheses.
+Memory Usage: 5.5 MB, less than 84.13% of C online submissions for Valid Parentheses.
+*/
 /* a sub routine to check a sub string,
  * return length of the string if successfully matched,
  * or -1 if fail.
