@@ -2,13 +2,13 @@
 #include <stdlib.h>
 
 // permutation(x, y)
-int p_x_y(int x, int y)
+unsigned long p_x_y(int x, int y)
 {
-    if ((x & y) == 0) return 1;
-    else if (x == 1 || y == 1) return x*y;
+    if (x == 0 || y == 0) return 1;
+    else if (x == 1 || y == 1) return x+y;
 
     int i = (x < y) ? x : y;
-    int r1, r2;
+    unsigned long r1, r2;
     r1 = r2 = 1;
 
     x = x+y;
@@ -25,22 +25,22 @@ int climbStairs(int n)
     int x = n >> 1;
     int y = (n & 1);
 
-    int r = 0;
+    unsigned long r = 0;
     while (x >= 0) {
         r += p_x_y(x, y);
+        printf("(%02d, %02d) = %ld\n", x, y, r);
         x = x-1;    // 1x = 2y
         y = y+2;
     }
-    return r;
+    return (int)r;
 }
 
 
-#ifdef alan
 // recursive method, correct but slow
 // using arr to cache answer and improve performance
 // Runtime 0 ms Beats 100.00%
 // Memory 7.81 MB Beats 27.54%
-int climbStairs(int n) {
+int _climbStairs(int n) {
     static int arr[45] = {0};
 
     if (n==1) {
@@ -55,12 +55,11 @@ int climbStairs(int n) {
         return arr[n-1];
 
     int a1, a2;
-    a1 = arr[n-2] ? arr[n-2] : climbStairs(n-1);
-    a2 = arr[n-3] ? arr[n-3] : climbStairs(n-2);
+    a1 = arr[n-2] ? arr[n-2] : _climbStairs(n-1);
+    a2 = arr[n-3] ? arr[n-3] : _climbStairs(n-2);
     arr[n-1] = a1+a2;
     return arr[n-1];
 }
-#endif
 
 int main(int argc, char *argv[])
 {
@@ -68,4 +67,5 @@ int main(int argc, char *argv[])
     if (argc > 1)
         n = strtol(argv[1], NULL, 10);
     printf("n=%d, s=%d\n", n, climbStairs(n));
+    printf("n=%d, s=%d\n", n, _climbStairs(n));
 }
