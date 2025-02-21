@@ -4,19 +4,22 @@
 // permutation(x, y)
 unsigned long p_x_y(int x, int y)
 {
-    if (x == 0 || y == 0) return 1;
-    else if (x == 1 || y == 1) return x+y;
+    if (x == 0 || y == 0) { printf("p(%d, %d) = 1\n", x, y); return 1;}
+    else if (x == 1 || y == 1) { printf("p(%d, %d) = %d\n", x, y, x+y); return x+y;}
 
     int i = (x < y) ? x : y;
     unsigned long r1, r2;
     r1 = r2 = 1;
+    printf("p(%d, %d) = ", x, y);
 
     x = x+y;
     y = i;
+    printf("%dx...x%d/%dx...x%d = ", x, x-i+1, y, y-i+1);
     for (; i>0; i--) {
         r1 = r1*(x--);
         r2 = r2*(y--);
     }
+    printf("%lu\n", r1/r2);
     return r1/r2;
 }
 
@@ -28,7 +31,7 @@ int climbStairs(int n)
     unsigned long r = 0;
     while (x >= 0) {
         r += p_x_y(x, y);
-        printf("(%02d, %02d) = %ld\n", x, y, r);
+        //printf("(%02d, %02d) = %ld\n", x, y, r);
         x = x-1;    // 1x = 2y
         y = y+2;
     }
