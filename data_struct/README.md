@@ -1,6 +1,10 @@
 practice data struct in C
+* planned
+    * stack
+    * list
+    * tree
+    * ring queue
 
-* stack
-* list
-* tree
-* ring_queue
+* unplanned
+    * bloom filter
+
