@@ -8,19 +8,44 @@ unsigned long p_x_y(int x, int y)
     else if (x == 1 || y == 1) { printf("p(%d, %d) = %d\n", x, y, x+y); return x+y;}
 
     int i = (x < y) ? x : y;
-    unsigned long r1, r2;
-    r1 = r2 = 1;
+    unsigned long r = 1;
     printf("p(%d, %d) = ", x, y);
 
     x = x+y;
     y = i;
     printf("%dx...x%d/%dx...x%d = ", x, x-i+1, y, y-i+1);
-    for (; i>0; i--) {
-        r1 = r1*(x--);
-        r2 = r2*(y--);
+
+    /*      x+y    new x     tx1 * tx2 * ...
+     *  r = --- = ------- = -----------------
+     *       y       y       ty1 * ty2 * ...
+     */
+
+    unsigned int map = 0;
+    int tx;
+    for (int k=0; k<i; k++) {
+        // x = x-k;
+        tx = x-k;
+        for (int j=y; j>1; j--) {
+            if (1 == ((map >> (j-1)) & 0x1))  // this y is used
+                continue;
+            else {
+                if ((tx % j) == 0) {  // this y can be used
+                    r *= (tx/j);
+                    map = map | (1 << (j-1));   // mark this y
+                    break;
+                }
+            }
+        }
+        r *= tx;
     }
-    printf("%lu\n", r1/r2);
-    return r1/r2;
+
+    for (int j=y; j>1; j--) {
+        if (0 == ((map >> (j-1)) & 0x1))  // this y is not used
+            r /= j;
+    }
+
+    printf("%lu\n", r);
+    return r;
 }
 
 int climbStairs(int n)
