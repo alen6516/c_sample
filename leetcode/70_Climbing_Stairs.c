@@ -1,50 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef permutation
+//Runtime 0 ms Beats 100.00%
+//Complexity Memory 7.70 MB Beats 94.71%
+
 // permutation(x, y)
 unsigned long p_x_y(int x, int y)
 {
-    if (x == 0 || y == 0) { printf("p(%d, %d) = 1\n", x, y); return 1;}
-    else if (x == 1 || y == 1) { printf("p(%d, %d) = %d\n", x, y, x+y); return x+y;}
+    if (x == 0 || y == 0) return 1;
+    else if (x == 1 || y == 1) return x+y;
 
-    int i = (x < y) ? x : y;
+    int num = (x < y) ? x : y;
     unsigned long r = 1;
-    printf("p(%d, %d) = ", x, y);
 
-    x = x+y;
-    y = i;
-    printf("%dx...x%d/%dx...x%d = ", x, x-i+1, y, y-i+1);
-
-    /*      x+y    new x     tx1 * tx2 * ...
-     *  r = --- = ------- = -----------------
-     *       y       y       ty1 * ty2 * ...
+    /*      x+y    tx1 * tx2 * ...
+     *  r = --- = -----------------
+     *       y     ty1 * ty2 * ...
      */
 
-    unsigned int map = 0;
+    unsigned int map = 0;   // bitmap to check if ty can be divided
     int tx;
-    for (int k=0; k<i; k++) {
-        // x = x-k;
-        tx = x-k;
-        for (int j=y; j>1; j--) {
-            if (1 == ((map >> (j-1)) & 0x1))  // this y is used
+    for (int i=0; i<num; i++) {
+        tx = x+y-i;
+        for (int ty=num; ty>1; ty--) {
+            if (1 == ((map >> ty) & 1))  // this ty is used
                 continue;
-            else {
-                if ((tx % j) == 0) {  // this y can be used
-                    r *= (tx/j);
-                    map = map | (1 << (j-1));   // mark this y
-                    break;
-                }
+            else if ((tx % ty) == 0) {  // this ty can be used
+                tx = tx/ty;
+                map = map | (0x1 << ty);   // mark this ty
+                break;
             }
         }
         r *= tx;
     }
 
-    for (int j=y; j>1; j--) {
-        if (0 == ((map >> (j-1)) & 0x1))  // this y is not used
-            r /= j;
+    // still need to check if all ty are divided
+    for (int ty=num; ty>1; ty--) {
+        if (0 == ((map >> ty) & 0x1))  // this ty is not used
+            r /= ty;
     }
 
-    printf("%lu\n", r);
+    //printf("%lu\n", r);
     return r;
 }
 
@@ -53,22 +50,21 @@ int climbStairs(int n)
     int x = n >> 1;
     int y = (n & 1);
 
-    unsigned long r = 0;
+    int r = 0;
     while (x >= 0) {
         r += p_x_y(x, y);
-        //printf("(%02d, %02d) = %ld\n", x, y, r);
         x = x-1;    // 1x = 2y
         y = y+2;
     }
-    return (int)r;
+    return r;
 }
 
-
+#else
 // recursive method, correct but slow
 // using arr to cache answer and improve performance
 // Runtime 0 ms Beats 100.00%
 // Memory 7.81 MB Beats 27.54%
-int _climbStairs(int n) {
+int climbStairs(int n) {
     static int arr[45] = {0};
 
     if (n==1) {
@@ -88,6 +84,7 @@ int _climbStairs(int n) {
     arr[n-1] = a1+a2;
     return arr[n-1];
 }
+#endif
 
 int main(int argc, char *argv[])
 {

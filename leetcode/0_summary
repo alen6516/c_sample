@@ -115,6 +115,10 @@ Memory 6.54 MB Beats 54.93% of users with C
 Runtime 46 ms Beats 75.87% of users with C
 Memory 7.91 MB Beats 93.57% of users with C
 ----------------------------------
+70_Climbing_Stairs.c
+Runtime 0 ms Beats 100.00%
+Complexity Memory 5.70 MB Beats 94.71%
+----------------------------------
 80_Remove_Duplicates_from_Sorted_Array_II.c
 Runtime 7 ms Beats 85.57% of users with C
 Memory 6.24 MB Beats 94.64% of users with C
