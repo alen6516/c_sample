@@ -59,9 +59,8 @@ int subValid(char *s)
             case '}':
                 this = '{';
 check:
-                if (count == 0) {
-                    // means this subValid is finished.
-                    return len;
+                if (count == 0) {   // expect count > 0
+                    return -1;
                 } else if (*(s-backof) == this) {
                     // check the matching parenthese
                     len += 2;
@@ -69,6 +68,7 @@ check:
                     if (count == 0) {
                         vturn = 0;  // all finished now, we expect ([{ again
                         backof = 1;
+                        return len;
                     } else {
                         vturn = 1;
                         backof += 2;
@@ -87,7 +87,7 @@ check:
 
 bool isValid(char * s)
 {
-    return (subValid(s) > 0);
+    return (subValid(s) != -1);
 }
 
 #ifdef alan
@@ -253,13 +253,27 @@ int main () {
     //    printf("%c, %d\n", arr[i], arr[i]);
     //}
 
-    //char s[]  = "{()}[()]";
-    //char s[] = "[[{}([]){}]]";
-    //char s[] = "[{}()}";
-    //char s[] = "(";
-    char s[] = "}";
-    //char s[] = "[[{}([]{}){}]]";
+    char s1[]  = "{()}[()]";
+    printf("%s\n", s1);
+    printf("%d\n", isValid(s1));
 
-    printf("%s\n", s);
-    printf("%d\n", isValid(s));
+    char s2[] = "[[{}([]){}]]";
+    printf("%s\n", s2);
+    printf("%d\n", isValid(s2));
+
+    char s3[] = "[{}()}";
+    printf("%s\n", s3);
+    printf("%d\n", isValid(s3));
+
+    char s4[] = "(";
+    printf("%s\n", s4);
+    printf("%d\n", isValid(s4));
+
+    char s5[] = "}";
+    printf("%s\n", s5);
+    printf("%d\n", isValid(s5));
+
+    char s6[] = "[[{}([]{}){}]]";
+    printf("%s\n", s6);
+    printf("%d\n", isValid(s6));
 }
