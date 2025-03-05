@@ -10,7 +10,7 @@
 //#endif
 
 
-//#ifdef RECURSIVE
+#ifdef RECURSIVE
 
 /*
 Runtime: 0 ms, faster than 100.00% of C online submissions for Valid Parentheses.
@@ -21,7 +21,7 @@ Memory Usage: 5.5 MB, less than 84.13% of C online submissions for Valid Parenth
  * or -1 if fail.
  * Note the 1st char of the input string is definitely an opening parenthese.
  */
-int subValid(char *s)
+int subValid(char *s, bool in_sub)
 {
     int count = 0;      // how many unfinished parentheses
     int vturn = 0;      // we expect that the next char is a closing parenthese, but it isn't
@@ -36,7 +36,7 @@ int subValid(char *s)
             case '[':
             case '{':
                 if (vturn == 1) {   // we expect )]}, but see ([{
-                    sub_len = subValid(s);
+                    sub_len = subValid(s, 1);
                     if (sub_len == -1) {
                         return -1;
                     } else {
@@ -59,8 +59,8 @@ int subValid(char *s)
             case '}':
                 this = '{';
 check:
-                if (count == 0) {   // expect count > 0
-                    return -1;
+                if (count == 0) {   // if count == 0, it should be at the end of a sub, or wrong
+                    return (in_sub) ? len: -1;
                 } else if (*(s-backof) == this) {
                     // check the matching parenthese
                     len += 2;
@@ -68,7 +68,7 @@ check:
                     if (count == 0) {
                         vturn = 0;  // all finished now, we expect ([{ again
                         backof = 1;
-                        return len;
+                        //return len;
                     } else {
                         vturn = 1;
                         backof += 2;
@@ -87,91 +87,9 @@ check:
 
 bool isValid(char * s)
 {
-    return (subValid(s) != -1);
+    return (subValid(s, 0) != -1);
 }
-
-#ifdef alan
-bool isValid(char * s){
-
-    int count = 0;      // counts for unmatched brace
-    int vturn = 0;      // if run into closing brace
-    int sub_len = 0;
-    int backof = 1;     // offset for a closing brace to its opening brace
-
-    while (*s != '\0') {
-        switch (*s) {
-            case '(':
-            case '[':
-            case '{':
-                if (vturn == 1) {   // I expect closing brace, but run into opening brace
-                    sub_len = subValid(s);  // call a sub to handle
-                    if (sub_len == -1) {
-                        return 0;
-                    } else {
-                        s += sub_len;
-                        backof += sub_len;
-                        continue;
-                    }
-                } else {
-                    count ++;
-                }
-                break;
-
-            case ')':
-                if (count == 0) {
-                    return 0;
-                } else if (*(s-backof) == '(') {    // find the corresponding open brace
-                    count --;
-                    if (count == 0) {
-                        vturn = 0;
-                        backof = 1;
-                    } else {
-                        vturn = 1;
-                        backof += 2;
-                    }
-                } else {
-                    return 0;
-                }
-                break;
-            case ']':
-                if (count == 0) {
-                    return 0;
-                } else if (*(s-backof) == '[') {
-                    count --;
-                    if (count == 0) {
-                        vturn = 0;
-                        backof = 1;
-                    } else {
-                        vturn = 1;
-                        backof += 2;
-                    }
-                } else {
-                    return 0;
-                }
-                break;
-            case '}':
-                if (count == 0) {
-                    return 0;
-                } else if (*(s-backof) == '{') {
-                    count --;
-                    if (count == 0) {
-                        vturn = 0;
-                        backof = 1;
-                    } else {
-                        vturn = 1;
-                        backof += 2;
-                    }
-                } else {
-                    return 0;
-                }
-                break;
-            default:
-                return 0;
-        }
-        s ++;
-    }
-    return (count == 0);
-}
+#else
 
 /*
 Runtime: 20 ms, faster than 12.56% of C online submissions for Valid Parentheses.
@@ -276,4 +194,8 @@ int main () {
     char s6[] = "[[{}([]{}){}]]";
     printf("%s\n", s6);
     printf("%d\n", isValid(s6));
+
+    char s7[] = "()}";
+    printf("%s\n", s7);
+    printf("%d\n", isValid(s7));
 }
