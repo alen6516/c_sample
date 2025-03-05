@@ -4,17 +4,56 @@
 #include <stdbool.h>
 
 
-//#ifdef stack
-    
+#ifdef STACK
+//Runtime 0 ms Beats 100.00%
+//Memory 8.06 MB Beats 48.32%
+bool isValid(char * s)
+{
+    int size = 10;
+    char *stack, *tmp;
+    stack = (char *) malloc(size);
+    int p = 0;
+    char this;
 
-//#endif
+    while (*s != '\0') {
+        switch (*s) {
+            case '(':
+            case '[':
+            case '{':
+                stack[p++] = *s;
+                if (p == size-1) {  // expand stack size
+                    tmp = (char *) malloc(size<<1);
+                    memcpy(tmp, stack, size);
+                    free(stack);
+                    stack = tmp;
+                    size = size << 1;
+                }
+                break;
 
+            case ')':
+            case ']':
+            case '}':
+                if (*s == ')') this = '(';
+                else if (*s == ']') this = '[';
+                else this = '{';
 
-#ifdef RECURSIVE
+                if (p < 1 || stack[--p] != this) return false;
+                break;
+
+            default:
+                return false;
+        }
+        s++;
+    }
+
+    return (p==0);
+}
+
+#elif define(RECURSIVE)
 
 /*
 Runtime: 0 ms, faster than 100.00% of C online submissions for Valid Parentheses.
-Memory Usage: 5.5 MB, less than 84.13% of C online submissions for Valid Parentheses.
+Memory Usage: 7.85 MB, less than 94.09% of C online submissions for Valid Parentheses.
 */
 /* a sub routine to check a sub string,
  * return length of the string if successfully matched,

@@ -61,8 +61,8 @@ Runtime: 4 ms, faster than 52.75% of C online submissions for Remove Nth Node Fr
 Memory Usage: 5.7 MB, less than 81.45% of C online submissions for Remove Nth Node From End of List.
 ----------------------------------
 20_Valid_Parentheses.c
-Runtime: 0 ms, faster than 100.00% of C online submissions for Valid Parentheses.
-Memory Usage: 5.5 MB, less than 84.13% of C online submissions for Valid Parentheses.
+Runtime 0 ms Beats 100.00%
+Memory 7.85 MB Beats 94.09%
 ----------------------------------
 21_Merge_Two_Sorted_Lists.c
 Runtime: 4 ms, faster than 82.71% of C online submissions for Merge Two Sorted Lists.
