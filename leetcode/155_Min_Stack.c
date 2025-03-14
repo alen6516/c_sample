@@ -1,13 +1,17 @@
+// Runtime 0 ms Beats 100.00%
+// Memory 18.49 MB Beats 96.11%
+
+
 #include <stdlib.h>
 #include <string.h>
 
-#define SIZE 10
+#define SIZE 100    // adjusting this number can result in different performance
 
 typedef struct {
-    int min_idx;
-    int size;
-    int len;
-    int *stack;
+    int min_idx;    // idx of the min element
+    int size;       // size of stack
+    int len;        // current len of stack
+    int *stack;     // array
 } MinStack;
 
 MinStack* minStackCreate() {
@@ -35,36 +39,24 @@ void minStackPush(MinStack* obj, int val) {
 
 // remove the top element from the stack
 void minStackPop(MinStack* obj) {
-    if (obj->len) obj->len --;
+    obj->len--;
+    if (obj->min_idx == obj->len) {   // if min is the top one, find new min
+        obj->min_idx = 0;
+        for (int i=1; i < obj->len; i++) {
+            if (obj->stack[i] < obj->stack[obj->min_idx])
+                obj->min_idx = i;
+        }
+    }
 }
 
 // get the top element of the stack
 int minStackTop(MinStack* obj) {
-    return (obj->len) ? obj->stack[obj->len-1] : -1;
+    return obj->stack[obj->len-1];
 }
 
 // retrieves the min element from the stack
 int minStackGetMin(MinStack* obj) {
-    if (obj->len == 0) return -1;
-
-    int ret = obj->stack[obj->min_idx];
-    if (obj->len-1 > obj->min_idx) {
-        memmove(&obj->stack[obj->min_idx], &obj->stack[obj->min_idx+1], sizeof(int)*(obj->len-obj->min_idx-1));
-    }
-    obj->len --;
-
-    // find new min
-    int min_idx = 0;
-    if (obj->len == 1) goto done;
-
-    for (int i=1; i < obj->len; i++) {
-        if (obj->stack[i] < obj->stack[min_idx])
-            min_idx = i;
-    }
-
-done:
-    obj->min_idx = min_idx;
-    return ret;
+    return obj->stack[obj->min_idx];
 }
 
 void minStackFree(MinStack* obj) {

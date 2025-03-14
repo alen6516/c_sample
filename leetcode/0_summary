@@ -139,6 +139,10 @@ Memory 6.73 MB Beats 40.95% of users with C
 Runtime 6 ms Beats 95.41%
 Memory 11.22 MB Beats 38.25%
 ----------------------------------
+155_Min_Stack.c
+Runtime 0 ms Beats 100.00%
+Memory 18.49 MB Beats 96.11%
+----------------------------------
 169_Majority_Element.c
 Runtime 13 ms Beats 76.51% of users with C
 Memory 7.52 MB Beats 83.02% of users with C
