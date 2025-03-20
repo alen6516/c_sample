@@ -33,7 +33,7 @@ void myQueuePush(MyQueue* obj, int x) {
         obj->in_stack.len = 0;
     }
 
-    if (obj->in_stack.len == obj->in_stack.size) {
+    if (obj->in_stack.len == obj->in_stack.size) {  // if full, either enlarge or move elements to out_stack
         int *arr = (int*) malloc(sizeof(int)*obj->in_stack.size*2);
         memcpy(arr, obj->in_stack.arr, sizeof(int)*obj->in_stack.size);
         free(obj->in_stack.arr);
@@ -46,18 +46,33 @@ void myQueuePush(MyQueue* obj, int x) {
 
 int myQueuePop(MyQueue* obj) {
 
+    if (0 == obj->out_stack.len) {
+        while (obj->in_stack.len)
+            obj->out_stack.arr[obj->out_stack.len ++] = obj->in_stack.arr[obj->in_stack.len --];
+    }
+
+    return obj->out_stack.arr[obj->out_stack->len--];
 }
 
 int myQueuePeek(MyQueue* obj) {
 
+    if (0 == obj->out_stack.len) {
+        while (obj->in_stack.len)
+            obj->out_stack.arr[obj->out_stack.len ++] = obj->in_stack.arr[obj->in_stack.len --];
+    }
+
+    return obj->out_stack.arr[obj->out_stack->len];
 }
 
 bool myQueueEmpty(MyQueue* obj) {
-
+    return !(obj->in_stack.len | obj->out_stack.len);
 }
 
 void myQueueFree(MyQueue* obj) {
 
+    if (obj->in_stack.size) free(obj->in_stack.arr);
+    if (obj->out_stack.size) free(obj->out_stack.arr);
+    free(obj);
 }
 
 /**
