@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define SIZE 10
 
@@ -10,11 +12,31 @@ typedef struct {
 } Stack;
 
 
+static int stack_pop(Stack *stack)
+{
+    return stack->arr[--stack->len];
+}
+
+static void stack_push(Stack *stack, int val)
+{
+    if (stack->size == 0) {                     // init stack
+        stack->arr = (int*) malloc(sizeof(int)*SIZE);
+        stack->len = 0;
+        stack->size = SIZE;
+    } else if (stack->len == stack->size) {     // full, enlarge the stack
+        int *arr = (int*) malloc(sizeof(int)*stack->size*2);
+        memcpy(arr, stack->arr, sizeof(int)*stack->size);
+        free(stack->arr);
+        stack->arr = arr;
+        stack->size *= 2;
+    }
+
+    stack->arr[stack->len++] = val;
+}
 
 typedef struct {
     Stack in_stack;
     Stack out_stack;
-    
 } MyQueue;
 
 
@@ -27,45 +49,37 @@ MyQueue* myQueueCreate() {
 }
 
 void myQueuePush(MyQueue* obj, int x) {
-    if (obj->in_stack.size == 0) {
-        obj->in_stack.arr = (int *)malloc(sizeof(int)*SIZE);
-        obj->in_stack.size = SIZE;
-        obj->in_stack.len = 0;
-    }
-
-    if (obj->in_stack.len == obj->in_stack.size) {  // if full, either enlarge or move elements to out_stack
-        int *arr = (int*) malloc(sizeof(int)*obj->in_stack.size*2);
-        memcpy(arr, obj->in_stack.arr, sizeof(int)*obj->in_stack.size);
-        free(obj->in_stack.arr);
-        obj->in_stack.arr = arr;
-        obj->in_stack.size *= 2;
-    }
-
-    obj->in_stack.arr[obj->in_stack.len++] = x;
+    Stack *in_stack = &obj->in_stack;
+    stack_push(in_stack, x);
 }
 
 int myQueuePop(MyQueue* obj) {
 
-    if (0 == obj->out_stack.len) {
-        while (obj->in_stack.len)
-            obj->out_stack.arr[obj->out_stack.len ++] = obj->in_stack.arr[obj->in_stack.len --];
+    Stack *in_stack = &obj->in_stack;
+    Stack *out_stack = &obj->out_stack;
+
+    if (0 == out_stack->size || 0 == out_stack->len) {
+        while (in_stack->len) {
+            stack_push(out_stack, stack_pop(in_stack));
+        }
     }
 
-    return obj->out_stack.arr[obj->out_stack->len--];
+    return obj->out_stack.arr[--obj->out_stack.len];
 }
 
 int myQueuePeek(MyQueue* obj) {
 
-    if (0 == obj->out_stack.len) {
-        while (obj->in_stack.len)
-            obj->out_stack.arr[obj->out_stack.len ++] = obj->in_stack.arr[obj->in_stack.len --];
+    if (0 == obj->out_stack.size || 0 == obj->out_stack.len) {
+        while (obj->in_stack.len) {
+            stack_push(&obj->out_stack, stack_pop(&obj->in_stack));
+        }
     }
 
-    return obj->out_stack.arr[obj->out_stack->len];
+    return obj->out_stack.arr[obj->out_stack.len-1];
 }
 
 bool myQueueEmpty(MyQueue* obj) {
-    return !(obj->in_stack.len | obj->out_stack.len);
+    return !(obj->in_stack.size | obj->out_stack.size) || !(obj->in_stack.len | obj->out_stack.len);
 }
 
 void myQueueFree(MyQueue* obj) {
@@ -88,3 +102,19 @@ void myQueueFree(MyQueue* obj) {
 
  * myQueueFree(obj);
 */
+
+int main()
+{
+    MyQueue* obj = myQueueCreate();
+    printf("%d %d\n", obj->in_stack.size, obj->in_stack.size);
+    myQueuePush(obj, 1);
+    myQueuePush(obj, 2);
+    int p = myQueuePeek(obj);
+    printf("peek: %d\n", p);
+    p = myQueuePop(obj);
+    printf("pop: %d\n", p);
+    p = myQueuePeek(obj);
+    printf("peek: %d\n", p);
+    p = myQueuePop(obj);
+    printf("pop: %d\n", p);
+}
