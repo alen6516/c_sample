@@ -14,7 +14,8 @@
 
 int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
 
-    int arr[10000] = {{-1}};
+    int arr[10000];
+    memset(arr, 0xff, sizeof(arr));
     int *ret = malloc(sizeof(int)*2);
     int val, complement;
 
@@ -33,15 +34,15 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
     return NULL;
 }
 
-#elif def hash
+#elif defined(hash)
 typedef struct hash_map_entry {
-    int key;
-    int val;
+    int idx;        // idx of nums
+    int val;        // nums[idx]
     struct hash_map_entry *next;
 } HashMapEntry;
 
 typedef struct {
-    HashMapEntry *table;
+    HashMapEntry **table;
     int size;
 } HashMap;
 
@@ -49,23 +50,56 @@ HashMap *createHashMap(int size)
 {
     HashMap *map = (HashMap *)malloc(sizeof(HashMap));
     map->size = size;
-    map->table = (HashMapEntry *)malloc(sizeof(HashMapEntry)*size);
+    map->table = (HashMapEntry **)malloc(sizeof(HashMapEntry *)*size);
     for (int i=0; i<size; i++) {
-        map->table[i].key = -1;
-        map->table[i].next = NULL;
+        map->table[i] = NULL;
     }
     return map;
 }
 
+HashMapEntry *createEntry(int idx, int val)
+{
+    HashMapEntry *ret = (HashMapEntry *)malloc(sizeof(HashMapEntry));
+    ret->idx = idx;
+    ret->val = val;
+    ret->next = NULL;
+    return ret;
+}
+
 int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
-    
+
     // init hashmap
-    HashMap *map = createHashMap(numsSize*2);
+    int table_size = numsSize/2;
+    HashMap *map = createHashMap(table_size);
+    HashMapEntry *entry;
+    int val, key;
+    int *ret = (int *)malloc(sizeof(int)*2);
 
     for (int i=0; i<numsSize; i++) {
-        key = nums[i] % numsSize;
-        if (map->table[key].key 
+        val = nums[i];
+        key = (target - val) % table_size;
+        entry = map->table[key];
+
+        // find out such entry in table
+        while (entry) {
+            if (entry->val == target) {
+                ret[0] = entry->idx;
+                ret[1] = i;
+                *returnSize = 2;
+                return ret;
+            } else {
+                entry = entry->next;
+            }
+        }
+
+        // if not finding, create new entry and insert to table
+        entry = createEntry(i, val);
+        key = val % table_size;
+        entry->next = map->table[key];
+        map->table[key] = entry;
     }
+
+    return NULL;
 }
 
 #else
