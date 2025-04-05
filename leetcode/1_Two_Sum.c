@@ -10,31 +10,10 @@
 #include "utils/arr.h"
 #include "utils/utils.h"
 
-#ifdef array
+#if defined(hash)
+//Runtime 2 ms Beats 94.81%
+//Memory 9.21 MB Beats 10.24%
 
-int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
-
-    int arr[10000];
-    memset(arr, 0xff, sizeof(arr));
-    int *ret = malloc(sizeof(int)*2);
-    int val, complement;
-
-    for (int i=0; i<numsSize; i++) {
-        val = nums[i];
-        complement = target-val;
-        if (arr[complement] != -1) {
-            ret[0] = arr[complement];
-            ret[1] = i;
-            *returnSize = 2;
-            return ret;
-        } else {
-            arr[val] = i;
-        }
-    }
-    return NULL;
-}
-
-#elif defined(hash)
 typedef struct hash_map_entry {
     int idx;        // idx of nums
     int val;        // nums[idx]
@@ -57,6 +36,20 @@ HashMap *createHashMap(int size)
     return map;
 }
 
+void freeHashMap(HashMap *map)
+{
+    HashMapEntry *entry, *next;
+    for (int i=0; i<map->size; i++) {
+        entry = map->table[i];
+        while (entry) {
+            next = entry->next;
+            free(entry);
+            entry = next;
+        }
+    }
+    free(map);
+}
+
 HashMapEntry *createEntry(int idx, int val)
 {
     HashMapEntry *ret = (HashMapEntry *)malloc(sizeof(HashMapEntry));
@@ -69,24 +62,26 @@ HashMapEntry *createEntry(int idx, int val)
 int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
 
     // init hashmap
-    int table_size = numsSize/2;
+    int table_size = 100;       // this value is important for memory cost
     HashMap *map = createHashMap(table_size);
     HashMapEntry *entry;
-    int val, key;
-    int *ret = (int *)malloc(sizeof(int)*2);
+    int val, complement, key;
+    int *ret = NULL;
 
     for (int i=0; i<numsSize; i++) {
         val = nums[i];
-        key = (target - val) % table_size;
+        complement = target - val;
+        key = abs(complement) % table_size;
         entry = map->table[key];
 
         // find out such entry in table
         while (entry) {
-            if (entry->val == target) {
+            if (entry->val == complement) {
+                ret = (int *)malloc(sizeof(int)*2);
                 ret[0] = entry->idx;
                 ret[1] = i;
                 *returnSize = 2;
-                return ret;
+                goto out;
             } else {
                 entry = entry->next;
             }
@@ -94,12 +89,14 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
 
         // if not finding, create new entry and insert to table
         entry = createEntry(i, val);
-        key = val % table_size;
+        key = abs(val) % table_size;
         entry->next = map->table[key];
         map->table[key] = entry;
     }
 
-    return NULL;
+out:
+    freeHashMap(map);
+    return ret;
 }
 
 #else

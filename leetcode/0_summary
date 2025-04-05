@@ -19,6 +19,9 @@
 1_Two_Sum.c
 Runtime 101 ms Beats 54.79%
 Memory 8.58 MB Beats 92.56%
+
+Runtime 2 ms Beats 94.81%
+Memory 9.21 MB Beats 10.24%
 ----------------------------------
 5_Longest_Palindromic_Substring.c
 Runtime: 20 ms, faster than 64.85% of C online submissions for Longest Palindromic Substring.
