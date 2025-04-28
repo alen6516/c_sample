@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include <math.h>
 
 #define SIZE 31
@@ -25,8 +27,7 @@ void map_free(Entry **map)
 Entry **map_create(int size)
 {
     Entry **map = (Entry**)malloc(sizeof(Entry*)*SIZE);
-    Entry *map[SIZE];
-    memset(map, 0, sizeof);
+    memset(map, 0, sizeof(Entry*)*SIZE);
     return map;
 }
 
