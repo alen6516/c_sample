@@ -154,6 +154,10 @@ Memory 7.52 MB Beats 83.02% of users with C
 Runtime 93 ms Beats 89.55% of users with C
 Memory 21.67 MB Beats 99.64% of users with C
 ----------------------------------
+202_Happy_Number.c
+Runtime 0 ms Beats 100.00%
+Memory 7.89 MB Beats 29.39%
+----------------------------------
 206_Revised_Linked_List.c
 Runtime 0 ms Beats 100.00%
 Memory 10.58 MB Beats 92.80%
