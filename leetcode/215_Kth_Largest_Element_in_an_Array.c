@@ -25,6 +25,25 @@ out:
     if (*len < size) (*len)++;
 }
 
+void insert_to_arr(int *arr, int *len, int size, int val)
+{
+    int i=0;
+    for (; i < (*len); i++) {
+        if (val >= arr[i]) {
+            break;
+        }
+    }
+
+    if (i < size) {     // if array not full, need to insert or append
+        if (i < *len) { // need to memmove and insert
+            memmove(&arr[i], &arr[i+1], sizeof(int)*(size-i-1));
+        }
+        arr[i] = val;
+        if (*len < size) (*len)++;
+    }
+
+}
+
 int findKthLargest(int* nums, int numsSize, int k) {
 
     int *arr = (int*) malloc(sizeof(int)*k);
