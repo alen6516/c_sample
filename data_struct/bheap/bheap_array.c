@@ -1,11 +1,11 @@
 /*
  * Binary heap sorting is a sorting method.
- * It use array to store a binary tree, and always keeps the top node as the Max/Min node.
- * 
- * When adding new node, the new node will be appened to the tail,
+ * It use array to store a binary tree, and always keeps the top val as the Max/Min val.
+ *
+ * When adding new val, the new val will be appened to the tail,
  * and call bheap_bottomup() to bubble it up to the right place.
  *
- * When taking out the top node, it will call bheap_topdown() to resort
+ * When taking out the top val, it will call bheap_topdown() to resort
  * the bheap again.
  */
 
@@ -20,14 +20,10 @@
 #define MAX_SIZE 20
 #define IS_ODD(val) ((val) & 0x1)
 
-typedef struct __node {
-    int val;
-} Node;
-
 struct __bheap {
     int arr_size;
     int len;
-    Node *arr[0];
+    int arr[0];
 } __attribute__((packed));
 typedef struct __bheap Bheap;
 
@@ -36,7 +32,7 @@ Bheap *bheap_create(int size)
     if (size <= 0)
         size = MAX_SIZE;
 
-    Bheap *bheap = (Bheap*) malloc(sizeof(Bheap)+sizeof(Node*)*size);
+    Bheap *bheap = (Bheap*) malloc(sizeof(Bheap)+sizeof(int)*size);
     if (!bheap)
         goto fail;
 
@@ -67,7 +63,7 @@ void bheap_show(Bheap *bheap)
     for (int i=0; i<depth; i++) {
         for (int j=0; j<(1<<i); j++) {
             if ((1<<i)+j-1 < bheap->len) {
-                printf("%d, ", bheap->arr[(1<<i)+j-1]->val);
+                printf("%d, ", bheap->arr[(1<<i)+j-1]);
             } else {
                 break;
             }
@@ -94,7 +90,7 @@ static void bheap_bottomup(Bheap *bheap)
         }
 
         // compare with parent and swap
-        if (bheap->arr[parent_idx]->val < bheap->arr[curr_idx]->val) {
+        if (bheap->arr[parent_idx] < bheap->arr[curr_idx]) {
             SWAP(bheap->arr[parent_idx], bheap->arr[curr_idx]);
         }
 
@@ -103,17 +99,17 @@ static void bheap_bottomup(Bheap *bheap)
 }
 
 // create a double-sized bheap and copy data to it
-Bheap* bheap_extend(Bheap *bheap)
+static Bheap* bheap_extend(Bheap *bheap)
 {
     Bheap *new;
     int old_size = bheap->arr_size;
     int new_size = old_size*2;
 
-    new = (Bheap*) malloc(sizeof(Bheap)+sizeof(Node*)*new_size);
+    new = (Bheap*) malloc(sizeof(Bheap)+sizeof(int)*new_size);
     if (!new)
         return bheap;
 
-    memcpy(new, bheap, sizeof(Bheap)+sizeof(Node*)*old_size);
+    memcpy(new, bheap, sizeof(Bheap)+sizeof(int)*old_size);
     new->arr_size = new_size;
     free(bheap);
     return new;
@@ -123,12 +119,12 @@ Bheap* bheap_extend(Bheap *bheap)
  * API
  * Append the new value and bubble it up
  */
-int bheap_add(Bheap **_bheap, Node *node)
+int bheap_add(Bheap **_bheap, int val)
 {
     Bheap *new;
     Bheap *bheap = *_bheap;
 
-    if (bheap->len == bheap->arr_size) {
+    if (bheap->len == bheap->arr_size) {    // full, extend bheap size
         new = bheap_extend(bheap);
         if (new == bheap) {
             printf("bheap is full and fails to extend\n");
@@ -139,16 +135,16 @@ int bheap_add(Bheap **_bheap, Node *node)
         }
     }
 
-    bheap->arr[bheap->len++] = node;
+    bheap->arr[bheap->len++] = val;
     bheap_bottomup(bheap);
 
-    printf("bheap add node %d, len become %d\n", node->val, bheap->len);
+    printf("bheap add val %d, len become %d\n", val, bheap->len);
 
     return 0;
 }
 
 /**
- * Compare parent with children and exchange if one of the children is larger
+ * Compare parent with children and swap if one of the children is larger
  */
 static void bheap_topdown(Bheap *bheap)
 {
@@ -160,14 +156,14 @@ static void bheap_topdown(Bheap *bheap)
     rchild_idx = (curr_idx << 1) + 2;
 
     while (lchild_idx < bheap->len || rchild_idx < bheap->len) {
-        if (rchild_idx < bheap->len && bheap->arr[rchild_idx]->val > bheap->arr[lchild_idx]->val) {
+        if (rchild_idx < bheap->len && bheap->arr[rchild_idx] > bheap->arr[lchild_idx]) {
             // rchild is max
             SWAP(bheap->arr[curr_idx], bheap->arr[rchild_idx]);
             curr_idx = rchild_idx;
             lchild_idx = (curr_idx << 1) + 1;
             rchild_idx = (curr_idx << 1) + 2;
 
-        } else if (bheap->arr[lchild_idx]->val > bheap->arr[curr_idx]->val) {
+        } else if (bheap->arr[lchild_idx] > bheap->arr[curr_idx]) {
             // lchild is max
             SWAP(bheap->arr[curr_idx], bheap->arr[lchild_idx]);
             curr_idx = lchild_idx;
@@ -185,11 +181,11 @@ static void bheap_topdown(Bheap *bheap)
  * API
  * Return the top and move the tail to the top and do bheap topdown
  */
-Node* bheap_pop(Bheap *bheap)
+int bheap_pop(Bheap *bheap)
 {
-    if (!bheap || !bheap->len) return NULL;
+    if (!bheap || !bheap->len) return 0;
 
-    Node *ret = bheap->arr[0];
+    int ret = bheap->arr[0];
     bheap->arr[0] = bheap->arr[bheap->len-1];
     bheap->len --;
 
@@ -215,33 +211,32 @@ int main(int argc, char *argv[])
     int *arr_pre = (int*) malloc(sizeof(int)*len);
     int *arr_post = (int*) malloc(sizeof(int)*len);
 
+    // generate arr_pre as the input data
+    for (int i=0; i<len; i++) {
+        arr_pre[i] = (rand() % 100 + 1);
+    }
+    arr_show(arr_pre, len);
+
+    /* create bheap */
     Bheap *bheap = bheap_create(len/2);
     if (!bheap) {
         printf("fail to allocate bheap\n");
         return -1;
     }
 
-    // generate arr_pre
-    for (int i=0; i<len; i++) {
-        arr_pre[i] = (rand() % 100 + 1);
-    }
-    arr_show(arr_pre, len);
-
     /* store data to bheap */
-    Node *node;
+    int val;
     for (int i=0; i<len; i++) {
-        node = (Node*) malloc(sizeof(Node));
-        node->val = arr_pre[i];
-        bheap_add(&bheap, node);
+        val = arr_pre[i];
+        bheap_add(&bheap, val);
     }
     bheap_show(bheap);
 
     /* pop the bheap and store to arr_post */
     for (int i=0; bheap->len; i++) {
         printf("=================\n");
-        node = bheap_pop(bheap);
-        arr_post[i] = node->val;
-        free(node);
+        val = bheap_pop(bheap);
+        arr_post[i] = val;
         printf("pop: %d\n", arr_post[i]);
         bheap_show(bheap);
     }
