@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
-#include "arr.h"
+#include "../utils/arr.h"
 
 
+// sort into increasing order
 static void
 quick_sort(int *arr, int start, int end)
 {
@@ -35,6 +37,7 @@ quick_sort(int *arr, int start, int end)
     quick_sort(arr, start, left-1);
 }
 
+// sort into decreasing order
 static void
 quick_sort_reverse(int *arr, int start, int end)
 {
@@ -68,33 +71,33 @@ quick_sort_reverse(int *arr, int start, int end)
 }
 
 void
-show_quick_sort(int *_arr, int len)
+show_quick_sort(int *arr_in, int len)
 {
-    int *arr = (int*) malloc(sizeof(int)*len);
-    memcpy(arr, _arr, sizeof(int)*len);
+    int *arr_out = (int*) malloc(sizeof(int)*len);
+    memcpy(arr_out, arr_in, sizeof(int)*len);
 
     clock_t start_t, end_t;
     double total_t;
     printf("quick_sort: =============================\n");
 
     start_t = clock();
-    quick_sort(arr, 0, len-1);
+    quick_sort(arr_out, 0, len-1);
     end_t = clock();
 
-    show_arr(arr, len);
+    arr_show(arr_out, len);
     total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
     printf("total: %f sec\n", total_t);
 
 
-    arr = (int*) malloc(sizeof(int)*len);
-    memcpy(arr, _arr, sizeof(int)*len);
+    // test reverse
+    memcpy(arr_out, arr_in, sizeof(int)*len);
     printf("quick_sort_reverse: =====================\n");
 
     start_t = clock();
-    quick_sort_reverse(arr, 0, len-1);
+    quick_sort_reverse(arr_out, 0, len-1);
     end_t = clock();
 
-    show_arr(arr, len);
+    arr_show(arr_out, len);
     total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
     printf("total: %f sec\n", total_t);
 }
