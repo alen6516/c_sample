@@ -56,8 +56,8 @@ clock_t __start, __end;
 #define CLOCK_DIFF_SEC() ((float)(__end - __start)/CLOCKS_PER_SEC)
 
 /* print byte in binary */
-#define BYTE_TO_BINARY_PATTERN "0b%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
+#define B2b_PATTERN "0b%c%c%c%c%c%c%c%c"
+#define B2b(byte)  \
   ((byte) & 0x80 ? '1' : '0'), \
   ((byte) & 0x40 ? '1' : '0'), \
   ((byte) & 0x20 ? '1' : '0'), \
@@ -66,10 +66,13 @@ clock_t __start, __end;
   ((byte) & 0x04 ? '1' : '0'), \
   ((byte) & 0x02 ? '1' : '0'), \
   ((byte) & 0x01 ? '1' : '0')
-// printf("Leading text " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(byte));
 
-/* for 2-byte types */
-//printf("m: "BYTE_TO_BINARY_PATTERN" "BYTE_TO_BINARY_PATTERN"\n",
-//  BYTE_TO_BINARY(m>>8), BYTE_TO_BINARY(m));
+/**
+ * example:
+ * printf("Leading ext " B2b_pattern, B2b(byte));
+ *
+ * for 2-byte types:
+ * printf("m: "B2b_pattern" "B2b_pattern"\n", B2b(m>>8), B2b(m));
+ */
 
 #endif

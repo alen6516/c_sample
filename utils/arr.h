@@ -31,12 +31,34 @@ arr_create(int *size)
     }
 
     arr = (int*) malloc(sizeof(int) * (*size));
-    if (!arr) return NULL;
+    if (!arr) {
+        printf("Fail to allocate array\n");
+        goto out;
+    }
 
     for (int i=0; i<(*size); i++) {
         arr[i] = (rand() % MAX_RAND_NUM);
     }
 
+out:
+    return arr;
+}
+
+static inline int*
+arr_create_random(int *size)
+{
+    srand(time(NULL));
+    *size = (rand() % ARR_MAX_SIZE) +1;
+    int *arr = (int*) malloc(sizeof(int)*(*size));
+    if (!arr) {
+        printf("Fail to allocate array\n");
+        goto out;
+    }
+
+    for (int i = 0; i < (*size); i++)
+        arr[i] = (rand() % MAX_RAND_NUM) + 1;
+
+out:
     return arr;
 }
 
@@ -46,20 +68,23 @@ arr_create_max(int *size, int max_size, int max_value)
     if (!size) return NULL;
 
     srand(time(NULL));
-    int *arr = NULL;
 
     if (*size == 0) {
         // use a random size for the array
         *size = (rand() % max_size) +1;
     }
 
-    arr = (int*) malloc(sizeof(int) * (*size));
-    if (!arr) return NULL;
+    int *arr = (int*) malloc(sizeof(int) * (*size));
+    if (!arr) {
+        printf("Fail to allocate array\n");
+        goto out;
+    }
 
     for (int i=0; i<(*size); i++) {
         arr[i] = (rand() % max_value);
     }
 
+out:
     return arr;
 }
 
@@ -76,10 +101,11 @@ arr_show(int *arr, int size)
     for (int i=0; i<size; i++) {
         if (i == 0)
             printf("[%d", arr[i]);
-        else
+        else if (i < size-1)
             printf(", %d", arr[i]);
+        else
+            printf("%d]\n", arr[i]);
     }
-    printf("]\n");
     printf("array size = %d\n", size);
 }
 
