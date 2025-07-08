@@ -47,6 +47,8 @@ out:
 static inline int*
 arr_create_random(int *size)
 {
+    if (!size) return NULL;
+
     srand(time(NULL));
     *size = (rand() % ARR_MAX_SIZE) +1;
     int *arr = (int*) malloc(sizeof(int)*(*size));
@@ -56,7 +58,7 @@ arr_create_random(int *size)
     }
 
     for (int i = 0; i < (*size); i++)
-        arr[i] = (rand() % MAX_RAND_NUM) + 1;
+        arr[i] = (rand() % MAX_RAND_NUM);
 
 out:
     return arr;
@@ -104,7 +106,7 @@ arr_show(int *arr, int size)
         else if (i < size-1)
             printf(", %d", arr[i]);
         else
-            printf("%d]\n", arr[i]);
+            printf(", %d]\n", arr[i]);
     }
     printf("array size = %d\n", size);
 }

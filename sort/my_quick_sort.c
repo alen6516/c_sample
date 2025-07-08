@@ -1,84 +1,66 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include "arr.h"
+#include <string.h>
+#include "../utils/arr.h"
 
-static int
-partition (int arr[], int left, int right)
+/**
+ * pick a pivot
+ * find val larger and smaller than pivot
+ * swap the larger and smaller one to put them the same side
+ * go to right and left half, do the same process
+ */
+
+// sort into increasing order
+void my_quick_sort(int *arr, int start, int end)
 {
+    if (start >= end || start < 0 || end < 0)
+        return;
 
-    //printf("in this partition, left = %d, right = %d\n", left, right);
+    int left, right;    // moving idx
+    left = start;
+    right = end;
 
-    int mid_idx = right;
-    right--;
-    int swap_with_mid_before_return = -1;
+    int p_idx = start;
 
+    while (left != right) {
+        // find smaller in right
+        while (arr[p_idx] <= arr[right] && left < right) {
+            right--;
+            DEBUG("right is %d now\n", arr[right]);
+        }
 
-    for (;left <= right; left++) {
-        if (arr[left] > arr[mid_idx]) {     // if this one is larger then mid
+        // find larger in left
+        while (arr[left] <= arr[p_idx] && left < right) {
+            left++;
+            DEBUG("left is %d now\n", arr[left]);
+        }
 
-            swap_with_mid_before_return = left;
-
-            // find a small one from right
-            for (; right > left ; right--) {
-                if (arr[right] < arr[mid_idx]) {
-
-                    // if find, then swap them
-                    SWAP(arr[left], arr[right]);
-                    //show();
-                    swap_with_mid_before_return = right;
-                    break;
-                }
-            }
-        } 
-    }
-
-    if (swap_with_mid_before_return != -1) {
-        SWAP(arr[swap_with_mid_before_return], arr[mid_idx]);
-        //printf("swap before return\n");
-        //show();
-        return swap_with_mid_before_return;
-    } else {
-        return right;
-    }
-}
-
-static void
-quick_sort(int arr[], int left, int right)
-{
-
-    if (right == left+1) {
-        if (arr[left] > arr[right]) {
+        if (left < right) {
             SWAP(arr[left], arr[right]);
         }
-        return;
     }
 
-    int q;
+    if (arr[p_idx] != arr[left])
+        SWAP(arr[p_idx], arr[left]);
 
-    q = partition(arr, left, right);
-    
-    if (q != left)
-        quick_sort(arr, left, q);
-    if (q != right)
-        quick_sort(arr, q, right);
+    quick_sort(arr, start, right-1);
+    quick_sort(arr, left+1, end);
 }
 
 void
-show_my_quick_sort(int *_arr, int len)
+show_quick_sort(int *arr_in, int len)
 {
-    int *arr = (int*) malloc(sizeof(int)*len);
-    memcpy(arr, _arr, sizeof(int)*len);
+    int *arr_out = (int*) malloc(sizeof(int)*len);
+    memcpy(arr_out, arr_in, sizeof(int)*len);
 
     clock_t start_t, end_t;
     double total_t;
-    printf("my_quick_sort: ============================\n");
+    printf("quick_sort: =============================\n");
 
     start_t = clock();
-    quick_sort(arr, 0, len-1);
+    my_quick_sort(arr_out, 0, len-1);
     end_t = clock();
 
-    show_arr(arr, len);
+    arr_show(arr_out, len);
     total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
     printf("total: %f sec\n", total_t);
 }
