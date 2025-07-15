@@ -1,63 +1,28 @@
 #include <stdio.h>
+#include <string.h>
 
-struct __bheap {
-    int size;
-    int len;
-    int arr[0];
-} __attribute__((packed));
-typedef struct __bheap Bheap;
+void heapify();
+void bheap_sort(int *arr, int len);
+void show_bheap_sort(int *_arr, int len);
 
-
-Bheap *bheap_create(int);
-static Bheap* bheap_expand(Bheap*);
-static void bheap_topdown();
-static void bheap_bottomup();
-void bheap_sort
-void bheap_push();
-void bheap_pop();
-
-#define SIZE 10
-
-Bheap *bheap_create(int size)
+void bheap_sort(int *arr, int len)
 {
-    Bheap *ret;
-    if (size == 0) size = SIZE;
-    ret = (Bheap *)malloc(sizeof(Bheap)+size*sizeof(int));
-    ret->size = size;
-    ret->len = 0;
-    return ret;
+    // 1. build max heap
+    // 2. swap root with last idx, and heapify with len-1 again
 }
 
-void bheap_push(Bheap *bheap, int val)
+void show_bheap_sort(int *_arr, int len)
 {
-    if (bheap->size == bheap->len) {
-        // full
-        bheap = bheap_expand(Bheap *bheap);
-    }
+    int *arr = (int *)malloc(sizeof(int)*len);
+    memcpy(arr, _arr, sizeof(int)*len);
+    double total_t;
+    printf("bheap_sort: =============================\n");
 
-    bheap->arr[bheap->len-1] = val;
-    bheap->len ++;
-    bheap_bottomup(bheap);
-}
+    start_t = clock();
+    bheap_sort(arr, len);
+    end_t = clock();
 
-int bheap_pop(Bheap *bheap)
-{
-    if (bheap->len == 0) return -1;
-
-    int ret = bheap->arr[0];
-    bheap->arr[0] = bheap->arr[bheap->len-1];
-    bheap->len --;
-    bheap_topdown(bheap);
-    return ret;
-}
-
-static Bheap *bheap_expand(Bheap *bheap)
-{
-    int size = bheap->size * 2;
-    Bheap *ret = (Bheap *)malloc(sizeof(Bheap)+size*sizeof(int));
-    ret->size = size;
-    ret->len = bheap->len;
-    memcpy(ret->arr, bheap->arr, sizeof(int)*bheap->len);
-    free(bheap);
-    return ret;
+    arr_show(arr, len);
+    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
+    printf("total: %f sec\n", total_t);
 }
