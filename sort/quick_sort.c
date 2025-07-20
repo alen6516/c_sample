@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include "../utils/arr.h"
 
 
@@ -76,28 +75,26 @@ show_quick_sort(int *arr_in, int len)
     int *arr_out = (int*) malloc(sizeof(int)*len);
     memcpy(arr_out, arr_in, sizeof(int)*len);
 
-    clock_t start_t, end_t;
-    double total_t;
     printf("quick_sort: =============================\n");
 
-    start_t = clock();
+    CLOCK_START();
     quick_sort(arr_out, 0, len-1);
-    end_t = clock();
+    CLOCK_END();
 
     arr_show(arr_out, len);
-    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
-    printf("total: %f sec\n", total_t);
+    printf("total: %f sec\n", CLOCK_DIFF_SEC());
 
 
     // test reverse
     memcpy(arr_out, arr_in, sizeof(int)*len);
     printf("quick_sort_reverse: =====================\n");
 
-    start_t = clock();
+    CLOCK_START();
     quick_sort_reverse(arr_out, 0, len-1);
-    end_t = clock();
+    CLOCK_END();
 
     arr_show(arr_out, len);
-    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
-    printf("total: %f sec\n", total_t);
+    printf("total: %f sec\n", CLOCK_DIFF_SEC());
+
+    free(arr_out);
 }

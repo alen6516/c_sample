@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <string.h>
 #include "../utils/arr.h"
 
 void bubble_sort(int *arr, int len)
@@ -15,20 +15,19 @@ void bubble_sort(int *arr, int len)
 }
 
 void
-show_bubble_sort(int *_arr, int len)
+show_bubble_sort(int *arr_in, int len)
 {
-    int *arr = (int*) malloc(sizeof(int)*len);
-    memcpy(arr, _arr, sizeof(int)*len);
+    int *arr_out = (int*) malloc(sizeof(int)*len);
+    memcpy(arr_out, arr_in, sizeof(int)*len);
 
-    clock_t start_t, end_t;
-    double total_t;
     printf("bubble_sort: =============================\n");
 
-    start_t = clock();
-    bubble_sort(arr, len);
-    end_t = clock();
+    CLOCK_START();
+    bubble_sort(arr_out, len);
+    CLOCK_END();
 
-    arr_show(arr, len);
-    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
-    printf("total: %f sec\n", total_t);
+    arr_show(arr_out, len);
+    printf("total: %f sec\n", CLOCK_DIFF_SEC());
+
+    free(arr_out);
 }

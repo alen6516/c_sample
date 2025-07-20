@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "../utils/arr.h"
 
@@ -42,25 +43,24 @@ void my_quick_sort(int *arr, int start, int end)
     if (arr[p_idx] != arr[left])
         SWAP(arr[p_idx], arr[left]);
 
-    quick_sort(arr, start, right-1);
-    quick_sort(arr, left+1, end);
+    my_quick_sort(arr, start, right-1);
+    my_quick_sort(arr, left+1, end);
 }
 
 void
-show_quick_sort(int *arr_in, int len)
+show_my_quick_sort(int *arr_in, int len)
 {
     int *arr_out = (int*) malloc(sizeof(int)*len);
     memcpy(arr_out, arr_in, sizeof(int)*len);
 
-    clock_t start_t, end_t;
-    double total_t;
-    printf("quick_sort: =============================\n");
+    printf("my quick_sort: =============================\n");
 
-    start_t = clock();
+    CLOCK_START();
     my_quick_sort(arr_out, 0, len-1);
-    end_t = clock();
+    CLOCK_END();
 
     arr_show(arr_out, len);
-    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
-    printf("total: %f sec\n", total_t);
+    printf("total: %f sec\n", CLOCK_DIFF_SEC());
+
+    free(arr_out);
 }

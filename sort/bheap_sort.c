@@ -1,54 +1,60 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include "../utils/utils.h"
+#include "../utils/arr.h"
 
-void heapify();
-void bheap_sort(int *arr, int len);
-void show_bheap_sort(int *_arr, int len);
 
-void heapify(int *arr, int len, int i)
-{
-    // compare i with its left & right child and swap
-    int right = (i+1)*2;
-    int left = (i+1)*2-1;
-    int largest = i;
+// Heapify function to maintain max-heap property
+static void heapify(int *arr, int len, int i) {
+    int largest = i;           // Initialize largest as root
+    int left = 2 * i + 1;      // Left child
+    int right = 2 * i + 2;     // Right child
 
-    if (right < len && arr[largest] < arr[right])
-        largest = right;
-
-    if (left < len && arr[largest] < arr[left])
+    // If left child is larger than root
+    if (left < len && arr[left] > arr[largest])
         largest = left;
 
-    SWAP(arr[largest], arr[i]);
-}
+    // If right child is larger than current largest
+    if (right < len && arr[right] > arr[largest])
+        largest = right;
 
-void bheap_sort(int *arr, int len)
-{
-    int i = 0, j;
-    while (i<len-1) {
-        // j is the last idx having left or right child
-        for (j=(len-i)/2-1; j>=0; j--) {
-            heapify(arr, len-i, j);
-        }
+    // If largest is not root
+    if (largest != i) {
+        SWAP(arr[i], arr[largest]);
 
-        // swap root with current last idx, so the largest goes end
-        SWAP(arr[0], arr[len-i-1]);
-        i++;    // i means how many elements processed
+        // Recursively heapify the affected subtree
+        heapify(arr, len, largest);
     }
 }
 
-void show_bheap_sort(int *_arr, int len)
-{
-    int *arr = (int *)malloc(sizeof(int)*len);
-    memcpy(arr, _arr, sizeof(int)*len);
-    double total_t;
+// Main heap sort function
+static void bheap_sort(int *arr, int len) {
+    // Step 1: Build max heap (rearrange array)
+    for (int i = len / 2 - 1; i >= 0; i--)
+        heapify(arr, len, i);
+
+    // Step 2: Extract elements from heap one by one
+    for (int i = len - 1; i > 0; i--) {
+        // Move current root to end
+        SWAP(arr[0], arr[i]);
+
+        // Heapify reduced heap
+        heapify(arr, i, 0);
+    }
+}
+
+// Driver code
+void show_bheap_sort(int *arr_in, int len) {
+    int *arr_out = (int *)malloc(sizeof(int)*len);
+    memcpy(arr_out, arr_in, sizeof(int)*len);
     printf("bheap_sort: =============================\n");
 
-    start_t = clock();
-    bheap_sort(arr, len);
-    end_t = clock();
+    CLOCK_START();
+    bheap_sort(arr_out, len);
+    CLOCK_END();
 
-    arr_show(arr, len);
-    total_t = (double) (end_t-start_t)/CLOCKS_PER_SEC;
-    printf("total: %f sec\n", total_t);
+    arr_show(arr_out, len);
+    printf("total: %f sec\n", CLOCK_DIFF_SEC());
+
+    free(arr_out);
 }

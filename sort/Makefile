@@ -15,7 +15,7 @@ CC = gcc
 CFLAGS = -g -Wall -Wextra
 
 # Source files
-SRC = main.c bubble_sort.c insert_sort.c selection_sort.c quick_sort.c my_quick_sort.c #oop_quick_sort.c
+SRC = main.c my_bheap_sort.c bheap_sort.c bubble_sort.c insert_sort.c selection_sort.c quick_sort.c my_quick_sort.c #oop_quick_sort.c
 
 # Object files
 OBJ = $(SRC:.c=.o)
@@ -38,7 +38,8 @@ $(TARGET): $(OBJ)
 clean:
 	rm $(OBJ) $(TARGET)
 
-# $? :
-# $@ : the target
-# $* : current dependent object without extension filename
-# $< : current dependent object
+# $? : Prerequisites that are newer than the target (used for dependencies) (eg, foo.c if newer)
+# $@ : the target (eg, main.o)
+# $* : current dependent object without extension filename (eg, foo)
+# $< : current dependent object (eg, foo.c)
+# $^ : All dependents (space-separated), with duplicates removed (eg, main.c foo.c)
