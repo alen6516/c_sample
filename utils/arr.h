@@ -49,8 +49,10 @@ arr_create_random(int *size)
 {
     if (!size) return NULL;
 
-    srand(time(NULL));
-    *size = (rand() % ARR_MAX_SIZE) +1;
+    if (0 == *size) {
+        srand(time(NULL));
+        *size = (rand() % ARR_MAX_SIZE) +1;
+    }
     int *arr = (int*) malloc(sizeof(int)*(*size));
     if (!arr) {
         printf("Fail to allocate array\n");
@@ -100,14 +102,23 @@ arr_reverse(int *arr, int size)
 static inline void
 arr_show(int *arr, int size)
 {
+    if (!arr || !size) return;
+
+    if (size == 1) {
+        printf("[%d]\n", arr[0]);
+        goto done;
+    }
+
     for (int i=0; i<size; i++) {
-        if (i == 0)
+        if (i == 0) {
             printf("[%d", arr[i]);
-        else if (i < size-1)
+        } else if (i < size-1)
             printf(", %d", arr[i]);
         else
             printf(", %d]\n", arr[i]);
     }
+
+done:
     printf("array size = %d\n", size);
 }
 
