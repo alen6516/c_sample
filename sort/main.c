@@ -24,14 +24,14 @@ int main(int argc, char *argv[])
     arr = arr_create_random(&len);
     arr_show(arr, len);
 
-    //show_bubble_sort(arr, len);
-    //show_insert_sort(arr, len);
-    //show_quick_sort(arr, len);
-    //show_my_quick_sort(arr, len);
+    show_bubble_sort(arr, len);
+    show_insert_sort(arr, len);
+    show_quick_sort(arr, len);
+    show_my_quick_sort(arr, len);
     show_bheap_sort(arr, len);
     show_my_bheap_sort(arr, len);
-    //show_oop_quick_sort(arr, len);
-    //show_selection_sort(arr, len);
+    show_oop_quick_sort(arr, len);
+    show_selection_sort(arr, len);
 
     free(arr);
 }

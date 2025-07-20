@@ -22,6 +22,7 @@ void my_quick_sort(int *arr, int start, int end)
 
     int p_idx = start;
 
+    // sort into increasing order
     while (left != right) {
         // find smaller in right
         while (arr[p_idx] <= arr[right] && left < right) {
