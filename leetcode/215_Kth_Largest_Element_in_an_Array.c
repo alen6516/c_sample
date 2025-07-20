@@ -41,10 +41,38 @@ int findKthLargest(int* nums, int numsSize, int k) {
 }
 
 #else
-// bheap sort beforehand
+// quick sort beforehand
 
+static void
+quick_sort(int *arr, int start, int end)
+{
+    if (!arr || start == end) return;
 
+    int right, left, p_idx;
+    right = end;
+    left = start;
+    p_idx = left;
 
+    // sort into decreasing order
+    while (left != right) {
+        while (arr[left] >= arr[p_idx] && left < right)
+            left ++;
+
+        while (arr[right] < arr[p_idx] && left < right)
+            right --;
+
+        SWAP(arr[right], arr[left]);
+    }
+    SWAP(arr[p_idx], arr[left]);
+    quick_sort(arr, start, left-1);
+    quick_sort(arr, right+1, end);
+}
+
+int findKthLargest(int* nums, int numsSize, int k)
+{
+    quick_sort(nums, 0, numsSize-1);
+    return nums[k-1];
+}
 #endif
 
 int main()
